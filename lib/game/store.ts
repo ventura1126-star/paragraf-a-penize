@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import type { Outcome } from "@/content/game/types";
+import { CHARACTER_BY_ID, type Character } from "@/content/game/characters";
 import { addDays, todayIso } from "./dates";
 
 /** Intervaly opakování ve dnech pro přihrádky 0–2; přihrádka 3 = zvládnuto. */
@@ -24,6 +25,8 @@ export type GameState = {
   cases: Record<string, { done: boolean; correct: number; total: number }>;
   bossUnlocked: boolean;
   deadlinesSolved: number;
+  /** Zvolená postava (id z characters.ts). */
+  character: string | null;
 };
 
 const INITIAL: GameState = {
@@ -34,6 +37,7 @@ const INITIAL: GameState = {
   cases: {},
   bossUnlocked: false,
   deadlinesSolved: 0,
+  character: null,
 };
 
 export const LEVELS = [
@@ -154,6 +158,13 @@ export function recordReview(cardIds: string[], ok: boolean, source: "training" 
   return xp;
 }
 
+/** Výběr postavy. Při změně začne peněženka znovu od startovní částky postavy; karty a XP zůstávají. */
+export function chooseCharacter(id: string, startWallet: number) {
+  load();
+  if (state.character === id) return;
+  set({ ...state, character: id, wallet: startWallet });
+}
+
 export function unlockBoss() {
   load();
   set({ ...state, bossUnlocked: true });
@@ -167,4 +178,14 @@ export function dueCards(s: GameState, today = todayIso()): string[] {
   return Object.entries(s.cards)
     .filter(([, c]) => c.due !== null && c.due <= today)
     .map(([id]) => id);
+}
+
+export function characterOf(s: GameState): Character | null {
+  return s.character ? CHARACTER_BY_ID.get(s.character) ?? null : null;
+}
+
+const noop = () => () => {};
+/** false při serverovém renderu a hydrataci, poté true – aby se neukázal stav „bez postavy“ předčasně. */
+export function useHydrated(): boolean {
+  return useSyncExternalStore(noop, () => true, () => false);
 }

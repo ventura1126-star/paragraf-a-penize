@@ -57,7 +57,7 @@ export function RoundPlayer({
               </span>
             )}
           </div>
-          <p>{opt.verdict}</p>
+          <p>{opt.outcome === "correct" ? opt.verdict.replace(/^Správně\.\s*/, "") : opt.verdict}</p>
           {opt.outcome !== "correct" && correct && (
             <p className="muted">
               <strong>Správná odpověď:</strong> {correct.text} {correct.verdict.replace(/^Správně\.\s*/, "")}

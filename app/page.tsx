@@ -29,7 +29,7 @@ export default function Home() {
         <div>
           <div className="eyebrow">Novinka · hra</div>
           <h3>Město paragrafů: Dlužnická čtvrť</h3>
-          <p className="muted">Rozhodujte za Tomáše, sbírejte karty paragrafů a trénujte lhůty. O výsledku rozhoduje zákon.</p>
+          <p className="muted">Vyberte si jednu z pěti postav, rozhodujte za ni, sbírejte karty paragrafů a trénujte lhůty. O výsledku rozhoduje zákon.</p>
         </div>
         <span className="btn-primary">Hrát</span>
       </Link>

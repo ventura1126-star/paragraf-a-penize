@@ -1,4 +1,5 @@
 import type { Citation } from "@/lib/types";
+import { fill, type Character } from "@/content/game/characters";
 import { addDays, formatDay, nonWorkReason, shiftToWorkday } from "./dates";
 
 export type DeadlineKind = "vyzva" | "fikce" | "zastaveni";
@@ -46,7 +47,12 @@ function pickEventDate(days: number, extra = 0): string {
   return "2026-03-02";
 }
 
-export function generatePuzzle(kind?: DeadlineKind): DeadlinePuzzle {
+export function generatePuzzle(kind: DeadlineKind | undefined, ch: Character): DeadlinePuzzle {
+  const p = buildPuzzle(kind);
+  return { ...p, story: fill(p.story, ch), steps: p.steps.map((x) => fill(x, ch)) };
+}
+
+function buildPuzzle(kind?: DeadlineKind): DeadlinePuzzle {
   const k: DeadlineKind = kind ?? (["vyzva", "fikce", "zastaveni"] as const)[rand(3)];
 
   if (k === "vyzva") {
@@ -55,7 +61,7 @@ export function generatePuzzle(kind?: DeadlineKind): DeadlinePuzzle {
     return {
       kind: k,
       title: "Výzva ke splnění",
-      story: `Tomáš si vyrozumění o zahájení exekuce převzal osobně dne ${formatDay(ev)}. Ve výzvě je lhůta 30 dnů na zaplacení dluhu a zálohy se sníženými náklady.`,
+      story: `{N} si vyrozumění o zahájení exekuce převzal{a} osobně dne ${formatDay(ev)}. Ve výzvě je lhůta 30 dnů na zaplacení dluhu a zálohy se sníženými náklady.`,
       question: "Který den je posledním dnem lhůty?",
       eventDate: ev,
       answer: end,
@@ -80,7 +86,7 @@ export function generatePuzzle(kind?: DeadlineKind): DeadlinePuzzle {
     return {
       kind: k,
       title: "Nevyzvednutá obálka",
-      story: `Pošta Tomáše nezastihla a vyrozumění o zahájení exekuce uložila; k vyzvednutí bylo připraveno dne ${formatDay(ev)}. Tomáš si obálku nevyzvedl.`,
+      story: `Pošta {A} nezastihla a vyrozumění o zahájení exekuce uložila; k vyzvednutí bylo připraveno dne ${formatDay(ev)}. {N} si obálku nevyzvedl{a}.`,
       question: "Který den je posledním dnem 30denní lhůty z výzvy ke splnění?",
       eventDate: ev,
       answer: end,
@@ -104,12 +110,12 @@ export function generatePuzzle(kind?: DeadlineKind): DeadlinePuzzle {
   return {
     kind: k,
     title: "Návrh na zastavení",
-    story: `Dne ${formatDay(ev)} Tomáš našel potvrzení, že vymáhaný dluh už dřív zaplatil. Chce podat návrh na zastavení exekuce.`,
+    story: `Dne ${formatDay(ev)} {N} našel{a} potvrzení, že vymáhaný dluh už dřív zaplatil{a}. Chce podat návrh na zastavení exekuce.`,
     question: "Do kdy nejpozději musí návrh podat?",
     eventDate: ev,
     answer: end,
     steps: [
-      `Lhůta 15 dnů běží ode dne, kdy se Tomáš o důvodu dozvěděl; počíná ${formatDay(start)}.`,
+      `Lhůta 15 dnů běží ode dne, kdy se {N} o důvodu dozvěděl{a}; počíná ${formatDay(start)}.`,
       `15. den lhůty: ${formatDay(raw)}.`,
       ...shiftSteps(raw, end, skipped),
     ],

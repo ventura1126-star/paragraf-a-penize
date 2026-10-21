@@ -26,7 +26,6 @@ export default async function CasePage({ params }: Props) {
       </nav>
       <div className="eyebrow">{c.boss ? "Boss čtvrti" : "Případ"}</div>
       <h1>{c.title}</h1>
-      <div className="case-story card">{c.story}</div>
       <CasePlayer gameCase={c} />
       <HelpBanner />
     </div>

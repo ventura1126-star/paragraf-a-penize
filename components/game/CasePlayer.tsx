@@ -4,19 +4,28 @@ import Link from "next/link";
 import { useState } from "react";
 import type { GameCase, Outcome } from "@/content/game/types";
 import { CARD_BY_ID } from "@/content/game/cards";
-import { recordCase, recordRound } from "@/lib/game/store";
+import { characterOf, recordCase, recordRound, useGame, useHydrated } from "@/lib/game/store";
+import { personalizeCase } from "@/lib/game/personalize";
+import { NeedCharacter } from "./NeedCharacter";
 import { formatCzk } from "@/lib/format";
 import { RoundPlayer } from "./RoundPlayer";
 import { CardFace } from "./ParagraphCard";
 
 type Result = { outcome: Outcome; xp: number; wallet: number; card: string };
 
-export function CasePlayer({ gameCase }: { gameCase: GameCase }) {
+export function CasePlayer({ gameCase: raw }: { gameCase: GameCase }) {
+  const g = useGame();
+  const hydrated = useHydrated();
+  const ch = characterOf(g);
   const [idx, setIdx] = useState(0);
   const [results, setResults] = useState<Result[]>([]);
   const [run, setRun] = useState(0);
-  const total = gameCase.rounds.length;
+  const total = raw.rounds.length;
   const finished = results.length === total;
+
+  if (!hydrated) return <p className="muted">Načítám…</p>;
+  if (!ch) return <NeedCharacter />;
+  const gameCase = personalizeCase(raw, ch);
 
   if (finished) {
     const correct = results.filter((r) => r.outcome === "correct").length;
@@ -57,6 +66,7 @@ export function CasePlayer({ gameCase }: { gameCase: GameCase }) {
   const round = gameCase.rounds[idx];
   return (
     <>
+      {idx === 0 && results.length === 0 && <div className="case-story card">{gameCase.story}</div>}
       <div className="case-progress">
         {gameCase.rounds.map((_, i) => (
           <span key={i} className={i < results.length ? `dot dot-${results[i].outcome}` : i === idx ? "dot dot-now" : "dot"} />

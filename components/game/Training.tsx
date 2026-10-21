@@ -5,15 +5,18 @@ import { useEffect, useState } from "react";
 import { CARD_BY_ID } from "@/content/game/cards";
 import { roundForCard } from "@/content/game/cases";
 import { generatePuzzle, type DeadlinePuzzle } from "@/lib/game/deadlines";
-import { dueCards, readGame, recordReview } from "@/lib/game/store";
+import { characterOf, dueCards, readGame, recordReview } from "@/lib/game/store";
+import type { Character } from "@/content/game/characters";
+import { personalizeCase } from "@/lib/game/personalize";
+import { NeedCharacter } from "./NeedCharacter";
 import { RoundPlayer } from "./RoundPlayer";
 import { DeadlineQuestion } from "./DeadlineQuestion";
 
 type Item = { cardId: string; puzzle?: DeadlinePuzzle };
 
-function toItem(cardId: string): Item {
+function toItem(cardId: string, ch: Character): Item {
   if (roundForCard(cardId)) return { cardId };
-  return { cardId, puzzle: generatePuzzle(cardId === "osr-49-4" ? "fikce" : undefined) };
+  return { cardId, puzzle: generatePuzzle(cardId === "osr-49-4" ? "fikce" : undefined, ch) };
 }
 
 function shuffle<T>(a: T[]): T[] {
@@ -30,16 +33,21 @@ export function Training() {
   const [idx, setIdx] = useState(0);
   const [score, setScore] = useState(0);
   const [mode, setMode] = useState<"due" | "all">("due");
+  const [ch, setCh] = useState<Character | null | undefined>(undefined);
 
   useEffect(() => {
     const s = readGame();
+    const c = characterOf(s);
+    setCh(c);
+    if (!c) return;
     const ids = mode === "due" ? dueCards(s) : shuffle(Object.keys(s.cards)).slice(0, 8);
-    setQueue(ids.filter((id) => CARD_BY_ID.has(id)).map(toItem));
+    setQueue(ids.filter((id) => CARD_BY_ID.has(id)).map((id) => toItem(id, c)));
     setIdx(0);
     setScore(0);
   }, [mode]);
 
-  if (!queue) return <p className="muted">Načítám…</p>;
+  if (ch === null) return <NeedCharacter />;
+  if (!queue || !ch) return <p className="muted">Načítám…</p>;
 
   if (queue.length === 0) {
     const anyCards = Object.keys(readGame().cards).length > 0;
@@ -82,7 +90,8 @@ export function Training() {
     setIdx(idx + 1);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
-  const found = roundForCard(item.cardId);
+  const raw = roundForCard(item.cardId);
+  const found = raw && { gameCase: personalizeCase(raw.gameCase, ch), roundIndex: raw.roundIndex };
 
   return (
     <>

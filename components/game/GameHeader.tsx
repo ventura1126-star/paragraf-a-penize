@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { dueCards, levelOf, useGame } from "@/lib/game/store";
+import { characterOf, dueCards, levelOf, useGame } from "@/lib/game/store";
+import { Avatar } from "./Avatar";
 import { formatCzk } from "@/lib/format";
 
 export function GameHeader() {
@@ -11,6 +12,7 @@ export function GameHeader() {
   const lvl = levelOf(g.xp);
   const pct = lvl.to ? ((g.xp - lvl.from) / (lvl.to - lvl.from)) * 100 : 100;
   const due = dueCards(g).length;
+  const ch = characterOf(g);
 
   const tabs = [
     { href: "/hra", label: "Mapa" },
@@ -22,6 +24,17 @@ export function GameHeader() {
   return (
     <div className="game-header card">
       <div className="game-stats">
+        {ch ? (
+          <Link href="/hra/postava" className="game-char" title="Změnit postavu">
+            <Avatar ch={ch} size={44} />
+            <span>
+              <strong>{ch.forms.n}</strong>
+              <span className="muted small">{ch.role} · změnit</span>
+            </span>
+          </Link>
+        ) : (
+          <Link href="/hra/postava" className="btn-primary">Vybrat postavu</Link>
+        )}
         <div className="game-level">
           <div className="game-level-name">
             {lvl.name} <span className="muted">· úroveň {lvl.index + 1}</span>
@@ -33,14 +46,14 @@ export function GameHeader() {
             {g.xp} XP{lvl.to ? ` / ${lvl.to} XP do další úrovně` : " · nejvyšší úroveň"}
           </div>
         </div>
-        <div className="wallet" title="Ilustrativní peněženka postavy Tomáše – nejde o vaše peníze.">
-          <div className="muted small">Peněženka postavy</div>
+        <div className="wallet" title="Ilustrativní peněženka postavy – nejde o vaše peníze.">
+          <div className="muted small">{ch ? `Peněženka: ${ch.forms.n}` : "Peněženka postavy"}</div>
           <div className={`wallet-sum ${g.wallet < 0 ? "neg" : ""}`}>{formatCzk(g.wallet)}</div>
         </div>
       </div>
       <nav className="game-tabs" aria-label="Herní navigace">
         {tabs.map((t) => {
-          const active = t.href === "/hra" ? path === "/hra" || path.startsWith("/hra/ctvrt") || path.startsWith("/hra/pripad") : path.startsWith(t.href);
+          const active = t.href === "/hra" ? path === "/hra" || path.startsWith("/hra/ctvrt") || path.startsWith("/hra/pripad") || path.startsWith("/hra/postava") : path.startsWith(t.href);
           return (
             <Link key={t.href} href={t.href} className={active ? "active" : undefined} aria-current={active ? "page" : undefined}>
               {t.label}

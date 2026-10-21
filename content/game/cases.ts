@@ -10,25 +10,25 @@ export const DISTRICTS: District[] = [
   { id: "pristav", name: "Investiční přístav", topic: "investice-a-sporeni", blurb: "Vklady, DIP a časový test.", playable: false },
 ];
 
-/** Případy Dlužnické čtvrti. Peněžní dopady jsou ilustrativní (peněženka postavy Tomáše). */
+/** Případy Dlužnické čtvrti. Texty obsahují zástupné značky postavy ({N}, {G}, {D}, {A}, {a}, …) – viz characters.ts. Peněžní dopady jsou ilustrativní. */
 export const CASES: GameCase[] = [
   {
     id: "dopis-po-peti-letech",
     title: "Dopis po pěti letech",
     teaser: "Agentura vymáhá starý dluh za mobil.",
     story:
-      "Tomáš před pěti lety nezaplatil 12 000 Kč za mobilní tarif. Operátor nikdy nežaloval. Teď přišel dopis od vymáhací agentury s „výhodným splátkovým kalendářem“ a obálkou na podpis.",
+      "{N} před pěti lety nezaplatil{a} 12 000 Kč za mobilní tarif. Operátor nikdy nežaloval. Teď přišel dopis od vymáhací agentury s „výhodným splátkovým kalendářem“ a obálkou na podpis.",
     lesson: { topic: DEBT_TOPIC, lesson: "promlceni" },
     rounds: [
       {
-        prompt: "Co má Tomáš udělat?",
+        prompt: "Co má {N} udělat?",
         card: "oz-610-1",
         options: [
           {
             text: "Zaplatit celých 12 000 Kč, ať je klid.",
             outcome: "wrong",
             verdict:
-              "Promlčený dluh nezaniká, jen ho věřitel u soudu nevymůže. Když ho Tomáš zaplatí, peníze už zpátky chtít nemůže.",
+              "Promlčený dluh nezaniká, jen ho věřitel u soudu nevymůže. Když ho {N} zaplatí, peníze už zpátky chtít nemůže.",
             wallet: -12000,
             cites: [{ law: "oz", par: "609" }],
           },
@@ -36,7 +36,7 @@ export const CASES: GameCase[] = [
             text: "Podepsat splátkový kalendář.",
             outcome: "wrong",
             verdict:
-              "Splátkový kalendář obvykle obsahuje písemné uznání dluhu. Tím by Tomáš spustil novou promlčecí lhůtu deset let a dluh by znovu šel vymáhat.",
+              "Splátkový kalendář obvykle obsahuje písemné uznání dluhu. Tím by {N} spustil{a} novou promlčecí lhůtu deset let a dluh by znovu šel vymáhat.",
             wallet: -12000,
             cites: [{ law: "oz", par: "2053" }, { law: "oz", par: "639" }],
           },
@@ -44,7 +44,7 @@ export const CASES: GameCase[] = [
             text: "Nic nepodepisovat; kdyby přišla žaloba, vznést námitku promlčení.",
             outcome: "correct",
             verdict:
-              "Bez žaloby uplynula tříletá promlčecí lhůta. Soud k promlčení přihlédne, jen když ho dlužník namítne – a to je přesně Tomášova obrana.",
+              "Bez žaloby uplynula tříletá promlčecí lhůta. Soud k promlčení přihlédne, jen když ho dlužník namítne – a to je přesně ta správná obrana.",
             wallet: 0,
             cites: [{ law: "oz", par: "629", odst: 1 }, { law: "oz", par: "610", odst: 1 }],
           },
@@ -60,7 +60,7 @@ export const CASES: GameCase[] = [
       },
       {
         prompt:
-          "Agentura volá: „Stačí podepsat jen potvrzení, že o dluhu víte. Ke splácení vás to nezavazuje.“ Má to Tomáš podepsat?",
+          "Agentura volá: „Stačí podepsat jen potvrzení, že o dluhu víte. Ke splácení vás to nezavazuje.“ Má to {N} podepsat?",
         card: "oz-639",
         options: [
           {
@@ -75,7 +75,7 @@ export const CASES: GameCase[] = [
             text: "Ne. Nepodepisovat nic, co uvádí důvod a výši dluhu.",
             outcome: "correct",
             verdict:
-              "Správně. Uznáním dluhu by si Tomáš sám prodloužil možnost vymáhání o deset let.",
+              "Správně. Uznáním dluhu by si {N} {sam} prodloužil{a} možnost vymáhání o deset let.",
             wallet: 0,
             cites: [{ law: "oz", par: "639" }],
           },
@@ -96,11 +96,11 @@ export const CASES: GameCase[] = [
     title: "Platební rozkaz z roku 2019",
     teaser: "Starý rozsudek a nová exekuce.",
     story:
-      "V roce 2019 soud vydal proti Tomášovi platební rozkaz na 20 000 Kč. Tomáš ho nezaplatil a nabyl právní moci. Teď, v roce 2026, věřitel zahajuje exekuci.",
+      "V roce 2019 soud vydal proti {D} platební rozkaz na 20 000 Kč. {N} ho nezaplatil{a} a rozkaz nabyl právní moci. Teď, v roce 2026, věřitel zahajuje exekuci.",
     lesson: { topic: DEBT_TOPIC, lesson: "promlceni" },
     rounds: [
       {
-        prompt: "Může Tomáš namítnout promlčení?",
+        prompt: "Může {N} namítnout promlčení?",
         card: "oz-640",
         options: [
           {
@@ -115,7 +115,7 @@ export const CASES: GameCase[] = [
             text: "Ne, právo z rozhodnutí se promlčuje za deset let. Je potřeba dluh řešit.",
             outcome: "correct",
             verdict:
-              "Správně. Exekuce je zahájena včas. Tomáš by měl využít 30denní lhůtu z výzvy ke splnění, případně řešit splátky nebo oddlužení.",
+              "Správně. Exekuce je zahájena včas. {N} by měl{a} využít 30denní lhůtu z výzvy ke splnění, případně řešit splátky nebo oddlužení.",
             wallet: 0,
             cites: [{ law: "oz", par: "640" }, { law: "er", par: "46", odst: 6 }],
           },
@@ -136,11 +136,11 @@ export const CASES: GameCase[] = [
     title: "Vyrozumění o zahájení exekuce",
     teaser: "8 000 Kč za internet a obálka od exekutora.",
     story:
-      "Tomášovi přišlo do datové schránky vyrozumění o zahájení exekuce kvůli 8 000 Kč za internet. Ve výzvě je vyčíslena záloha na snížené náklady exekuce (v našem příkladu 1 500 Kč).",
+      "{D} přišlo do datové schránky vyrozumění o zahájení exekuce kvůli 8 000 Kč za internet. Ve výzvě je vyčíslena záloha na snížené náklady exekuce (v našem příkladu 1 500 Kč).",
     lesson: { topic: DEBT_TOPIC, lesson: "exekuce" },
     rounds: [
       {
-        prompt: "Dluh je oprávněný. Jak ho Tomáš vyřeší nejlevněji?",
+        prompt: "Dluh je oprávněný. Jak ho {N} vyřeší nejlevněji?",
         card: "er-46-6",
         options: [
           {
@@ -163,7 +163,7 @@ export const CASES: GameCase[] = [
             text: "Nebude se přihlašovat do datové schránky, dokud nebude mít peníze.",
             outcome: "wrong",
             verdict:
-              "Doručení do datové schránky nastane i bez přihlášení (po uplynutí zákonné lhůty). Lhůta 30 dnů tak běží dál a Tomáš o levnější konec přijde.",
+              "Doručení do datové schránky nastane i bez přihlášení (po uplynutí zákonné lhůty). Lhůta 30 dnů tak běží dál a {N} o levnější konec přijde.",
             wallet: -14000,
             cites: [{ law: "er", par: "46", odst: 6 }],
           },
@@ -178,7 +178,7 @@ export const CASES: GameCase[] = [
         ],
       },
       {
-        prompt: "Jiná situace: Tomáš zjistí, že tento dluh už loni zaplatil a má potvrzení z banky. Co udělá?",
+        prompt: "Jiná situace: {N} zjistí, že tento dluh už loni zaplatil{a} a má potvrzení z banky. Co udělá?",
         card: "er-55-1",
         options: [
           {
@@ -210,15 +210,16 @@ export const CASES: GameCase[] = [
     ],
   },
   {
+    // Kola 2 a 3 se přepočítávají podle postavy v lib/game/personalize.ts; zde zůstávají jako vzor pro 30 000 Kč a 1 dítě.
     id: "vyplatni-paska",
     title: "Výplatní páska",
     teaser: "Kolik zaměstnavatel smí srazit?",
     story:
-      "Tomáš má čistou mzdu 30 000 Kč a jedno dítě, kterému platí výživné. Zaměstnavateli přišlo nařízení exekuce srážkami ze mzdy kvůli dluhu u banky. Píše se rok 2026.",
+      "(Příběh a čísla se dopočítají podle příjmu zvolené postavy – viz lib/game/personalize.ts.)",
     lesson: { topic: DEBT_TOPIC, lesson: "exekuce" },
     rounds: [
       {
-        prompt: "Jaká je nezabavitelná částka na samotného Tomáše (bez dítěte) v roce 2026?",
+        prompt: "Jaká je nezabavitelná částka na samotného {A} (bez vyživovaných osob) v roce 2026?",
         card: "nv595-1-1",
         options: [
           {
@@ -253,7 +254,7 @@ export const CASES: GameCase[] = [
           {
             text: "4 124 Kč (jedna třetina)",
             outcome: "correct",
-            verdict: "Správně. Pro běžné pohledávky lze srazit jen jednu třetinu zbytku. Tomášovi zůstane 25 876 Kč.",
+            verdict: "Správně. Pro běžné pohledávky lze srazit jen jednu třetinu zbytku.",
             wallet: -4124,
             cites: [{ law: "osr", par: "279", odst: 1 }],
           },
@@ -267,7 +268,7 @@ export const CASES: GameCase[] = [
           {
             text: "12 373 Kč (celý zbytek)",
             outcome: "wrong",
-            verdict: "Celý zbytek by šel jen nad zákonnou hranici (v roce 2026 cca 31 521 Kč). Tomáš je hluboko pod ní.",
+            verdict: "Celý zbytek by šel jen nad zákonnou hranici (v roce 2026 cca 31 521 Kč).",
             wallet: -12373,
             cites: [{ law: "osr", par: "279", odst: 3 }, { law: "nv595", par: "2" }],
           },
@@ -307,11 +308,11 @@ export const CASES: GameCase[] = [
     title: "Zablokovaný účet",
     teaser: "Banka zmrazila účet, nájem je za týden.",
     story:
-      "Exekutor nařídil exekuci přikázáním pohledávky z účtu. Banka Tomášovi účet zablokovala a za týden má platit nájem.",
+      "Exekutor nařídil exekuci přikázáním pohledávky z účtu. Banka {D} účet zablokovala a za týden je třeba zaplatit nájem.",
     lesson: { topic: DEBT_TOPIC, lesson: "exekuce" },
     rounds: [
       {
-        prompt: "Na co má Tomáš nárok?",
+        prompt: "Na co má {N} nárok?",
         card: "osr-304b-1",
         options: [
           {
@@ -345,7 +346,7 @@ export const CASES: GameCase[] = [
     id: "dedictvi-v-oddluzeni",
     title: "Dědictví v oddlužení",
     teaser: "Ve druhém roce oddlužení přijde 200 000 Kč.",
-    story: "Tomáš je druhým rokem v oddlužení splátkovým kalendářem. Zemřela mu teta a zdědil 200 000 Kč.",
+    story: "{N} je druhým rokem v oddlužení splátkovým kalendářem. Zemřel {mu} vzdálený příbuzný a {N} zdědil{a} 200 000 Kč.",
     lesson: { topic: DEBT_TOPIC, lesson: "oddluzeni" },
     rounds: [
       {
@@ -356,7 +357,7 @@ export const CASES: GameCase[] = [
             text: "Vydat ho insolvenčnímu správci a použít na mimořádné splátky.",
             outcome: "correct",
             verdict:
-              "Správně. Hodnoty získané dědictvím musí dlužník během oddlužení vydat správci a použít na mimořádné splátky. Peníze sníží Tomášovy dluhy – oddlužení zůstává v bezpečí.",
+              "Správně. Hodnoty získané dědictvím musí dlužník během oddlužení vydat správci a použít na mimořádné splátky. Peníze sníží dluhy {G} – oddlužení zůstává v bezpečí.",
             wallet: 0,
             cites: [{ law: "iz", par: "412", odst: 1, pism: "b" }],
           },
@@ -385,11 +386,11 @@ export const CASES: GameCase[] = [
     teaser: "Boss čtvrti: cesta z dluhové pasti.",
     boss: true,
     story:
-      "Tomášova sestra Petra má pět exekucí od různých věřitelů, všechny dluhy jsou déle než rok po splatnosti. Pracuje na plný úvazek, ale ze mzdy jí zbývá jen nezabavitelná částka. Ptá se Tomáše, co dělat.",
+      "Kamarádka Lenka se svěří {D}: má pět exekucí od různých věřitelů, všechny dluhy jsou déle než rok po splatnosti. Pracuje na plný úvazek, ale ze mzdy jí zbývá jen nezabavitelná částka. {N} jí chce poradit.",
     lesson: { topic: DEBT_TOPIC, lesson: "oddluzeni" },
     rounds: [
       {
-        prompt: "Je Petra podle zákona v úpadku?",
+        prompt: "Je Lenka podle zákona v úpadku?",
         card: "iz-3-1",
         options: [
           {
@@ -417,7 +418,7 @@ export const CASES: GameCase[] = [
         ],
       },
       {
-        prompt: "Kdo může Petře sepsat a podat návrh na oddlužení?",
+        prompt: "Kdo může Lence sepsat a podat návrh na oddlužení?",
         card: "iz-390a-1",
         options: [
           {
@@ -431,12 +432,12 @@ export const CASES: GameCase[] = [
           {
             text: "Jakákoli „oddlužovací agentura“ z inzerátu.",
             outcome: "wrong",
-            verdict: "Bez akreditace Ministerstva spravedlnosti agentura návrh podat nesmí. Petra by platila zbytečně.",
+            verdict: "Bez akreditace Ministerstva spravedlnosti agentura návrh podat nesmí. Lenka by platila zbytečně.",
             wallet: -8000,
             cites: [{ law: "iz", par: "390a", odst: 1 }],
           },
           {
-            text: "Petra si ho podá sama, formulář je na internetu.",
+            text: "Lenka si ho podá sama, formulář je na internetu.",
             outcome: "partial",
             verdict:
               "Sama ho podat může jen s magisterským právním či ekonomickým vzděláním nebo zkouškou insolvenčního správce.",
@@ -474,7 +475,7 @@ export const CASES: GameCase[] = [
         ],
       },
       {
-        prompt: "Petra dluží i výživné na syna. Co s ním oddlužení udělá?",
+        prompt: "Lenka dluží i výživné na syna. Co s ním oddlužení udělá?",
         card: "iz-416-1",
         options: [
           {

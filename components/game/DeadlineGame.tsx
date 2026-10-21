@@ -2,17 +2,24 @@
 
 import { useEffect, useState } from "react";
 import { generatePuzzle, type DeadlinePuzzle } from "@/lib/game/deadlines";
-import { recordReview, useGame } from "@/lib/game/store";
+import { characterOf, recordReview, useGame, useHydrated } from "@/lib/game/store";
+import { NeedCharacter } from "./NeedCharacter";
 import { DeadlineQuestion } from "./DeadlineQuestion";
 
 export function DeadlineGame() {
   const g = useGame();
+  const hydrated = useHydrated();
+  const ch = characterOf(g);
   const [puzzle, setPuzzle] = useState<DeadlinePuzzle | null>(null);
   const [n, setN] = useState(0);
   const [streak, setStreak] = useState(0);
 
   // Náhodné zadání až na klientu (aby se nelišilo od serverového HTML).
-  useEffect(() => setPuzzle(generatePuzzle()), [n]);
+  useEffect(() => {
+    if (ch) setPuzzle(generatePuzzle(undefined, ch));
+  }, [n, ch]);
+
+  if (hydrated && !ch) return <NeedCharacter />;
 
   return (
     <>
