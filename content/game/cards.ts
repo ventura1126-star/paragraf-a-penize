@@ -1,0 +1,118 @@
+import type { Card } from "./types";
+
+export const CARDS: Card[] = [
+  {
+    id: "oz-610-1",
+    cite: { law: "oz", par: "610", odst: 1 },
+    name: "Námitka promlčení",
+    summary: "Soud k promlčení nepřihlíží sám – dlužník ho musí výslovně namítnout.",
+    quote: "K promlčení soud přihlédne, jen namítne-li dlužník, že je právo promlčeno.",
+  },
+  {
+    id: "oz-639",
+    cite: { law: "oz", par: "639" },
+    name: "Uznání dluhu = 10 let",
+    summary: "Kdo dluh uzná, spouští novou desetiletou promlčecí lhůtu.",
+    quote: "Uznal-li dlužník svůj dluh, promlčí se právo za deset let ode dne, kdy k uznání dluhu došlo.",
+  },
+  {
+    id: "oz-640",
+    cite: { law: "oz", par: "640" },
+    name: "Rozsudek platí 10 let",
+    summary: "Právo přiznané rozhodnutím soudu se promlčuje až za deset let.",
+    quote: "Právo přiznané rozhodnutím orgánu veřejné moci se promlčí za deset let ode dne, kdy mělo být podle rozhodnutí plněno.",
+  },
+  {
+    id: "er-46-6",
+    cite: { law: "er", par: "46", odst: 6 },
+    name: "Výzva ke splnění",
+    summary: "Kdo do 30 dnů od doručení vyrozumění zaplatí dluh i zálohu, ukončí exekuci se sníženými náklady.",
+    quote: "splní-li ve lhůtě 30 dnů od doručení vyrozumění o zahájení exekuce vymáhaný nárok a uhradí zálohu, vydá exekutor neprodleně příkaz k úhradě nákladů exekuce",
+  },
+  {
+    id: "er-55-1",
+    cite: { law: "er", par: "55", odst: 1 },
+    name: "Návrh na zastavení exekuce",
+    summary: "Podává se u exekutora do 15 dnů ode dne, kdy se povinný dozvěděl o důvodu zastavení.",
+    quote: "Návrh na zastavení exekuce může povinný podat do 15 dnů ode dne, kdy se dozvěděl o důvodu zastavení exekuce.",
+  },
+  {
+    id: "osr-279-1",
+    cite: { law: "osr", par: "279", odst: 1 },
+    name: "Třetiny ze mzdy",
+    summary: "Ze zbytku mzdy nad nezabavitelnou částkou jde na běžné dluhy jedna třetina.",
+    quote: "lze srazit k vydobytí pohledávky oprávněného jen jednu třetinu. Pro přednostní pohledávky uvedené v odstavci 2 se srážejí dvě třetiny.",
+  },
+  {
+    id: "osr-279-2",
+    cite: { law: "osr", par: "279", odst: 2 },
+    name: "Přednostní pohledávky",
+    summary: "Výživné, daně, pojistné a náhrady újmy na zdraví se sráží ze dvou třetin.",
+    quote: "Přednostními pohledávkami jsou a) pohledávky výživného",
+  },
+  {
+    id: "nv595-1-1",
+    cite: { law: "nv595", par: "1", odst: 1 },
+    name: "Nezabavitelná částka",
+    summary: "Od 2026 jde o 85 % součtu životního minima, normativního nájemného a energetického paušálu.",
+    quote: "je rovna úhrnu 85 % součtu částky životního minima jednotlivce",
+  },
+  {
+    id: "osr-304b-1",
+    cite: { law: "osr", par: "304b", odst: 1 },
+    name: "Chráněná částka na účtu",
+    summary: "Ze zablokovaného účtu lze vybrat až trojnásobek životního minima jednotlivce.",
+    quote: "se nevztahují na peněžní prostředky do výše trojnásobku životního minima jednotlivce",
+  },
+  {
+    id: "iz-412-1",
+    cite: { law: "iz", par: "412", odst: 1 },
+    name: "Povinnosti v oddlužení",
+    summary: "Dědictví, dary a mimořádné příjmy patří během oddlužení věřitelům.",
+    quote: "hodnoty získané dědictvím, darem a z neúčinného právního úkonu",
+  },
+  {
+    id: "iz-3-1",
+    cite: { law: "iz", par: "3", odst: 1 },
+    name: "Úpadek",
+    summary: "Více věřitelů, dluhy přes 30 dnů po splatnosti a neschopnost je platit.",
+    quote: "Dlužník je v úpadku, jestliže má a) více věřitelů a b) peněžité závazky po dobu delší 30 dnů po lhůtě splatnosti a c) tyto závazky není schopen plnit",
+  },
+  {
+    id: "iz-390a-1",
+    cite: { law: "iz", par: "390a", odst: 1 },
+    name: "Kdo sepíše návrh",
+    summary: "Advokát, notář, exekutor, insolvenční správce nebo akreditovaná osoba (často zdarma).",
+    quote: "a) advokátem, notářem, soudním exekutorem, insolvenčním správcem, nebo b) akreditovanou osobou",
+  },
+  {
+    id: "iz-412a-1",
+    cite: { law: "iz", par: "412a", odst: 1 },
+    name: "Osvobození po 3 letech",
+    summary: "Po třech letech řádného plnění soud dlužníka osvobodí od zbytku dluhů.",
+    quote: "po dobu 3 let od schválení oddlužení nebylo dlužníku oddlužení zrušeno",
+  },
+  {
+    id: "iz-416-1",
+    cite: { law: "iz", par: "416", odst: 1 },
+    name: "Co oddlužení nesmaže",
+    summary: "Výživné, úmyslné škody, škody na zdraví a trestní sankce zůstávají.",
+    quote: "pohledávek věřitelů na výživném ze zákona a pohledávek věřitelů na náhradu škody způsobené na zdraví",
+  },
+  {
+    id: "osr-57-2",
+    cite: { law: "osr", par: "57", odst: 2 },
+    name: "Konec lhůty o víkendu",
+    summary: "Končí-li lhůta v sobotu, neděli nebo svátek, posouvá se na nejbližší pracovní den.",
+    quote: "Připadne-li konec lhůty na sobotu, neděli nebo svátek, je posledním dnem lhůty nejblíže následující pracovní den.",
+  },
+  {
+    id: "osr-49-4",
+    cite: { law: "osr", par: "49", odst: 4 },
+    name: "Fikce doručení",
+    summary: "Nevyzvednutá písemnost se považuje za doručenou 10. den od uložení.",
+    quote: "považuje se písemnost posledním dnem této lhůty za doručenou, i když se adresát o uložení nedozvěděl",
+  },
+];
+
+export const CARD_BY_ID = new Map(CARDS.map((c) => [c.id, c]));
