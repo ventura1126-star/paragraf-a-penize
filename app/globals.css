@@ -392,7 +392,8 @@ a.case-tile:hover { border-color: var(--accent); }
 /* Postavy */
 :root { --av1: #1f4e79; --av2: #8a3b62; --av3: #2f6b4f; --av4: #8a5a00; --av5: #4b4f9c; }
 @media (prefers-color-scheme: dark) { :root { --av1: #5f93c7; --av2: #c77aa0; --av3: #6fb08f; --av4: #d29f45; --av5: #8f93e0; } }
-.avatar { flex: none; display: inline-grid; place-items: center; border-radius: 50%; color: #fff; font-weight: 700; font-family: var(--font-serif), Georgia, serif; }
+.avatar { flex: none; display: inline-flex; align-items: flex-end; justify-content: center; border-radius: 50%; overflow: hidden; }
+.avatar svg { display: block; }
 .avatar-c1 { background: var(--av1); } .avatar-c2 { background: var(--av2); } .avatar-c3 { background: var(--av3); }
 .avatar-c4 { background: var(--av4); } .avatar-c5 { background: var(--av5); }
 
@@ -415,10 +416,21 @@ a.case-tile:hover { border-color: var(--accent); }
 .char-confirm { border: 2px solid var(--accent); }
 .char-confirm h2 { margin: 0 0 0.4rem; font-size: 1.15rem; }
 .char-confirm ul { margin: 0 0 0.75rem; padding-left: 1.1rem; }
-.char-prompt { display: flex; align-items: center; gap: 1rem; text-decoration: none; color: inherit; border: 2px solid var(--accent); margin-top: 1.25rem; flex-wrap: wrap; }
-.char-prompt > span:nth-child(2) { flex: 1; display: flex; flex-direction: column; min-width: 200px; }
-.char-prompt-avatars { display: flex; }
-.char-prompt-avatars .avatar { margin-left: -8px; border: 2px solid var(--surface); }
-.char-prompt-avatars .avatar:first-child { margin-left: 0; }
 .need-character { text-align: center; }
 .need-character h2 { margin-top: 0; }
+
+/* Pixelové postavy na výběru */
+.start-hero { padding: 0.5rem 0 0.5rem; }
+.char-stage {
+  position: relative; display: flex; justify-content: center; align-items: flex-end; height: 176px; margin: -1.25rem -1.25rem 0;
+  border-radius: calc(var(--radius) - 2px) calc(var(--radius) - 2px) 0 0; overflow: hidden;
+  background-image: linear-gradient(to top, rgb(0 0 0 / 0.18) 0 22px, transparent 22px);
+}
+.char-stage .sprite { position: relative; z-index: 1; margin-bottom: 10px; image-rendering: pixelated; animation: idle 1.2s steps(2, jump-none) infinite; }
+.char-card:hover .sprite { animation-duration: 0.6s; }
+.char-stage .sprite-picked { animation: hop 0.7s steps(4, jump-none) infinite; }
+.char-shadow { position: absolute; bottom: 12px; width: 56px; height: 8px; border-radius: 50%; background: rgb(0 0 0 / 0.28); }
+@keyframes idle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@keyframes hop { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+.char-card.selected { box-shadow: 0 0 0 3px var(--accent); }
+@media (prefers-reduced-motion: reduce) { .char-stage .sprite, .char-stage .sprite-picked { animation: none; } }

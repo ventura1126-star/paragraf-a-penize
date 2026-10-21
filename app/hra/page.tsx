@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { DistrictMap } from "@/components/game/DistrictMap";
 import { ResetButton } from "@/components/game/ResetButton";
-import { CharacterPrompt } from "@/components/game/CharacterPrompt";
+import { GameStart } from "@/components/game/GameStart";
 
 export const metadata: Metadata = {
   title: "Hra",
@@ -10,13 +10,12 @@ export const metadata: Metadata = {
 
 export default function GameHome() {
   return (
-    <>
+    <GameStart>
       <h1>Město paragrafů</h1>
       <p className="lead">
-        Vyberte si postavu a provázejte ji jejími finančními problémy. Každé rozhodnutí rozsoudí konkrétní paragraf – a
-        vy uvidíte, kolik by chyba stála. Správná rozhodnutí přinášejí karty do alba.
+        Provázejte svou postavu jejími finančními problémy. Každé rozhodnutí rozsoudí konkrétní paragraf – a uvidíte,
+        kolik by chyba stála. Správná rozhodnutí přinášejí karty do alba.
       </p>
-      <CharacterPrompt />
       <DistrictMap />
       <div className="game-howto card">
         <h2>Jak se hraje</h2>
@@ -28,6 +27,6 @@ export default function GameHome() {
         </ol>
       </div>
       <ResetButton />
-    </>
+    </GameStart>
   );
 }

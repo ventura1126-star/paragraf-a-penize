@@ -6,13 +6,14 @@ import { CHARACTERS } from "@/content/game/characters";
 import { chooseCharacter, readGame, useGame } from "@/lib/game/store";
 import { formatCzk } from "@/lib/format";
 import { Avatar } from "./Avatar";
+import { PixelSprite } from "./PixelSprite";
 
 function dependents(n: number): string {
   if (n === 0) return "žádné";
   return n === 1 ? "1 dítě" : `${n} děti`;
 }
 
-export function CharacterPicker() {
+export function CharacterPicker({ redirectTo = "/hra" }: { redirectTo?: string }) {
   const g = useGame();
   const router = useRouter();
   const [sel, setSel] = useState<string | null>(null);
@@ -34,8 +35,11 @@ export function CharacterPicker() {
             className={`card char-card ${sel === c.id ? "selected" : ""}`}
             onClick={() => setSel(c.id)}
           >
+            <div className={`char-stage avatar-c${c.color}`}>
+              <PixelSprite id={c.id} scale={6} className={`sprite ${sel === c.id ? "sprite-picked" : ""}`} />
+              <span className="char-shadow" aria-hidden />
+            </div>
             <div className="char-head">
-              <Avatar ch={c} size={52} />
               <div>
                 <div className="char-name">
                   {c.forms.n}, {c.age}
@@ -75,7 +79,8 @@ export function CharacterPicker() {
             className="btn-primary"
             onClick={() => {
               chooseCharacter(chosen.id, chosen.wallet);
-              router.push("/hra");
+              router.push(redirectTo);
+              window.scrollTo({ top: 0 });
             }}
           >
             {current === chosen.id ? "Pokračovat" : `Hrát za ${chosen.forms.a}`}
