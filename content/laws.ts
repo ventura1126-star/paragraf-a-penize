@@ -13,6 +13,8 @@ export const LAWS = {
   zfa: { abbr: "ZFA", name: "Zákon o finančním arbitrovi", year: 2002, num: 229 },
   zos: { abbr: "ZOS", name: "Zákon o ochraně spotřebitele", year: 1992, num: 634 },
   nv595: { abbr: "NV 595/2006", name: "Nařízení vlády o nezabavitelných částkách", year: 2006, num: 595 },
+  zek: { abbr: "ZEK", name: "Zákon o elektronických komunikacích", year: 2005, num: 127 },
+  znv: { abbr: "ZNV", name: "Zákon o náhradním výživném", year: 2020, num: 588 },
 } as const;
 
 export type LawId = keyof typeof LAWS;

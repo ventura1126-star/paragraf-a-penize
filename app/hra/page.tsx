@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DistrictMap } from "@/components/game/DistrictMap";
+import { CampaignMap } from "@/components/game/CampaignMap";
 import { ResetButton } from "@/components/game/ResetButton";
 import { GameStart } from "@/components/game/GameStart";
 
@@ -11,12 +11,7 @@ export const metadata: Metadata = {
 export default function GameHome() {
   return (
     <GameStart>
-      <h1>Město paragrafů</h1>
-      <p className="lead">
-        Provázejte svou postavu jejími finančními problémy. Každé rozhodnutí rozsoudí konkrétní paragraf – a uvidíte,
-        kolik by chyba stála. Správná rozhodnutí přinášejí karty do alba.
-      </p>
-      <DistrictMap />
+      <CampaignMap />
       <div className="game-howto card">
         <h2>Jak se hraje</h2>
         <ol className="steps">

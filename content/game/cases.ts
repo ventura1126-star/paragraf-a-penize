@@ -1,17 +1,10 @@
-import type { District, GameCase } from "./types";
+import type { GameCase } from "./types";
+import { STORY_CASES } from "./stories";
 
 const DEBT_TOPIC = "pohledavky-exekuce-insolvence";
 
-export const DISTRICTS: District[] = [
-  { id: "dluznicka", name: "Dlužnická čtvrť", topic: DEBT_TOPIC, blurb: "Promlčení, exekuce, srážky ze mzdy a oddlužení.", playable: true },
-  { id: "trziste", name: "Tržiště", topic: "spotrebitel-a-smlouvy", blurb: "Nákupy, reklamace a pojistky.", playable: false },
-  { id: "uvery", name: "Úvěrová třída", topic: "uvery-a-dluhy", blurb: "RPSN, odstoupení a sankce.", playable: false },
-  { id: "dane", name: "Daňové náměstí", topic: "dane", blurb: "Přiznání, slevy a lhůty.", playable: false },
-  { id: "pristav", name: "Investiční přístav", topic: "investice-a-sporeni", blurb: "Vklady, DIP a časový test.", playable: false },
-];
-
-/** Případy Dlužnické čtvrti. Texty obsahují zástupné značky postavy ({N}, {G}, {D}, {A}, {a}, …) – viz characters.ts. Peněžní dopady jsou ilustrativní. */
-export const CASES: GameCase[] = [
+/** Obecné případy (sdílené více příběhy). Texty obsahují zástupné značky postavy ({N}, {G}, {D}, {A}, {a}, …) – viz characters.ts. Peněžní dopady jsou ilustrativní. */
+const BASE_CASES: GameCase[] = [
   {
     id: "dopis-po-peti-letech",
     title: "Dopis po pěti letech",
@@ -381,16 +374,16 @@ export const CASES: GameCase[] = [
     ],
   },
   {
-    id: "pet-exekuci",
+    id: "oddluzeni",
     title: "Pět exekucí najednou",
-    teaser: "Boss čtvrti: cesta z dluhové pasti.",
+    teaser: "Cesta z dluhové pasti.",
     boss: true,
     story:
-      "Kamarádka Lenka se svěří {D}: má pět exekucí od různých věřitelů, všechny dluhy jsou déle než rok po splatnosti. Pracuje na plný úvazek, ale ze mzdy jí zbývá jen nezabavitelná částka. {N} jí chce poradit.",
+      "Půjčky na splácení jiných půjček se nasčítaly: {N} má pět exekucí od různých věřitelů, všechny dluhy jsou déle než rok po splatnosti. Z příjmu zbývá jen nezabavitelná částka a dluhy dál rostou.",
     lesson: { topic: DEBT_TOPIC, lesson: "oddluzeni" },
     rounds: [
       {
-        prompt: "Je Lenka podle zákona v úpadku?",
+        prompt: "Je {N} podle zákona v úpadku?",
         card: "iz-3-1",
         options: [
           {
@@ -418,7 +411,7 @@ export const CASES: GameCase[] = [
         ],
       },
       {
-        prompt: "Kdo může Lence sepsat a podat návrh na oddlužení?",
+        prompt: "Kdo může {D} sepsat a podat návrh na oddlužení?",
         card: "iz-390a-1",
         options: [
           {
@@ -432,15 +425,15 @@ export const CASES: GameCase[] = [
           {
             text: "Jakákoli „oddlužovací agentura“ z inzerátu.",
             outcome: "wrong",
-            verdict: "Bez akreditace Ministerstva spravedlnosti agentura návrh podat nesmí. Lenka by platila zbytečně.",
+            verdict: "Bez akreditace Ministerstva spravedlnosti agentura návrh podat nesmí. {N} by platil{a} zbytečně.",
             wallet: -8000,
             cites: [{ law: "iz", par: "390a", odst: 1 }],
           },
           {
-            text: "Lenka si ho podá sama, formulář je na internetu.",
+            text: "{N} si ho podá {sam}, formulář je na internetu.",
             outcome: "partial",
             verdict:
-              "Sama ho podat může jen s magisterským právním či ekonomickým vzděláním nebo zkouškou insolvenčního správce.",
+              "Bez prostředníka ho podat může jen s magisterským právním či ekonomickým vzděláním nebo zkouškou insolvenčního správce.",
             wallet: 0,
             cites: [{ law: "iz", par: "390a", odst: 2 }],
           },
@@ -475,27 +468,27 @@ export const CASES: GameCase[] = [
         ],
       },
       {
-        prompt: "Lenka dluží i výživné na syna. Co s ním oddlužení udělá?",
+        prompt: "Na které dluhy osvobození z oddlužení nedosáhne?",
         card: "iz-416-1",
         options: [
           {
-            text: "Nic – zákonné výživné osvobození nesmaže.",
+            text: "Mimo jiné na zákonné výživné, škody způsobené úmyslně a tresty za úmyslné trestné činy.",
             outcome: "correct",
-            verdict: "Správně. Osvobození se nedotýká mimo jiné pohledávek na zákonném výživném.",
+            verdict: "Osvobození se nedotýká mimo jiné peněžitých trestů za úmyslné trestné činy a pohledávek na zákonném výživném.",
             wallet: 0,
             cites: [{ law: "iz", par: "416", odst: 1 }],
           },
           {
-            text: "Po třech letech zanikne jako ostatní dluhy.",
+            text: "Na žádné – po třech letech zaniknou všechny.",
             outcome: "wrong",
-            verdict: "Výživné patří mezi výjimky z osvobození. Zůstává v plné výši.",
+            verdict: "Patří mezi výjimky z osvobození a zůstávají v plné výši.",
             wallet: 0,
             cites: [{ law: "iz", par: "416", odst: 1 }],
           },
           {
-            text: "Sníží se na polovinu.",
+            text: "Jen na dluhy u bank.",
             outcome: "wrong",
-            verdict: "Zákon žádné snížení výživného v oddlužení nezná.",
+            verdict: "Na tom, kdo je věřitel, nezáleží – rozhoduje druh pohledávky.",
             wallet: 0,
             cites: [{ law: "iz", par: "416", odst: 1 }],
           },
@@ -505,11 +498,14 @@ export const CASES: GameCase[] = [
   },
 ];
 
+export const CASES: GameCase[] = [...BASE_CASES, ...STORY_CASES];
+
 export const CASE_BY_ID = new Map(CASES.map((c) => [c.id, c]));
 
 /** Případ a kolo, které kartu udělují (pro trénink). */
-export function roundForCard(cardId: string): { gameCase: GameCase; roundIndex: number } | undefined {
-  for (const c of CASES) {
+export function roundForCard(cardId: string, preferIds: string[] = []): { gameCase: GameCase; roundIndex: number } | undefined {
+  const ordered = [...preferIds.map((id) => CASE_BY_ID.get(id)).filter((c): c is GameCase => !!c), ...CASES];
+  for (const c of ordered) {
     const i = c.rounds.findIndex((r) => r.card === cardId);
     if (i >= 0) return { gameCase: c, roundIndex: i };
   }

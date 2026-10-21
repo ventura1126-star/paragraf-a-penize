@@ -15,7 +15,7 @@ export function GameHeader() {
   const ch = characterOf(g);
 
   const tabs = [
-    { href: "/hra", label: "Mapa" },
+    { href: "/hra", label: "Příběh" },
     { href: "/hra/trenink", label: due ? `Trénink (${due})` : "Trénink" },
     { href: "/hra/album", label: "Album" },
     { href: "/hra/lhuta", label: "Lhůta běží" },
@@ -53,7 +53,7 @@ export function GameHeader() {
       </div>
       <nav className="game-tabs" aria-label="Herní navigace">
         {tabs.map((t) => {
-          const active = t.href === "/hra" ? path === "/hra" || path.startsWith("/hra/ctvrt") || path.startsWith("/hra/pripad") || path.startsWith("/hra/postava") : path.startsWith(t.href);
+          const active = t.href === "/hra" ? path === "/hra" || path.startsWith("/hra/pripad") || path.startsWith("/hra/postava") : path.startsWith(t.href);
           return (
             <Link key={t.href} href={t.href} className={active ? "active" : undefined} aria-current={active ? "page" : undefined}>
               {t.label}

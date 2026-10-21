@@ -22,9 +22,9 @@ export default async function CasePage({ params }: Props) {
   return (
     <div className="narrow">
       <nav className="breadcrumbs" aria-label="Drobečková navigace">
-        <Link href="/hra">Mapa</Link> › <Link href="/hra/ctvrt/dluznicka">Dlužnická čtvrť</Link> › <span>{c.title}</span>
+        <Link href="/hra">Příběh</Link> › <span>{c.title}</span>
       </nav>
-      <div className="eyebrow">{c.boss ? "Boss čtvrti" : "Případ"}</div>
+      <div className="eyebrow">{c.boss ? "Boss příběhu" : "Nástraha"}</div>
       <h1>{c.title}</h1>
       <CasePlayer gameCase={c} />
       <HelpBanner />

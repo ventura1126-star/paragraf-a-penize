@@ -434,3 +434,27 @@ a.case-tile:hover { border-color: var(--accent); }
 @keyframes hop { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 .char-card.selected { box-shadow: 0 0 0 3px var(--accent); }
 @media (prefers-reduced-motion: reduce) { .char-stage .sprite, .char-stage .sprite-picked { animation: none; } }
+
+/* Příběh postavy */
+.campaign-hero { display: flex; gap: 1.25rem; align-items: flex-end; color: #fff; border: none; padding: 1.25rem 1.5rem 0; overflow: hidden; margin-bottom: 1.5rem; }
+.campaign-hero > div { padding-bottom: 1.25rem; flex: 1; min-width: 0; }
+.campaign-hero h1 { color: #fff; margin: 0.1rem 0 0.4rem; }
+.campaign-hero p { color: rgb(255 255 255 / 0.9); max-width: 60ch; }
+.campaign-hero .eyebrow { color: rgb(255 255 255 / 0.8); }
+.campaign-hero .tag { background: rgb(255 255 255 / 0.18); color: #fff; border-color: rgb(255 255 255 / 0.35); }
+.campaign-hero .sprite { flex: none; animation: idle 1.2s steps(2, jump-none) infinite; }
+@media (max-width: 560px) { .campaign-hero { flex-direction: column; align-items: flex-start; padding-top: 1rem; } .campaign-hero .sprite { order: 2; align-self: center; } }
+@media (prefers-reduced-motion: reduce) { .campaign-hero .sprite { animation: none; } }
+
+.trail { list-style: none; padding: 0 0 0 1.4rem; margin: 0 0 1rem; position: relative; display: grid; gap: 0.7rem; }
+.trail::before { content: ""; position: absolute; left: 0.55rem; top: 1rem; bottom: 1rem; border-left: 3px dotted var(--border); }
+.trail-card { display: flex; align-items: center; gap: 1rem; text-decoration: none; color: inherit; margin-left: 0.6rem; }
+a.trail-card:hover { border-color: var(--accent); }
+.trail-dot { flex: none; width: 2.2rem; height: 2.2rem; border-radius: 50%; display: grid; place-items: center; font-weight: 700; background: var(--surface-2); border: 2px solid var(--border); margin-left: -2.55rem; position: relative; font-family: var(--font-serif), Georgia, serif; }
+.trail-step.done .trail-dot { background: var(--ok); border-color: var(--ok); color: var(--surface); }
+.trail-step.next .trail-card { border: 2px solid var(--accent); }
+.trail-step.next .trail-dot { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.trail-step.boss .trail-card { border-color: var(--change); }
+.trail-step.boss .trail-dot { border-color: var(--change); color: var(--change); background: var(--change-bg); }
+.trail-step.locked .trail-card { opacity: 0.55; }
+.trail-card .btn-primary { padding: 0.4rem 0.9rem; }

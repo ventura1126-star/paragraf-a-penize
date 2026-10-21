@@ -5,6 +5,7 @@ import { useState } from "react";
 import type { GameCase, Outcome } from "@/content/game/types";
 import { CARD_BY_ID } from "@/content/game/cards";
 import { characterOf, recordCase, recordRound, useGame, useHydrated } from "@/lib/game/store";
+import { CAMPAIGN_BY_CHARACTER, campaignCaseIds } from "@/content/game/campaigns";
 import { personalizeCase } from "@/lib/game/personalize";
 import { NeedCharacter } from "./NeedCharacter";
 import { formatCzk } from "@/lib/format";
@@ -26,6 +27,9 @@ export function CasePlayer({ gameCase: raw }: { gameCase: GameCase }) {
   if (!hydrated) return <p className="muted">Načítám…</p>;
   if (!ch) return <NeedCharacter />;
   const gameCase = personalizeCase(raw, ch);
+  const camp = CAMPAIGN_BY_CHARACTER.get(ch.id);
+  const campIds = camp ? campaignCaseIds(camp) : [];
+  const nextId = campIds[campIds.indexOf(raw.id) + 1] as string | undefined;
 
   if (finished) {
     const correct = results.filter((r) => r.outcome === "correct").length;
@@ -53,7 +57,12 @@ export function CasePlayer({ gameCase: raw }: { gameCase: GameCase }) {
           })}
         </div>
         <div className="summary-actions">
-          <Link href="/hra/ctvrt/dluznicka" className="btn-primary">Zpět do čtvrti</Link>
+          {nextId ? (
+            <Link href={`/hra/pripad/${nextId}`} className="btn-primary">Další nástraha →</Link>
+          ) : (
+            <Link href="/hra" className="btn-primary">Zpět na příběh</Link>
+          )}
+          {nextId && <Link href="/hra" className="btn-secondary">Zpět na příběh</Link>}
           <button type="button" className="btn-secondary" onClick={() => { setIdx(0); setResults([]); setRun((n) => n + 1); }}>
             Hrát znovu
           </button>

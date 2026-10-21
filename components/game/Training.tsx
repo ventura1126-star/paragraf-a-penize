@@ -9,6 +9,7 @@ import { characterOf, dueCards, readGame, recordReview } from "@/lib/game/store"
 import type { Character } from "@/content/game/characters";
 import { personalizeCase } from "@/lib/game/personalize";
 import { NeedCharacter } from "./NeedCharacter";
+import { CAMPAIGN_BY_CHARACTER, campaignCaseIds } from "@/content/game/campaigns";
 import { RoundPlayer } from "./RoundPlayer";
 import { DeadlineQuestion } from "./DeadlineQuestion";
 
@@ -62,7 +63,7 @@ export function Training() {
           {anyCards && mode === "due" && (
             <button type="button" className="btn-primary" onClick={() => setMode("all")}>Procvičit náhodné karty</button>
           )}
-          <Link href="/hra/ctvrt/dluznicka" className="btn-secondary">Hrát případy</Link>
+          <Link href="/hra" className="btn-secondary">Hrát příběh</Link>
         </div>
       </div>
     );
@@ -90,7 +91,8 @@ export function Training() {
     setIdx(idx + 1);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
-  const raw = roundForCard(item.cardId);
+  const camp = CAMPAIGN_BY_CHARACTER.get(ch.id);
+  const raw = roundForCard(item.cardId, camp ? campaignCaseIds(camp) : []);
   const found = raw && { gameCase: personalizeCase(raw.gameCase, ch), roundIndex: raw.roundIndex };
 
   return (

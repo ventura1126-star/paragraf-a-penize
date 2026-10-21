@@ -41,11 +41,3 @@ export type GameCase = {
   lesson: { topic: string; lesson: string };
   rounds: Round[];
 };
-
-export type District = {
-  id: string;
-  name: string;
-  topic: string;
-  blurb: string;
-  playable: boolean;
-};

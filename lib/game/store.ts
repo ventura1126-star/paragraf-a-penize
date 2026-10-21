@@ -22,8 +22,10 @@ export type GameState = {
   xp: number;
   wallet: number;
   cards: Record<string, CardState>;
+  /** Postup v případech, klíč `${postava}:${případ}`. */
   cases: Record<string, { done: boolean; correct: number; total: number }>;
-  bossUnlocked: boolean;
+  /** Postavy, které mají odemčené všechny nástrahy najednou. */
+  opened: Record<string, boolean>;
   deadlinesSolved: number;
   /** Zvolená postava (id z characters.ts). */
   character: string | null;
@@ -35,7 +37,7 @@ const INITIAL: GameState = {
   wallet: START_WALLET,
   cards: {},
   cases: {},
-  bossUnlocked: false,
+  opened: {},
   deadlinesSolved: 0,
   character: null,
 };
@@ -65,7 +67,7 @@ function load() {
     const raw = window.localStorage.getItem(KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as GameState;
-      if (parsed?.v === 1) state = { ...INITIAL, ...parsed };
+      if (parsed?.v === 1) state = { ...INITIAL, ...parsed, opened: parsed.opened ?? {} };
     }
   } catch {
     // Úložiště nedostupné (anonymní okno apod.) – hraje se bez uložení.
@@ -131,14 +133,23 @@ export function recordRound(opts: { cardId: string; outcome: Outcome; wallet: nu
   return xp;
 }
 
+export function caseKey(character: string | null, caseId: string): string {
+  return `${character ?? "-"}:${caseId}`;
+}
+
+export function caseProgress(s: GameState, caseId: string) {
+  return s.cases[caseKey(s.character, caseId)];
+}
+
 export function recordCase(caseId: string, correct: number, total: number) {
   load();
-  const prev = state.cases[caseId];
+  const key = caseKey(state.character, caseId);
+  const prev = state.cases[key];
   set({
     ...state,
     cases: {
       ...state.cases,
-      [caseId]: { done: true, correct: Math.max(correct, prev?.correct ?? 0), total },
+      [key]: { done: true, correct: Math.max(correct, prev?.correct ?? 0), total },
     },
   });
 }
@@ -165,9 +176,10 @@ export function chooseCharacter(id: string, startWallet: number) {
   set({ ...state, character: id, wallet: startWallet });
 }
 
-export function unlockBoss() {
+export function openAll() {
   load();
-  set({ ...state, bossUnlocked: true });
+  if (!state.character) return;
+  set({ ...state, opened: { ...state.opened, [state.character]: true } });
 }
 
 export function resetGame() {

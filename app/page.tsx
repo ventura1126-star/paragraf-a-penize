@@ -28,8 +28,8 @@ export default function Home() {
       <Link href="/hra" className="card game-cta">
         <div>
           <div className="eyebrow">Novinka · hra</div>
-          <h3>Město paragrafů: Dlužnická čtvrť</h3>
-          <p className="muted">Vyberte si jednu z pěti postav, rozhodujte za ni, sbírejte karty paragrafů a trénujte lhůty. O výsledku rozhoduje zákon.</p>
+          <h3>Město paragrafů: pět postav, pět příběhů</h3>
+          <p className="muted">Vyberte si postavu a projděte nástrahy, které na ni čekají. Sbírejte karty paragrafů a trénujte lhůty. O výsledku rozhoduje zákon.</p>
         </div>
         <span className="btn-primary">Hrát</span>
       </Link>

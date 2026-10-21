@@ -103,10 +103,22 @@ export const uvery: Topic = {
             {
               type: "p",
               text:
-                "U úvěru na bydlení (hypotéky) je náhrada omezena na 1 % předčasně splacené části, pokud do konce sjednané doby zbývá více než rok, jinak na 0,5 % (a nikdy nesmí přesáhnout úroky za zbývající dobu).",
+                "U spotřebitelského úvěru jiného než na bydlení je náhrada omezena na 1 % předčasně splacené části, zbývá-li do konce úvěru víc než rok, jinak na 0,5 %. U účelové hypotéky nejvýše 0,25 % za každý započatý rok do konce fixace (max. 1 %) a nikdy víc než skutečně účelně vynaložené náklady.",
+            },
+            {
+              type: "note",
+              tone: "info",
+              text:
+                "U hypotéky nesmí věřitel náhradu chtít vůbec mj. v období bez pevné úrokové sazby, do 25 % úvěru měsíc před výročím smlouvy, nebo – po 24 měsících od uzavření – při prodeji zastavené nemovitosti či vypořádání společného jmění manželů.",
             },
           ],
-          cites: [{ law: "zsu", par: "117", odst: 1 }, { law: "zsu", par: "117", odst: 2 }, { law: "zsu", par: "117", odst: 4 }],
+          cites: [
+            { law: "zsu", par: "117", odst: 1 },
+            { law: "zsu", par: "117", odst: 2 },
+            { law: "zsu", par: "117", odst: 3 },
+            { law: "zsu", par: "117", odst: 4 },
+            { law: "zsu", par: "117", odst: 5 },
+          ],
         },
         {
           heading: "Připravovaná změna: směrnice CCD2",
