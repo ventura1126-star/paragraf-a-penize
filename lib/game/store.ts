@@ -3,6 +3,7 @@
 import { useSyncExternalStore } from "react";
 import type { Outcome } from "@/content/game/types";
 import { CHARACTER_BY_ID, type Character } from "@/content/game/characters";
+import { LETTER_RULES, SPAWN, START_LOAD } from "@/content/game/city";
 import { addDays, todayIso } from "./dates";
 
 /** Intervaly opakování ve dnech pro přihrádky 0–2; přihrádka 3 = zvládnuto. */
@@ -24,11 +25,33 @@ export type GameState = {
   cards: Record<string, CardState>;
   /** Postup v případech, klíč `${postava}:${případ}`. */
   cases: Record<string, { done: boolean; correct: number; total: number }>;
+  /** Dokončené přípravy, klíč `${postava}:${téma}`. */
+  preps: Record<string, boolean>;
   /** Postavy, které mají odemčené všechny nástrahy najednou. */
   opened: Record<string, boolean>;
   deadlinesSolved: number;
   /** Zvolená postava (id z characters.ts). */
   character: string | null;
+  /** Herní měsíc (1 = leden prvního roku); každá vyřešená nástraha posune čas o měsíc. */
+  month: number;
+  /** Dluhová zátěž postavy 0–100. */
+  load: number;
+  /** Dopisy ve schránce (naplánované důsledky). */
+  letters: Letter[];
+  /** Pozice postavy ve městě. */
+  pos: { x: number; y: number };
+  /** Měsíc poslední konzultace v poradně. */
+  consultMonth: number;
+};
+
+export type Letter = {
+  id: string;
+  month: number;
+  caseId: string;
+  sender: string;
+  subject: string;
+  reason: string;
+  read: boolean;
 };
 
 const INITIAL: GameState = {
@@ -37,9 +60,15 @@ const INITIAL: GameState = {
   wallet: START_WALLET,
   cards: {},
   cases: {},
+  preps: {},
   opened: {},
   deadlinesSolved: 0,
   character: null,
+  month: 1,
+  load: 0,
+  letters: [],
+  pos: SPAWN,
+  consultMonth: 0,
 };
 
 export const LEVELS = [
@@ -67,7 +96,7 @@ function load() {
     const raw = window.localStorage.getItem(KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as GameState;
-      if (parsed?.v === 1) state = { ...INITIAL, ...parsed, opened: parsed.opened ?? {} };
+      if (parsed?.v === 1) state = { ...INITIAL, ...parsed, opened: parsed.opened ?? {}, preps: parsed.preps ?? {}, letters: parsed.letters ?? [], pos: parsed.pos ?? SPAWN };
     }
   } catch {
     // Úložiště nedostupné (anonymní okno apod.) – hraje se bez uložení.
@@ -124,10 +153,12 @@ export function recordRound(opts: { cardId: string; outcome: Outcome; wallet: nu
   load();
   const ok = opts.outcome === "correct";
   const xp = ok && opts.boss ? 80 : XP[opts.outcome];
+  const dLoad = opts.outcome === "correct" ? -5 : opts.outcome === "partial" ? 5 : 12;
   set({
     ...state,
     xp: state.xp + xp,
     wallet: state.wallet + opts.wallet,
+    load: clampLoad(state.load + dLoad),
     cards: { ...state.cards, [opts.cardId]: scheduleCard(state.cards[opts.cardId], ok, true) },
   });
   return xp;
@@ -141,17 +172,56 @@ export function caseProgress(s: GameState, caseId: string) {
   return s.cases[caseKey(s.character, caseId)];
 }
 
-export function recordCase(caseId: string, correct: number, total: number) {
+export function recordCase(caseId: string, correct: number, total: number): Letter[] {
   load();
   const key = caseKey(state.character, caseId);
   const prev = state.cases[key];
+  const month = state.month + 1;
+  // Důsledky: nevyřešená nástraha naplánuje dopis (jen poprvé a jen pokud podobný dopis už nečeká).
+  const letters = state.letters.map((l) => (l.caseId === caseId ? { ...l, read: true } : l));
+  const scheduled: Letter[] = [];
+  if (correct < total && !prev) {
+    for (const r of LETTER_RULES.filter((r) => r.fromCase === caseId)) {
+      const pending = letters.some((l) => l.caseId === r.caseId && !l.read);
+      const done = state.cases[caseKey(state.character, r.caseId)]?.done;
+      if (!pending && !done) {
+        const letter = { id: `${r.fromCase}>${r.caseId}`, month: month + r.delay - 1, caseId: r.caseId, sender: r.sender, subject: r.subject, reason: r.reason, read: false };
+        letters.push(letter);
+        scheduled.push(letter);
+      }
+    }
+  }
   set({
     ...state,
+    month,
+    letters,
     cases: {
       ...state.cases,
       [key]: { done: true, correct: Math.max(correct, prev?.correct ?? 0), total },
     },
   });
+  return scheduled;
+}
+
+function clampLoad(n: number): number {
+  return Math.max(0, Math.min(100, Math.round(n)));
+}
+
+export function setPos(pos: { x: number; y: number }) {
+  load();
+  set({ ...state, pos });
+}
+
+/** Konzultace v poradně – jednou za herní měsíc sníží zátěž. */
+export function consult(): boolean {
+  load();
+  if (state.consultMonth === state.month) return false;
+  set({ ...state, load: clampLoad(state.load - 10), xp: state.xp + 5, consultMonth: state.month });
+  return true;
+}
+
+export function deliveredLetters(s: GameState): Letter[] {
+  return s.letters.filter((l) => l.month <= s.month);
 }
 
 /** Odpověď v tréninku nebo v režimu Lhůta běží. */
@@ -169,11 +239,25 @@ export function recordReview(cardIds: string[], ok: boolean, source: "training" 
   return xp;
 }
 
-/** Výběr postavy. Při změně začne peněženka znovu od startovní částky postavy; karty a XP zůstávají. */
+/** Výběr postavy. Při změně začne znovu peněženka, kalendář, zátěž a schránka; karty a XP zůstávají. */
 export function chooseCharacter(id: string, startWallet: number) {
   load();
   if (state.character === id) return;
-  set({ ...state, character: id, wallet: startWallet });
+  set({ ...state, character: id, wallet: startWallet, month: 1, load: START_LOAD[id] ?? 20, letters: [], pos: SPAWN, consultMonth: 0 });
+}
+
+export function prepDone(s: GameState, prepId: string): boolean {
+  return Boolean(s.preps[caseKey(s.character, prepId)]);
+}
+
+/** Dokončení přípravy – XP jen poprvé. */
+export function recordPrep(prepId: string, correct: boolean): number {
+  load();
+  const key = caseKey(state.character, prepId);
+  const first = !state.preps[key];
+  const xp = first ? (correct ? 20 : 5) : 0;
+  set({ ...state, xp: state.xp + xp, preps: { ...state.preps, [key]: true } });
+  return xp;
 }
 
 export function openAll() {

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { CASES, CASE_BY_ID } from "@/content/game/cases";
 import { CasePlayer } from "@/components/game/CasePlayer";
+import { buildingForCase } from "@/content/game/city";
 import { HelpBanner } from "@/components/game/HelpBanner";
 
 type Props = { params: Promise<{ id: string }> };
@@ -19,10 +20,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CasePage({ params }: Props) {
   const c = CASE_BY_ID.get((await params).id);
   if (!c) notFound();
+  const b = buildingForCase(c.id);
   return (
     <div className="narrow">
       <nav className="breadcrumbs" aria-label="Drobečková navigace">
-        <Link href="/hra">Příběh</Link> › <span>{c.title}</span>
+        <Link href="/hra">Město</Link> › {b && <><Link href={`/hra/budova/${b.id}`}>{b.name}</Link> › </>}<span>{c.title}</span>
       </nav>
       <div className="eyebrow">{c.boss ? "Boss příběhu" : "Nástraha"}</div>
       <h1>{c.title}</h1>
