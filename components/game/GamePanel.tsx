@@ -22,6 +22,7 @@ import { GameLink } from "./GameNav";
 import { PixelSprite } from "./PixelSprite";
 import { LectureScreen } from "./Lecture";
 import { StreetAdvice } from "./StreetAdvice";
+import { BoatScreen } from "./Boat";
 import { STREET_BY_ID } from "@/content/game/street";
 import { LECTURE_BY_ID } from "@/content/game/lectures";
 
@@ -86,6 +87,8 @@ export function panelView(href: string): View | null {
         ? { eyebrow: c.boss ? "Boss příběhu" : "Nástraha", title: c.title, body: <><CasePlayer gameCase={c} /><HelpBanner /></> }
         : null;
     }
+    case "lod":
+      return { eyebrow: "Přístav", title: "Loď Paragraf", body: <BoatScreen /> };
     case "rada": {
       const p = STREET_BY_ID.get(id);
       return p ? { eyebrow: "Na ulici · chce poradit", title: p.npc.name, body: <StreetAdvice person={p} /> } : null;

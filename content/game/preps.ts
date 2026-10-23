@@ -1,4 +1,5 @@
 import type { Citation } from "@/lib/types";
+import { ISLAND_PREPS, ISLAND_PREP_FOR_CASE } from "./island-preps";
 
 /** Příprava před nástrahou: pojmy, proces, podobné situace, laické vysvětlení a čísla z Česka. */
 export type Stat = {
@@ -40,7 +41,7 @@ const CBA = {
   date: "5. 5. 2025",
 };
 
-export const PREPS: Prep[] = [
+const BASE_PREPS: Prep[] = [
   {
     id: "uver",
     title: "Úvěr: co podepisujete",
@@ -487,6 +488,7 @@ export const PREPS: Prep[] = [
   },
 ];
 
+export const PREPS: Prep[] = [...BASE_PREPS, ...ISLAND_PREPS];
 export const PREP_BY_ID = new Map(PREPS.map((p) => [p.id, p]));
 
 /** Které téma přípravy patří k jaké nástraze. */
@@ -520,4 +522,5 @@ export const PREP_FOR_CASE: Record<string, string> = {
   "falesny-bankar": "investice",
   "zmena-vyzivneho": "vyzivne",
   "pozde-podane-priznani": "dane",
+  ...ISLAND_PREP_FOR_CASE,
 };

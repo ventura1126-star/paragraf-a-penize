@@ -183,4 +183,103 @@ export const DIALOGUES: Record<string, Dialogue> = {
       { q: "Kdo mi sepíše návrh?", a: "Advokát, notář, exekutor, insolvenční správce – nebo akreditovaná poradna jako my, zdarma.", cite: { law: "iz", par: "390a", odst: 1 } },
     ],
   },
+
+  // --- Daňový ráj
+  "o-zu": {
+    npc: { name: "paní Marisol", role: "živnostenský úřad", shape: "jana", palette: { h: "#2b1d14", s: "#c98d66", t: "#1fa3b8", T: "#167b8a", a: "#f4f4f4", p: "#2a2a35" } },
+    hello: "Bienvenidos! Tady začíná každé podnikání. Formulář je jeden, úřadů je víc – ale vyřídíte je u mě.",
+    hook: "Máte nápad na podnikání? Pojďme ho ohlásit.",
+    ask: [
+      { q: "Potřebuju na půjčovnu nějakou školu?", a: "Ne. Půjčovna je volná živnost – stačí svéprávnost a bezúhonnost.", cite: { law: "zz", par: "25", odst: 1 } },
+      { q: "Co když se mi změní adresa?", a: "Změny nahlaste živnostenskému úřadu do 15 dnů.", cite: { law: "zz", par: "49", odst: 1 } },
+    ],
+  },
+  "o-fu": {
+    npc: { name: "pan Esteban", role: "správce daně", shape: "petr", palette: { h: "#2b1d14", s: "#b5784f", S: "#6b4a2b", t: "#f4f4f4", T: "#d8d2c4", w: "#2a4a7a", a: "#2a4a7a", p: "#2a4a7a" } },
+    hello: "Daňový ráj je jen jméno ostrova. Přiznání se podává i tady.",
+    hook: "Máte tu něco k vyřízení – vaše daně.",
+    ask: [
+      { q: "Do kdy podám přiznání?", a: "Na papíře do 3 měsíců po konci roku, elektronicky do 4 měsíců.", cite: { law: "dr", par: "136", odst: 2 } },
+      { q: "Musím ho vůbec podávat?", a: "Ano, když vaše roční zdanitelné příjmy přesáhly 50 000 Kč.", cite: { law: "zdp", par: "38g", odst: 1 } },
+    ],
+  },
+  "o-cssz": {
+    npc: { name: "paní Inés", role: "sociální zabezpečení", shape: "marie", palette: { h: "#5a3a1e", s: "#c98d66", t: "#a98fd6", T: "#7a62a8", w: "#f4f4f4", p: "#3a3a52", a: "#3a3a52" } },
+    hello: "Důchod se počítá i z podnikání. Proto se tu platí zálohy.",
+    hook: "Váš přehled o příjmech a výdajích čeká.",
+    ask: [
+      { q: "Z čeho se moje pojistné počítá?", a: "Z 55 % daňového základu, sazba je 29,2 %.", cite: { law: "zpsz", par: "5b", odst: 1 } },
+      { q: "Platí to i první rok?", a: "Začínající OSVČ mají tři roky nižší minimum – 25 % průměrné mzdy místo 35 %.", cite: { law: "zpsz", par: "14", odst: 5 } },
+    ],
+  },
+  "o-poradce": {
+    npc: { name: "pan Ricardo", role: "daňový poradce", shape: "radek", palette: { c: "#f2c94c", h: "#2b1d14", s: "#c98d66", S: "#8a5a3a", t: "#2d3440", T: "#1f252e", p: "#22262d" } },
+    hello: "Daňová optimalizace? Ano. Daňové úniky? Ty dělá soused v bílém obleku.",
+    hook: "Spočítáme, jestli se vám vyplatí paušální režim.",
+    ask: [
+      { q: "Kdo nesmí do paušálního režimu?", a: "Plátce DPH a ten, kdo má zároveň příjmy ze zaměstnání.", cite: { law: "zdp", par: "2a", odst: 1 } },
+      { q: "Co je výhodnější, paušál, nebo účtenky?", a: "Záleží na skutečných výdajích. Když jsou nižší než paušál, berte paušál.", cite: { law: "zdp", par: "7", odst: 7 } },
+    ],
+  },
+  "o-ucetni": {
+    npc: { name: "Valentina", role: "účetní", shape: "jana", palette: { h: "#9b2d5a", s: "#e8b48f", t: "#4fb7b3", T: "#2f8784", a: "#f2c94c", p: "#2a2a35" } },
+    hello: "Obrat si hlídám za vás. A letos se blíží dva miliony.",
+    hook: "Musíme probrat DPH.",
+    ask: [
+      { q: "Co se počítá do obratu?", a: "Příjmy za plnění, která děláte v rámci podnikání. Hranice je 2 000 000 Kč za kalendářní rok.", cite: { law: "zdph", par: "6", odst: 1 } },
+      { q: "Kolik času mám na registraci?", a: "10 pracovních dnů od překročení obratu.", cite: { law: "zdph", par: "94", odst: 1 } },
+    ],
+  },
+  "o-pujcovna": {
+    npc: { name: "Diego", role: "váš zaměstnanec", shape: "ondrej", palette: { h: "#1f1d22", s: "#b5784f", t: "#f08a5d", T: "#c26a42", w: "#f4f4f4", p: "#2f5d8a" } },
+    hello: "Šéfe, hotel chce prkna na celé léto. A přišla faktura za nový člun.",
+    hook: "Faktury nám neuplavou. Teda doufám.",
+    ask: [
+      { q: "Co musí být na faktuře?", a: "Mimo jiné obě DIČ, evidenční číslo, datum, základ daně a sazba.", cite: { law: "zdph", par: "29", odst: 1 } },
+      { q: "Do kdy ji musím vystavit?", a: "Do 15 dnů ode dne, kdy vznikla povinnost přiznat daň.", cite: { law: "zdph", par: "28", odst: 8 } },
+    ],
+  },
+  "o-notar": {
+    npc: { name: "JUDr. Alvarez", role: "notářka", shape: "marie", palette: { h: "#1f1d22", s: "#e8b48f", t: "#1f1d22", T: "#111111", w: "#f4f4f4", p: "#1f1d22", a: "#1f1d22" } },
+    hello: "S.r.o. se nezakládá podáním ruky. Zakládá se veřejnou listinou – u mě.",
+    hook: "Připravila jsem návrh zakladatelské listiny.",
+    ask: [
+      { q: "Kolik musím vložit?", a: "Minimum je 1 Kč. Rozumný kapitál ale firmě pomůže platit první účty.", cite: { law: "zok", par: "142", odst: 1 } },
+      { q: "Ručím pak celým majetkem?", a: "Ne, společník ručí jen do výše nesplaceného vkladu.", cite: { law: "zok", par: "132", odst: 1 } },
+    ],
+  },
+  "o-kancelar": {
+    npc: { name: "Valentina", role: "účetní firmy", shape: "jana", palette: { h: "#9b2d5a", s: "#e8b48f", t: "#4fb7b3", T: "#2f8784", a: "#f2c94c", p: "#2a2a35" } },
+    hello: "Účetní závěrka je hotová. Firma vydělala.",
+    hook: "Probereme, kolik si můžete vyplatit.",
+    ask: [
+      { q: "Kolik zaplatí firma?", a: "21 % ze zisku.", cite: { law: "zdp", par: "21", odst: 1 } },
+      { q: "A já z dividendy?", a: "Sráží se 15 %, víc už neřešíte.", cite: { law: "zdp", par: "36", odst: 2, pism: "b" } },
+    ],
+  },
+  "o-offshore": {
+    npc: { name: "Mr. White", role: "Offshore Paradise Ltd.", shape: "petr", palette: { h: "#f4f4f4", s: "#f0c8a8", S: "#e8e0d0", t: "#f4f4f4", T: "#d8d2c4", w: "#f4f4f4", a: "#d4a017", p: "#f4f4f4" } },
+    hello: "Daně jsou pro chudé. Pro vás máme strukturu.",
+    hook: "Stačí převést zisk přes naše faktury za „poradenství“.",
+    ask: [
+      { q: "Je to legální?", a: "Samozřejmě! Teda… na tomhle ostrově. (Rezident Česka ale daní příjmy z celého světa.)", cite: { law: "zdp", par: "2", odst: 2 } },
+      { q: "Co když přijde kontrola?", a: "Ta nepřijde. (Přijde. A doměřená daň nese penále 20 %.)", cite: { law: "dr", par: "251", odst: 1 } },
+    ],
+  },
+  "o-bar": {
+    npc: { name: "Rafa", role: "barman", shape: "radek", palette: { c: "#3fae4f", h: "#2b1d14", s: "#b5784f", S: "#8a5a3a", t: "#f2c94c", T: "#c9a227", p: "#2f5d8a" } },
+    hello: "Piña colada? Na pláži se nejlíp přemýšlí o podnikání.",
+    ask: [
+      { q: "Kolik odvádíš státu ty?", a: "Daň, pojištění a od letoška i DPH – bar překročil dva miliony obratu.", cite: { law: "zdph", par: "6", odst: 1 } },
+      { q: "Platí se tu DPH i na drinky?", a: "Ano. Pokud zákon nestanoví sníženou sazbu, platí základních 21 %.", cite: { law: "zdph", par: "47", odst: 1 } },
+    ],
+  },
+  "o-poradna": {
+    npc: { name: "Ana", role: "daňová poradkyně zdarma", shape: "jana", palette: { h: "#2b1d14", s: "#c98d66", t: "#3d8c58", T: "#2a633e", a: "#f4f4f4", p: "#2f3540" } },
+    hello: "Bojíte se, že jste v přiznání něco spletli? Oprava je vždycky levnější než kontrola.",
+    ask: [
+      { q: "Jak opravím chybu v přiznání?", a: "Dodatečným přiznáním. Když ho podáte sami, penále neplatíte.", cite: { law: "dr", par: "251", odst: 4 } },
+      { q: "Jak dlouho mám schovávat papíry?", a: "Daň lze stanovit zpravidla do 3 let, s prodloužením až 10 let. Archivujte raději déle.", cite: { law: "dr", par: "148", odst: 1 } },
+    ],
+  },
 };

@@ -47,6 +47,15 @@ export const CAMPAIGNS: Campaign[] = [
 
 export const CAMPAIGN_BY_CHARACTER = new Map(CAMPAIGNS.map((c) => [c.character, c]));
 
+/** Daňový ráj: společný příběh všech postav po dokončení Města dluhů (od živnosti po vlastní firmu). */
+export const ISLAND_CAMPAIGN: Campaign = {
+  character: "*",
+  title: "Daňový ráj",
+  intro: "Pláže, palmy a půjčovna paddleboardů. Od živnostenského listu přes DPH až po vlastní s.r.o. – a daně, které platí i v ráji.",
+  chapters: ["zivnostensky-list", "pausalni-vydaje", "zalohy-na-pojisteni", "pausalni-dan", "dph-obrat", "faktura-s-dph", "kontrolni-hlaseni", "zalozeni-sro", "zisk-firmy"],
+  boss: "danova-kontrola",
+};
+
 export function campaignCaseIds(c: Campaign): string[] {
   return [...c.chapters, c.boss];
 }

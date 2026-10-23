@@ -2,7 +2,7 @@
 
 import { GameLink as Link } from "./GameNav";
 import { useState } from "react";
-import type { Building } from "@/content/game/city";
+import { HOME_IDS, PORADNA_IDS, SCHOOL_IDS, type Building } from "@/content/game/city";
 import { CASE_BY_ID } from "@/content/game/cases";
 import { fill } from "@/content/game/characters";
 import { PREP_BY_ID, PREPS } from "@/content/game/preps";
@@ -25,7 +25,7 @@ export function BuildingScreen({ b }: { b: Building }) {
   const [talked, setTalked] = useState(false);
   if (!hydrated) return <p className="muted">Načítám…</p>;
   if (!ch) return <NeedCharacter />;
-  if (b.id === "skola") return <SchoolScreen />;
+  if (SCHOOL_IDS.has(b.id)) return <SchoolScreen />;
 
   const here = b.cases.map((id) => ({ id, c: CASE_BY_ID.get(id)!, acc: caseAccess(g, id) })).filter((x) => x.c);
   const mine = here.filter((x) => x.acc !== "elsewhere");
@@ -80,18 +80,18 @@ export function BuildingScreen({ b }: { b: Building }) {
           </ul>
         </section>
       )}
-      {mine.length === 0 && b.kind !== "safe" && b.id !== "domov" && (
+      {mine.length === 0 && b.kind !== "safe" && !HOME_IDS.has(b.id) && b.cases.length > 0 && (
         <p className="muted">Tahle budova do příběhu vaší postavy nepatří. Ostatní nástrahy tu čekají na jiné postavy.</p>
       )}
 
-      {b.id === "domov" && (
+      {HOME_IDS.has(b.id) && (
         <section>
           <h2>Schránka</h2>
           <Mailbox />
         </section>
       )}
 
-      {b.id === "poradna" && (
+      {PORADNA_IDS.has(b.id) && (
         <section className="card">
           <h2 style={{ marginTop: 0 }}>Konzultace</h2>
           <p>

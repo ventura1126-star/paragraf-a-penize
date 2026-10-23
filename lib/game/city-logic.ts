@@ -1,14 +1,20 @@
-import { BUILDINGS, type Building } from "@/content/game/city";
-import { CAMPAIGN_BY_CHARACTER, campaignCaseIds } from "@/content/game/campaigns";
+import { HOME_IDS, SCHOOL_IDS, worldBuildings, type Building } from "@/content/game/city";
+import { CAMPAIGN_BY_CHARACTER, ISLAND_CAMPAIGN, campaignCaseIds, type Campaign } from "@/content/game/campaigns";
 import { caseProgress, deliveredLetters, lectureDone, type GameState } from "./store";
 import { LECTURES, type Lecture } from "@/content/game/lectures";
 
 export type CaseAccess = "available" | "done" | "later" | "elsewhere";
 
+/** Příběh světa, ve kterém postava právě je (na ostrově společný Daňový ráj). */
+export function campaignFor(s: GameState): Campaign | undefined {
+  if (!s.character) return undefined;
+  return s.world === "ostrov" ? ISLAND_CAMPAIGN : CAMPAIGN_BY_CHARACTER.get(s.character);
+}
+
 /** Stav nástrahy pro aktuální postavu: k hraní, vyřešená, později v příběhu, nebo není v jejím příběhu. */
 export function caseAccess(s: GameState, caseId: string): CaseAccess {
   if (caseProgress(s, caseId)?.done) return "done";
-  const camp = s.character ? CAMPAIGN_BY_CHARACTER.get(s.character) : undefined;
+  const camp = campaignFor(s);
   const letter = deliveredLetters(s).some((l) => l.caseId === caseId && !l.read);
   if (letter) return "available";
   if (!camp) return "elsewhere";
@@ -34,18 +40,18 @@ export type BuildingState = {
 };
 
 export function nextStoryCase(s: GameState): string | undefined {
-  const camp = s.character ? CAMPAIGN_BY_CHARACTER.get(s.character) : undefined;
+  const camp = campaignFor(s);
   if (!camp) return undefined;
   return campaignCaseIds(camp).find((id) => caseAccess(s, id) === "available");
 }
 
 export function buildingStates(s: GameState): BuildingState[] {
   const next = nextStoryCase(s);
-  return BUILDINGS.map((b) => {
+  return worldBuildings(s.world).map((b) => {
     const acc = b.cases.map((c) => caseAccess(s, c));
     // Domov se schránkou, škola a bezpečná místa jsou otevřená vždy.
-    const open = b.kind === "safe" || b.id === "domov" || b.id === "skola" || acc.some((a) => a !== "elsewhere");
-    const calling = acc.some((a) => a === "available") || (b.id === "skola" && Boolean(nextLecture(s)));
+    const open = b.kind === "safe" || HOME_IDS.has(b.id) || SCHOOL_IDS.has(b.id) || acc.some((a) => a !== "elsewhere");
+    const calling = acc.some((a) => a === "available") || (SCHOOL_IDS.has(b.id) && Boolean(nextLecture(s)));
     const later = acc.some((a) => a === "later");
     const done = acc.some((a) => a === "done") && !calling && !later;
     return { building: b, open, calling, next: Boolean(next && b.cases.includes(next)), later, done };
@@ -74,4 +80,9 @@ export function lectureAccess(s: GameState, i: number): LectureAccess {
 /** První otevřená přednáška, na které postava ještě nebyla. */
 export function nextLecture(s: GameState): Lecture | undefined {
   return LECTURES.find((_, i) => lectureAccess(s, i) === "open");
+}
+
+/** Daňový ráj dokončen (boss ostrova poražen). */
+export function islandFinished(s: GameState): boolean {
+  return Boolean(caseProgress(s, ISLAND_CAMPAIGN.boss)?.done);
 }

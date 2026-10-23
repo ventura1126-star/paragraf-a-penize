@@ -5,7 +5,8 @@ import { CARDS } from "@/content/game/cards";
 import { LAWS } from "@/content/laws";
 import { characterOf, useGame } from "@/lib/game/store";
 import { CASE_BY_ID } from "@/content/game/cases";
-import { CAMPAIGN_BY_CHARACTER, campaignCaseIds } from "@/content/game/campaigns";
+import { campaignCaseIds } from "@/content/game/campaigns";
+import { campaignFor } from "@/lib/game/city-logic";
 import { formatDay } from "@/lib/game/dates";
 import { CardBack, CardFace } from "./ParagraphCard";
 
@@ -13,7 +14,7 @@ export function Album() {
   const g = useGame();
   const [open, setOpen] = useState<string | null>(null);
   const ch = characterOf(g);
-  const camp = ch ? CAMPAIGN_BY_CHARACTER.get(ch.id) : undefined;
+  const camp = campaignFor(g);
   const campCards = new Set(camp ? campaignCaseIds(camp).flatMap((id) => CASE_BY_ID.get(id)?.rounds.map((r) => r.card) ?? []) : []);
   // Karty příběhu zvolené postavy + všechny už získané (i z jiných příběhů); karty z režimu Lhůta běží vždy.
   const shown = CARDS.filter((c) => campCards.has(c.id) || g.cards[c.id] || c.id === "osr-57-2" || c.id === "osr-49-4");

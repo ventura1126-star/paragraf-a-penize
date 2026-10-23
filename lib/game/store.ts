@@ -3,7 +3,7 @@
 import { useSyncExternalStore } from "react";
 import type { Outcome } from "@/content/game/types";
 import { CHARACTER_BY_ID, type Character } from "@/content/game/characters";
-import { LETTER_RULES, SPAWN, START_LOAD } from "@/content/game/city";
+import { LETTER_RULES, PIER_END, SPAWN, START_LOAD, type World } from "@/content/game/city";
 import { EVENTS, EVENT_BY_ID } from "@/content/game/events";
 import { addDays, todayIso } from "./dates";
 
@@ -51,6 +51,8 @@ export type GameState = {
   advice: Record<string, boolean>;
   /** Verze mapy (2 = město s okružní silnicí, souřadnice posunuté o 3 dlaždice). */
   mapV?: number;
+  /** Kde postava je: Město dluhů, nebo ostrov Daňový ráj. */
+  world: World;
 };
 
 export type Letter = {
@@ -86,6 +88,7 @@ const INITIAL: GameState = {
   lectures: {},
   advice: {},
   mapV: 2,
+  world: "mesto",
 };
 
 export const LEVELS = [
@@ -331,7 +334,7 @@ export function recordReview(cardIds: string[], ok: boolean, source: "training" 
 export function chooseCharacter(id: string, startWallet: number) {
   load();
   if (state.character === id) return;
-  set({ ...state, character: id, wallet: startWallet, month: 1, load: START_LOAD[id] ?? 20, letters: [], pos: SPAWN, consultMonth: 0 });
+  set({ ...state, character: id, wallet: startWallet, month: 1, load: START_LOAD[id] ?? 20, letters: [], pos: SPAWN, consultMonth: 0, world: "mesto" });
 }
 
 export function prepDone(s: GameState, prepId: string): boolean {
@@ -376,6 +379,12 @@ export function recordAdvice(npcId: string, index: number, ok: boolean): number 
   if (state.advice[key]) return 0;
   set({ ...state, xp: state.xp + 25, advice: { ...state.advice, [key]: true } });
   return 25;
+}
+
+/** Plavba lodí mezi městem a ostrovem: postava vystoupí na konci mola. */
+export function travel(world: World) {
+  load();
+  set({ ...state, world, pos: PIER_END });
 }
 
 export function openAll() {

@@ -129,6 +129,35 @@ export const CARD_ICON: Record<string, keyof typeof ICONS> = {
   "oz-923-2": "family",
   "dr-250-3": "receipt",
   "dr-250-1": "clock",
+  // Daňový ráj
+  "zz-10-1": "stamp",
+  "zz-25-1": "wrench",
+  "zz-45a-1": "door",
+  "zdp-7-7": "percent",
+  "zdp-38g-1": "receipt",
+  "zpsz-5b-1": "family",
+  "zpsz-7-1": "percent",
+  "zpvzp-3a-2": "shield",
+  "zdp-2a-1": "no",
+  "zdp-7a-1": "calendar",
+  "zdph-6-1": "chart",
+  "zdph-6-2": "warning",
+  "zdph-94-1": "clock",
+  "zdph-47-1": "percent",
+  "zdph-28-8": "receipt",
+  "zdph-29-1": "sign",
+  "zdph-72-1": "refund",
+  "zdph-101e-2": "calendar",
+  "zdph-101h-1": "gavel",
+  "zok-142-1": "coins",
+  "zok-8-2": "stamp",
+  "zok-132-1": "shield",
+  "zdp-21-1": "bank",
+  "zdp-36-2": "coins",
+  "zok-40-1": "lock",
+  "zdp-2-2": "scale",
+  "dr-148-1": "hourglass",
+  "dr-251-1": "down",
 };
 
 /** Barva karty podle zákona (vlastní paleta sběratelských karet). */
@@ -149,6 +178,11 @@ export const LAW_COLOR: Record<LawId, [string, string]> = {
   zek: ["#5a3db3", "#a592ea"],
   znv: ["#b34d63", "#ec9aab"],
   zps: ["#3a46a8", "#8f99e6"],
+  zdph: ["#0e8f8a", "#6fe0d6"],
+  zz: ["#c9762b", "#f5bf7e"],
+  zpsz: ["#8a3d9e", "#d39be3"],
+  zpvzp: ["#2b8a4f", "#86d9a5"],
+  zok: ["#1f4f8f", "#86aee8"],
 };
 
 export function CardIcon({ id, size = 40 }: { id: string; size?: number }) {

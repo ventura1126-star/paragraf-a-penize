@@ -4,8 +4,8 @@
  * dokola a nikde nekončí ve vodě. Budovy stojí v blocích a mají dveře na chodníku.
  */
 export const TILE = 32;
-export const WORLD_W = 60;
-export const WORLD_H = 41;
+export const WORLD_W = 64;
+export const WORLD_H = 45;
 export const LAND = { x0: 2, y0: 2, x1: 57, y1: 38 };
 /** Řádky a sloupce silnic (každý pás má dva pruhy); první a poslední pás tvoří okružní silnici. */
 export const ROAD_ROWS = [3, 4, 14, 15, 25, 26, 36, 37];
@@ -16,7 +16,9 @@ const ROAD_SPAN = { x0: 3, x1: 56, y0: 3, y1: 37 };
 export const ROW_PAIRS: [number, number][] = [[3, 4], [14, 15], [25, 26], [36, 37]];
 export const COL_PAIRS: [number, number][] = [[3, 4], [16, 17], [29, 30], [42, 43], [55, 56]];
 
-export type District = "obchod" | "finance" | "urady" | "bydleni" | "namesti";
+export type District = "obchod" | "finance" | "urady" | "bydleni" | "namesti" | "promenada" | "zatoka" | "radnice" | "vily" | "laguna";
+/** Město dluhů, nebo ostrov Daňový ráj (stejné rozložení ulic, jiné budovy a karibský vzhled). */
+export type World = "mesto" | "ostrov";
 export type BuildingKind = "risk" | "normal" | "office" | "safe";
 
 export type Building = {
@@ -45,6 +47,11 @@ export const DISTRICT_NAMES: Record<District, string> = {
   urady: "Úřední čtvrť",
   bydleni: "Bydlení",
   namesti: "Náměstí",
+  promenada: "Přístavní promenáda",
+  zatoka: "Finanční zátoka",
+  radnice: "Úřady pod palmami",
+  vily: "Vilová čtvrť",
+  laguna: "Náměstí u laguny",
 };
 
 const COL: Record<string, number> = { X1A: 6, X1B: 11, X2A: 19, X2B: 24, X3A: 32, X3B: 37, X4A: 45, X4B: 50 };
@@ -83,10 +90,48 @@ export const BUILDINGS: Building[] = [
   { id: "poradna", name: "Dluhová poradna", district: "namesti", kind: "safe", x: 19, y: 17, w: 9, h: 5, door: { x: 23, y: 16 }, cases: ["oddluzeni", "dedictvi-v-oddluzeni"], greeting: "„Posaďte se. Projdeme spolu, co dlužíte, a najdeme cestu ven. Zdarma.“" },
 ];
 
-export const BUILDING_BY_ID = new Map(BUILDINGS.map((b) => [b.id, b]));
+/** Daňový ráj: budovy stojí na stejných místech jako ve Městě dluhů (klíč = budova ve městě). */
+const ISLAND_DEF: Record<string, Omit<Building, "x" | "y" | "w" | "h" | "door">> = {
+  elektro: { id: "o-zu", name: "Živnostenský úřad", district: "promenada", kind: "office", cases: ["zivnostensky-list"], prep: "podnikani", greeting: "„Dobrý den pod palmami. Chcete ohlásit živnost? Posaďte se.“" },
+  operator: { id: "o-bar", name: "Plážový bar Mango", district: "promenada", kind: "normal", cases: [], greeting: "„Piña colada? Na účet podniku ne – to by byl nepeněžní příjem!“" },
+  eshop: { id: "o-cssz", name: "Správa sociálního zabezpečení", district: "promenada", kind: "office", cases: ["zalohy-na-pojisteni"], prep: "dane-osvc", greeting: "„Přehled o příjmech a výdajích máte s sebou?“" },
+  spotrebice: { id: "o-trh", name: "Rybí trh", district: "promenada", kind: "normal", cases: [], greeting: "Vůně grilovaných ryb a stánkaři, kteří všichni mají živnostenský list." },
+  banka: { id: "o-banka", name: "Banco Palma", district: "zatoka", kind: "normal", cases: [], greeting: "„Podnikatelský účet? Vedeme je i pro OSVČ – a výpisy archivujte, budou se hodit.“" },
+  nebankovka: { id: "o-offshore", name: "Offshore Paradise Ltd.", district: "zatoka", kind: "risk", cases: ["danova-kontrola"], prep: "kontrola", greeting: "„Daně? U nás žádné. Podepište tady, tady a tady.“" },
+  investice: { id: "o-poradce", name: "Daňový poradce", district: "zatoka", kind: "normal", cases: ["pausalni-dan"], prep: "dane-osvc", greeting: "„Paušál, výdaje, pojistné – spočítáme, co se vám vyplatí. Legálně.“" },
+  arbitr: { id: "o-ucetni", name: "Účetní kancelář Palma", district: "zatoka", kind: "normal", cases: ["dph-obrat"], prep: "dph", greeting: "„Hlídáte si obrat? Já ano. A letos to vypadá na DPH.“" },
+  soud: { id: "o-notar", name: "Notářství", district: "radnice", kind: "office", cases: ["zalozeni-sro"], prep: "firma", greeting: "„Zakladatelská listina, notářský zápis, rejstřík. Vše na jednom místě.“" },
+  exekutor: { id: "o-pujcovna", name: "Paddle Paradise", district: "radnice", kind: "normal", cases: ["faktura-s-dph"], prep: "dph", greeting: "Vaše půjčovna. Prkna, pádla, a na stole hromádka faktur." },
+  fu: { id: "o-fu", name: "Finanční úřad", district: "radnice", kind: "office", cases: ["pausalni-vydaje", "kontrolni-hlaseni"], prep: "dane-osvc", greeting: "„I v ráji se podává přiznání. Elektronicky máte o měsíc víc.“" },
+  up: { id: "o-celnice", name: "Přístavní celnice", district: "radnice", kind: "office", cases: [], greeting: "„Zboží ze zahraničí? Clo a DPH se platí i v přístavu.“" },
+  domov: { id: "o-domov", name: "Bungalov a schránka", district: "vily", kind: "normal", cases: [], greeting: "Bungalov s výhledem na moře. Ve schránce bývá pošta i tady." },
+  kulturak: { id: "o-hotel", name: "Hotel Kokos", district: "vily", kind: "normal", cases: [], greeting: "„Vítejte v Kokosu! Náš nejlepší zákazník na paddleboardy.“" },
+  byt: { id: "o-kancelar", name: "Kancelář Paddle Paradise s.r.o.", district: "vily", kind: "normal", cases: ["zisk-firmy"], prep: "firma", greeting: "Vaše firma. Účetní závěrka leží na stole." },
+  dilna: { id: "o-dilna", name: "Dílna na prkna", district: "vily", kind: "normal", cases: [], greeting: "Tady se lepí prasklá prkna. Řemeslná živnost – paušál 80 %." },
+  poradna: { id: "o-poradna", name: "Daňová poradna u laguny", district: "laguna", kind: "safe", cases: [], greeting: "„Bojíte se kontroly? Projdeme spolu vaše přiznání. Zdarma.“" },
+  skola: { id: "o-skola", name: "Daňová akademie", district: "laguna", kind: "normal", cases: [], greeting: "Akademie pod palmou. Přednášky jsou stejné jako ve městě – peníze fungují všude stejně." },
+};
+export const ISLAND_BUILDINGS: Building[] = BUILDINGS.map((b) => ({ ...ISLAND_DEF[b.id], x: b.x, y: b.y, w: b.w, h: b.h, door: b.door }));
+
+export function worldBuildings(w: World): Building[] {
+  return w === "ostrov" ? ISLAND_BUILDINGS : BUILDINGS;
+}
+/** Domov se schránkou, poradna a škola mají v obou světech stejnou roli. */
+export const HOME_IDS = new Set(["domov", "o-domov"]);
+export const PORADNA_IDS = new Set(["poradna", "o-poradna"]);
+export const SCHOOL_IDS = new Set(["skola", "o-skola"]);
+
+export const BUILDING_BY_ID = new Map([...BUILDINGS, ...ISLAND_BUILDINGS].map((b) => [b.id, b]));
 
 export function buildingForCase(caseId: string): Building | undefined {
-  return BUILDINGS.find((b) => b.cases.includes(caseId));
+  return [...BUILDINGS, ...ISLAND_BUILDINGS].find((b) => b.cases.includes(caseId));
+}
+
+/** Přístav: molo na východním břehu, na jeho konci kotví loď mezi městem a ostrovem. */
+export const PIER = { x0: 58, x1: 60, y: 20 };
+export const PIER_END = { x: PIER.x1, y: PIER.y };
+export function isPier(x: number, y: number): boolean {
+  return y === PIER.y && x >= PIER.x0 && x <= PIER.x1;
 }
 
 /** Postava začíná před domovem (dlaždice). */
@@ -146,6 +191,7 @@ function inRect(x: number, y: number, r: { x: number; y: number; w: number; h: n
 
 /** Průchozí dlaždice: pevnina mimo budovy a kašnu. */
 export function isWalkable(x: number, y: number): boolean {
+  if (isPier(x, y)) return true;
   return isLand(x, y) && !buildingAt(x, y) && !inRect(x, y, FOUNTAIN);
 }
 

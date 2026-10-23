@@ -1,5 +1,4 @@
 import {
-  BUILDINGS,
   DECOR,
   FOUNTAIN,
   LAND,
@@ -10,6 +9,11 @@ import {
   WORLD_W,
   PARKING,
   GARAGES,
+  PIER,
+  PORADNA_IDS,
+  SCHOOL_IDS,
+  worldBuildings,
+  type World,
   isLand,
   isRoad,
   isSidewalk,
@@ -18,7 +22,7 @@ import {
 } from "@/content/game/city";
 
 /** Paleta herního plátna (pohled shora ve stylu GTA 1) – nezávislá na světlém/tmavém režimu stránky. */
-export const C = {
+const CITY_C = {
   water: "#24527d",
   waterHi: "#3470a3",
   grass: "#4f7d3a",
@@ -33,6 +37,36 @@ export const C = {
   shadow: "rgba(0,0,0,0.38)",
   sand: "#c9b07a",
 };
+/** Daňový ráj: tyrkysová voda, písek místo trávy, světlé chodníky. */
+const ISLAND_C: typeof CITY_C = {
+  water: "#1aa0b5",
+  waterHi: "#5fd3e0",
+  grass: "#e6cf94",
+  grassDark: "#d6bb79",
+  road: "#4a4b50",
+  roadEdge: "#3c3d42",
+  lane: "#f4efd8",
+  zebra: "#fbf6e6",
+  sidewalk: "#e9dcc0",
+  sidewalkSeam: "#d8c8a6",
+  curb: "#b9a77f",
+  shadow: "rgba(0,0,0,0.3)",
+  sand: "#f0dca8",
+};
+let C = CITY_C;
+let island = false;
+/** Přepne vzhled kreslení (město, nebo ostrov). */
+export function setTheme(w: World) {
+  island = w === "ostrov";
+  C = island ? ISLAND_C : CITY_C;
+}
+/** Aktuální paleta (pro náhledy mimo mapu). */
+export function palette() {
+  return C;
+}
+export function waterColor(w: World) {
+  return w === "ostrov" ? ISLAND_C.water : CITY_C.water;
+}
 
 const ROOF: Record<District, { base: string; hi: string; lo: string }> = {
   obchod: { base: "#c79a2a", hi: "#e2bd52", lo: "#8f6c17" },
@@ -40,6 +74,11 @@ const ROOF: Record<District, { base: string; hi: string; lo: string }> = {
   urady: { base: "#7b7872", hi: "#9b9891", lo: "#55534f" },
   bydleni: { base: "#a3583b", hi: "#c4795a", lo: "#733b25" },
   namesti: { base: "#3d8c58", hi: "#5fb078", lo: "#2a633e" },
+  promenada: { base: "#e78fa6", hi: "#f3b3c4", lo: "#b8607a" },
+  zatoka: { base: "#4fb7b3", hi: "#7fd8d3", lo: "#2f8784" },
+  radnice: { base: "#e8c15a", hi: "#f5da8a", lo: "#b8902e" },
+  vily: { base: "#ee8a5e", hi: "#f6ae8a", lo: "#bb5f38" },
+  laguna: { base: "#a98fd6", hi: "#c7b3ea", lo: "#7a62a8" },
 };
 const KIND_COLOR: Record<Building["kind"], string> = { risk: "#ff5c5c", normal: "#ffd447", office: "#c9c9c9", safe: "#5fe08a" };
 
@@ -58,6 +97,15 @@ function rng(seed: string) {
 function px(t: number) {
   return t * TILE;
 }
+
+/** Reklamní cedule na střeše (barva, text). */
+const SIGNS: Record<string, [string, string]> = {
+  kulturak: ["#e84393", "OBĚD ZDARMA!"],
+  nebankovka: ["#ff5c5c", "PENÍZE HNED!"],
+  "o-offshore": ["#d4a017", "0 % DANÍ!*"],
+  "o-bar": ["#f08a5d", "HAPPY HOUR"],
+  "o-hotel": ["#1fa3b8", "HOTEL KOKOS"],
+};
 
 /** Střecha budovy vč. stínu, detailů a cedule. `ox, oy` = posun (pro náhled mimo mapu). */
 export function drawBuilding(ctx: CanvasRenderingContext2D, b: Building, ox = 0, oy = 0) {
@@ -112,7 +160,7 @@ export function drawBuilding(ctx: CanvasRenderingContext2D, b: Building, ox = 0,
   // zvláštní střechy
   const cxr = x + w / 2;
   const cyr = y + h / 2 + (b.door.y >= b.y + b.h ? -10 : 10);
-  if (b.id === "banka") {
+  if (b.id === "banka" || b.id === "o-banka") {
     ctx.fillStyle = "#2f3a48";
     ctx.beginPath();
     ctx.arc(cxr, cyr, 22, 0, Math.PI * 2);
@@ -139,11 +187,11 @@ export function drawBuilding(ctx: CanvasRenderingContext2D, b: Building, ox = 0,
     ctx.beginPath();
     ctx.arc(cxr - 6, cyr - 6, 12, 0, Math.PI * 2);
     ctx.fill();
-  } else if (b.id === "poradna") {
+  } else if (PORADNA_IDS.has(b.id)) {
     ctx.fillStyle = "#f4f1e8";
     ctx.fillRect(cxr - 6, cyr - 20, 12, 40);
     ctx.fillRect(cxr - 20, cyr - 6, 40, 12);
-  } else if (b.id === "skola") {
+  } else if (SCHOOL_IDS.has(b.id)) {
     // akademická budova: sloupořadí u vchodu, kopule a cedule
     ctx.fillStyle = "rgba(0,0,0,0.3)";
     ctx.fillRect(x + 14, y + 16, w - 24, 20);
@@ -153,7 +201,7 @@ export function drawBuilding(ctx: CanvasRenderingContext2D, b: Building, ox = 0,
     ctx.font = "bold 10px ui-monospace, Menlo, monospace";
     ctx.textBaseline = "middle";
     ctx.textAlign = "center";
-    ctx.fillText("VYSOKÁ ŠKOLA FINANČNÍ", x + w / 2 - 2, y + 23, w - 34);
+    ctx.fillText(b.id === "o-skola" ? "DAŇOVÁ AKADEMIE" : "VYSOKÁ ŠKOLA FINANČNÍ", x + w / 2 - 2, y + 23, w - 34);
     ctx.textAlign = "start";
     for (let i = 0; i < 6; i++) {
       ctx.fillStyle = "#efe6cf";
@@ -185,15 +233,16 @@ export function drawBuilding(ctx: CanvasRenderingContext2D, b: Building, ox = 0,
     ctx.fillRect(kx - 7, ky, 14, 8);
     ctx.fillStyle = "#ffd447";
     ctx.fillRect(kx + 10, ky - 2, 2, 10);
-  } else if (b.id === "kulturak" || b.id === "nebankovka") {
+  } else if (SIGNS[b.id]) {
+    const [bg, text] = SIGNS[b.id];
     ctx.fillStyle = "rgba(0,0,0,0.35)";
     ctx.fillRect(x + 14, y + 18, w - 24, 22);
-    ctx.fillStyle = b.id === "kulturak" ? "#e84393" : "#ff5c5c";
+    ctx.fillStyle = bg;
     ctx.fillRect(x + 10, y + 14, w - 24, 22);
     ctx.fillStyle = "#fff";
     ctx.font = "bold 10px ui-monospace, Menlo, monospace";
     ctx.textBaseline = "middle";
-    ctx.fillText(b.id === "kulturak" ? "OBĚD ZDARMA!" : "PENÍZE HNED!", x + 16, y + 25, w - 36);
+    ctx.fillText(text, x + 16, y + 25, w - 36);
   }
   // vchod (stříška nad dveřmi)
   const doorBelow = b.door.y >= b.y + b.h;
@@ -222,7 +271,31 @@ export function drawBuilding(ctx: CanvasRenderingContext2D, b: Building, ox = 0,
   ctx.fillText(b.name, plx + 8, py + plateH / 2 + 1, w - 20);
 }
 
+/** Palma shora: listy do hvězdy kolem koruny. */
+function drawPalm(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number) {
+  ctx.fillStyle = C.shadow;
+  ctx.beginPath();
+  ctx.arc(cx + 6, cy + 6, r * 0.9, 0, Math.PI * 2);
+  ctx.fill();
+  for (let i = 0; i < 7; i++) {
+    const a = (i / 7) * Math.PI * 2 + r;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(a);
+    ctx.fillStyle = i % 2 ? "#2f8f3e" : "#3fae4f";
+    ctx.beginPath();
+    ctx.ellipse(r * 0.55, 0, r * 0.62, r * 0.22, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+  ctx.fillStyle = "#8a5a2b";
+  ctx.beginPath();
+  ctx.arc(cx, cy, r * 0.2, 0, Math.PI * 2);
+  ctx.fill();
+}
+
 function drawTree(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number) {
+  if (island) return drawPalm(ctx, cx, cy, r * 1.15);
   ctx.fillStyle = C.shadow;
   ctx.beginPath();
   ctx.arc(cx + 5, cy + 5, r, 0, Math.PI * 2);
@@ -263,7 +336,8 @@ export function drawCar(ctx: CanvasRenderingContext2D, cx: number, cy: number, a
 }
 
 /** Statická vrstva celého města (vykreslí se jednou do offscreen plátna). */
-export function drawStatic(ctx: CanvasRenderingContext2D) {
+export function drawStatic(ctx: CanvasRenderingContext2D, world: World = "mesto") {
+  setTheme(world);
   const W = WORLD_W * TILE;
   const H = WORLD_H * TILE;
   const rand = rng("mesto-dluhu");
@@ -273,6 +347,13 @@ export function drawStatic(ctx: CanvasRenderingContext2D) {
   for (let i = 0; i < 260; i++) {
     ctx.fillStyle = C.waterHi;
     ctx.fillRect(rand() * W, rand() * H, 10 + rand() * 14, 2);
+  }
+  if (island) {
+    // mělčina u pláže
+    ctx.fillStyle = "#5ccfd8";
+    ctx.fillRect(px(LAND.x0 - 1), px(LAND.y0 - 1), px(LAND.x1 - LAND.x0 + 3), px(LAND.y1 - LAND.y0 + 3));
+    ctx.fillStyle = "#8fe3e6";
+    ctx.fillRect(px(LAND.x0) - 10, px(LAND.y0) - 10, px(LAND.x1 - LAND.x0 + 1) + 20, px(LAND.y1 - LAND.y0 + 1) + 20);
   }
   // pevnina: tráva
   ctx.fillStyle = C.grass;
@@ -441,12 +522,12 @@ export function drawStatic(ctx: CanvasRenderingContext2D) {
     const tx = LAND.x0 + 1 + Math.floor(rand() * (LAND.x1 - LAND.x0 - 1));
     const ty = LAND.y0 + 1 + Math.floor(rand() * (LAND.y1 - LAND.y0 - 1));
     if (isRoad(tx, ty) || isSidewalk(tx, ty)) continue;
-    if (BUILDINGS.some((b) => tx >= b.x - 1 && tx <= b.x + b.w && ty >= b.y - 1 && ty <= b.y + b.h)) continue;
+    if (worldBuildings(world).some((b) => tx >= b.x - 1 && tx <= b.x + b.w && ty >= b.y - 1 && ty <= b.y + b.h)) continue;
     if (DECOR.some((d) => tx >= d.x && tx < d.x + d.w && ty >= d.y && ty < d.y + d.h)) continue;
     drawTree(ctx, px(tx) + 16, px(ty) + 16, 10 + rand() * 5);
   }
   // budovy
-  for (const b of BUILDINGS) drawBuilding(ctx, b);
+  for (const b of worldBuildings(world)) drawBuilding(ctx, b);
   // vjezdy do podzemních garáží
   for (const g of GARAGES) {
     const x = px(g.x);
@@ -459,9 +540,56 @@ export function drawStatic(ctx: CanvasRenderingContext2D) {
     ctx.fillStyle = "#ffd447";
     for (let k = 0; k < 4; k++) ctx.fillRect(x + 4 + k * 7, g.above ? y - 2 : y + TILE, 4, 2);
   }
+  // molo do přístavu
+  {
+    const y = px(PIER.y);
+    ctx.fillStyle = C.shadow;
+    ctx.fillRect(px(PIER.x0) + 4, y + 6, px(PIER.x1 - PIER.x0 + 1), TILE);
+    ctx.fillStyle = "#9a6b3f";
+    ctx.fillRect(px(PIER.x0), y, px(PIER.x1 - PIER.x0 + 1), TILE);
+    ctx.fillStyle = "#7d5330";
+    for (let x = px(PIER.x0); x < px(PIER.x1 + 1); x += 8) ctx.fillRect(x, y, 2, TILE);
+    ctx.fillStyle = "#5a3a1e";
+    for (const x of [px(PIER.x0) + 4, px(PIER.x1 + 1) - 8]) {
+      ctx.fillRect(x, y - 4, 5, 5);
+      ctx.fillRect(x, y + TILE - 1, 5, 5);
+    }
+  }
   // rohože u dveří
-  for (const b of BUILDINGS) {
+  for (const b of worldBuildings(world)) {
     ctx.fillStyle = "#5a4a3a";
     ctx.fillRect(px(b.door.x) + 6, px(b.door.y) + 6, TILE - 12, TILE - 12);
   }
+}
+
+/** Loď v přístavu (kreslí se každý snímek – pohupuje se na vlnách). */
+export function drawBoat(ctx: CanvasRenderingContext2D, t: number, ready: boolean) {
+  const x = px(PIER.x1 + 1) + 44;
+  const y = px(PIER.y) + 16 + Math.sin(t * 1.6) * 2;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.fillStyle = "rgba(255,255,255,0.35)";
+  ctx.beginPath();
+  ctx.ellipse(-4, 0, 58, 24, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#f4f1e8";
+  ctx.beginPath();
+  ctx.moveTo(-50, -18);
+  ctx.lineTo(30, -18);
+  ctx.quadraticCurveTo(58, 0, 30, 18);
+  ctx.lineTo(-50, 18);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = "#2a6fb3";
+  ctx.fillRect(-50, -18, 80, 5);
+  ctx.fillRect(-50, 13, 80, 5);
+  ctx.fillStyle = "#c9d6e3";
+  ctx.fillRect(-28, -11, 34, 22);
+  ctx.fillStyle = "#1c2733";
+  ctx.fillRect(0, -9, 5, 18);
+  ctx.fillStyle = ready ? "#ffd447" : "#888";
+  ctx.beginPath();
+  ctx.arc(-40, 0, 5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
 }

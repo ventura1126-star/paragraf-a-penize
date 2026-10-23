@@ -1,6 +1,7 @@
 import type { Card } from "./types";
+import { ISLAND_CARDS } from "./island-cards";
 
-export const CARDS: Card[] = [
+const BASE_CARDS: Card[] = [
   {
     id: "oz-610-1",
     cite: { law: "oz", par: "610", odst: 1 },
@@ -436,4 +437,5 @@ export const CARDS: Card[] = [
   },
 ];
 
+export const CARDS: Card[] = [...BASE_CARDS, ...ISLAND_CARDS];
 export const CARD_BY_ID = new Map(CARDS.map((c) => [c.id, c]));

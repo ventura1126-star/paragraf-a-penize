@@ -16,6 +16,11 @@ export const LAWS = {
   zek: { abbr: "ZEK", name: "Zákon o elektronických komunikacích", year: 2005, num: 127 },
   znv: { abbr: "ZNV", name: "Zákon o náhradním výživném", year: 2020, num: 588 },
   zps: { abbr: "ZPS", name: "Zákon o platebním styku", year: 2017, num: 370 },
+  zdph: { abbr: "ZDPH", name: "Zákon o dani z přidané hodnoty", year: 2004, num: 235 },
+  zz: { abbr: "ŽZ", name: "Živnostenský zákon", year: 1991, num: 455 },
+  zpsz: { abbr: "ZPSZ", name: "Zákon o pojistném na sociální zabezpečení", year: 1992, num: 589 },
+  zpvzp: { abbr: "ZPVZP", name: "Zákon o pojistném na veřejné zdravotní pojištění", year: 1992, num: 592 },
+  zok: { abbr: "ZOK", name: "Zákon o obchodních korporacích", year: 2012, num: 90 },
 } as const;
 
 export type LawId = keyof typeof LAWS;

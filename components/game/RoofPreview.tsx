@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { TILE, type Building } from "@/content/game/city";
-import { C, drawBuilding } from "@/lib/game/render";
+import { drawBuilding, palette, setTheme } from "@/lib/game/render";
 
 /** Náhled střechy budovy shora (stejná kresba jako ve městě). */
 export function RoofPreview({ b }: { b: Building }) {
@@ -17,6 +17,8 @@ export function RoofPreview({ b }: { b: Building }) {
     c.height = h * dpr;
     const ctx = c.getContext("2d")!;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    setTheme(b.id.startsWith("o-") ? "ostrov" : "mesto");
+    const C = palette();
     ctx.fillStyle = C.grass;
     ctx.fillRect(0, 0, w, h);
     const doorBelow = b.door.y >= b.y + b.h;

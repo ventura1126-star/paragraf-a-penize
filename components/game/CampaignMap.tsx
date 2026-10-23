@@ -2,7 +2,8 @@
 
 import { GameLink as Link } from "./GameNav";
 import { CASE_BY_ID } from "@/content/game/cases";
-import { CAMPAIGN_BY_CHARACTER, campaignCaseIds } from "@/content/game/campaigns";
+import { campaignCaseIds } from "@/content/game/campaigns";
+import { campaignFor } from "@/lib/game/city-logic";
 import { CARDS } from "@/content/game/cards";
 import { fill } from "@/content/game/characters";
 import { caseProgress, characterOf, openAll, prepDone, useGame } from "@/lib/game/store";
@@ -14,7 +15,7 @@ import { buildingForCase } from "@/content/game/city";
 export function CampaignMap({ part = "all" }: { part?: "all" | "hero" | "trail" }) {
   const g = useGame();
   const ch = characterOf(g);
-  const camp = ch ? CAMPAIGN_BY_CHARACTER.get(ch.id) : undefined;
+  const camp = campaignFor(g);
   if (!ch || !camp) return null;
 
   const ids = campaignCaseIds(camp);
