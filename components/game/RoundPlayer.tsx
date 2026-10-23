@@ -6,6 +6,7 @@ import { CARD_BY_ID } from "@/content/game/cards";
 import { Citations } from "@/components/CitationChip";
 import { formatCzk } from "@/lib/format";
 import { CardBack, CardFace } from "./ParagraphCard";
+import { firstSentence, restSentences } from "@/lib/text";
 
 const OUTCOME_LABEL = { correct: "Správně", partial: "Napůl", wrong: "Takhle ne" } as const;
 
@@ -70,36 +71,40 @@ export function RoundPlayer({
           <div className="verdict-head">
             <strong>{OUTCOME_LABEL[opt.outcome]}</strong>
             {showWallet && opt.wallet !== 0 && (
-              <span className={`wallet-delta ${opt.wallet < 0 ? "neg" : "pos"}`}>
-                Peněženka {opt.wallet > 0 ? "+" : "−"}
+              <span className={`wallet-delta big ${opt.wallet < 0 ? "neg" : "pos"}`}>
+                {opt.wallet > 0 ? "+" : "−"}
                 {formatCzk(Math.abs(opt.wallet))}
               </span>
             )}
           </div>
-          <p>{opt.outcome === "correct" ? opt.verdict.replace(/^Správně\.\s*/, "") : opt.verdict}</p>
+          <p className="verdict-line">{firstSentence(opt.verdict)}</p>
           {opt.outcome !== "correct" && correct && (
-            <p className="muted">
-              <strong>Správná odpověď:</strong> {correct.text} {correct.verdict.replace(/^Správně\.\s*/, "")}
+            <p className="verdict-correct">
+              <span className="muted">Správně je:</span> {correct.text}
             </p>
           )}
-          <Citations cites={opt.outcome === "correct" ? opt.cites : [...opt.cites, ...(correct?.cites ?? [])].filter((c, i, a) => a.findIndex((x) => x.law === c.law && x.par === c.par && x.odst === c.odst) === i)} label="Rozhoduje" />
 
           {card && (
-            <div className="reward">
+            <div className="reward-compact">
               <CardFace card={card} size="sm" />
-              <div>
-                <div className="reward-title">
-                  {opt.outcome === "correct" ? "Karta získána" : "Karta jde k opakování (zítra)"}
-                </div>
-                <CardBack card={card} />
-              </div>
+              <span className="reward-title">
+                {opt.outcome === "correct" ? "Karta do alba!" : "Karta půjde zítra k opakování"}
+              </span>
             </div>
           )}
+
+          <details className="why">
+            <summary>Proč?</summary>
+            {restSentences(opt.verdict) && <p>{restSentences(opt.verdict)}</p>}
+            {opt.outcome !== "correct" && correct && <p className="muted">{correct.verdict.replace(/^Správně\.\s*/, "")}</p>}
+            <Citations cites={opt.outcome === "correct" ? opt.cites : [...opt.cites, ...(correct?.cites ?? [])].filter((c, i, a) => a.findIndex((x) => x.law === c.law && x.par === c.par && x.odst === c.odst) === i)} label="Rozhoduje" />
+            {card && <CardBack card={card} />}
+            {showWallet && <p className="muted small">Částky v peněžence jsou ilustrativní a patří postavě, ne vám.</p>}
+          </details>
 
           <button type="button" className="btn-primary" onClick={() => onContinue(opt)}>
             {continueLabel}
           </button>
-          {showWallet && <p className="muted small">Částky v peněžence jsou ilustrativní a patří postavě, ne vám.</p>}
         </div>
       )}
     </div>

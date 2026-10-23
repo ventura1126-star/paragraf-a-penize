@@ -140,7 +140,7 @@ const BASE_CASES: GameCase[] = [
             text: "Do 30 dnů od doručení zaplatí dluh i zálohu podle výzvy.",
             outcome: "correct",
             verdict:
-              "Správně. Splní-li povinný ve lhůtě 30 dnů vymáhaný nárok a uhradí zálohu, exekutor vydá příkaz k úhradě nákladů a exekuce je tím provedena – se sníženými náklady.",
+              "Zaplatíte-li do 30 dnů dluh i zálohu, exekuce skončí se sníženými náklady. Exekutor vydá příkaz k úhradě nákladů a exekuce je tím provedena.",
             wallet: -9500,
             cites: [{ law: "er", par: "46", odst: 6 }],
           },

@@ -819,9 +819,6 @@ export function CityCanvas() {
           </div>
         )}
       </div>
-      <p className="muted small gta-help">
-        Šipky / WASD = chůze · klepnutí na budovu = dojít ke dveřím · E / Enter = vstoupit · žlutá šipka ukazuje cíl
-      </p>
       <details className="city-list">
         <summary>Budovy v seznamu (bez chůze)</summary>
         <ul>

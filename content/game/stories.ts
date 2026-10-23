@@ -996,7 +996,7 @@ export const STORY_CASES: GameCase[] = [
             text: "Ne – po 24 měsících od uzavření nesmí náhradu chtít při vypořádání SJM ani při prodeji zastavené nemovitosti.",
             outcome: "correct",
             verdict:
-              "U úvěru na bydlení nesmí věřitel náhradu za předčasné splacení požadovat, uplynulo-li od uzavření smlouvy nejméně 24 měsíců a jde o prodej zastavené nemovitosti nebo vypořádání společného jmění manželů.",
+              "Po 24 měsících od uzavření nesmí banka při vypořádání společného jmění chtít žádný poplatek. Totéž platí při prodeji zastavené nemovitosti.",
             wallet: 0,
             cites: [{ law: "zsu", par: "117", odst: 3, pism: "e" }, { law: "zsu", par: "117", odst: 3, pism: "f" }],
           },

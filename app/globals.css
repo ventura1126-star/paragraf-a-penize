@@ -614,3 +614,40 @@ a.trail-card:hover { border-color: var(--accent); }
 .gta-toast.bad { background: #ffd447; color: #111; }
 @media (max-width: 560px) { .gta-race { top: auto; bottom: 86px; transform: none; } .gta-race strong { font-size: 1.2rem; } .gta-chase { top: auto; bottom: 150px; font-size: 0.75rem; } }
 @media (prefers-reduced-motion: reduce) { .gta-stars.hot, .gta-race.hurry, .gta-chase { animation: none; } }
+
+/* Kratší verdikt */
+.verdict-line { font-size: 1.1rem; font-weight: 600; margin: 0.2rem 0 0.4rem; }
+.verdict-correct { margin: 0 0 0.4rem; }
+.wallet-delta.big { font-size: 1.4rem; font-family: var(--font-serif), Georgia, serif; }
+.reward-compact { display: flex; align-items: center; gap: 0.8rem; margin: 0.6rem 0; }
+.reward-compact .reward-title { font-weight: 700; }
+.why { margin: 0.5rem 0 0.2rem; border-top: 1px dashed var(--border); padding-top: 0.5rem; }
+.why summary { cursor: pointer; font-weight: 700; color: var(--accent); }
+.why[open] summary { margin-bottom: 0.5rem; }
+.why p { font-size: 0.95rem; }
+
+/* Příprava jako karty k přetáčení */
+.prep-swipe { outline: none; margin-bottom: 1rem; }
+.ps-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; margin-bottom: 0.5rem; }
+.ps-title { font-family: var(--font-serif), Georgia, serif; font-size: 1.25rem; }
+.ps-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; gap: 0; }
+.ps-track::-webkit-scrollbar { display: none; }
+.ps-slide { flex: 0 0 100%; scroll-snap-align: start; padding: 0.2rem; box-sizing: border-box; }
+.ps-card { min-height: 260px; display: flex; flex-direction: column; gap: 0.6rem; justify-content: center; border-top: 5px solid var(--accent); }
+.ps-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; color: var(--accent); }
+.ps-big { font-size: 1.2rem; line-height: 1.5; margin: 0; }
+.ps-term { font-size: 1.4rem; margin: 0; }
+.ps-card p { margin: 0; font-size: 1.05rem; }
+.ps-card .cite-chip { align-self: flex-start; }
+.ps-stat { font-size: 2.6rem; }
+.ps-steps { margin: 0; }
+.ps-q { font-weight: 700; font-size: 1.1rem; }
+.ps-card .btn-primary { align-self: flex-start; }
+.ps-card .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.ps-nav { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-top: 0.6rem; }
+.ps-nav .btn-primary:disabled, .ps-nav .btn-secondary:disabled { opacity: 0.35; cursor: default; }
+.ps-dots { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.ps-dots button { width: 9px; height: 9px; border-radius: 50%; border: none; background: var(--border); padding: 0; cursor: pointer; }
+.ps-dots button.on { background: var(--accent); width: 22px; border-radius: 999px; }
+.dl-typing { letter-spacing: 3px; animation: pager 0.8s steps(2, jump-none) infinite; }
+.dl-choice:disabled { opacity: 0.45; cursor: default; }

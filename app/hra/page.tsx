@@ -20,8 +20,8 @@ export default function GameHome() {
         <summary>Příběh v bodech</summary>
         <CampaignMap part="trail" />
       </details>
-      <div className="game-howto card">
-        <h2>Jak se hraje</h2>
+      <details className="city-list game-howto-d">
+        <summary>Jak se hraje</summary>
         <ol className="steps">
           <li><strong>Chůze:</strong> klepněte na budovu nebo choďte šipkami. Vykřičník = tady na vás něco čeká.</li>
           <li><strong>Budova:</strong> uvnitř je příprava na téma a nástraha s rozhodnutím.</li>
@@ -31,7 +31,7 @@ export default function GameHome() {
           <li><strong>Hledanost ★:</strong> čím větší dluhová zátěž, tím víc hvězd. Od 3 hvězd vás honí exekutor.</li>
           <li><strong>Pomoc:</strong> Dluhová poradna na náměstí je úkryt před exekutorem a snižuje zátěž.</li>
         </ol>
-      </div>
+      </details>
       <ResetButton />
     </GameStart>
   );
