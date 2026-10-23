@@ -36,6 +36,9 @@ type Car = { axis: "h" | "v"; lane: number; dir: 1 | -1; pos: number; speed: num
 
 const SPEED = 130; // px/s
 const R = 9; // poloměr postavy pro kolize
+const NPC_R = 11; // poloměr člověka na ulici pro kolize
+const NPC_TILES = new Set(STREET.map((n) => n.at.y * WORLD_W + n.at.x));
+const npcTile = (x: number, y: number) => NPC_TILES.has(y * WORLD_W + x);
 const CAR_COLORS = ["#c0392b", "#2e86c1", "#f1c40f", "#16a085", "#ecf0f1", "#8e44ad", "#d35400", "#2c3e50", "#7f8c8d"];
 
 function tileCenter(t: V): V {
@@ -256,9 +259,34 @@ export function CityCanvas() {
       return STREET.find((n) => Math.abs(n.at.x - pt.x) <= 1 && Math.abs(n.at.y - pt.y) <= 1) ?? null;
     };
     let lastPerson: string | null = null;
+    /** Volná dlaždice vedle člověka, nejblíž postavě (k člověku samotnému se nedá vejít). */
+    const besideNpc = (n: StreetNpc) => {
+      const opts = [[1, 0], [-1, 0], [0, 1], [0, -1]]
+        .map(([dx, dy]) => ({ x: n.at.x + dx, y: n.at.y + dy }))
+        .filter((t) => isWalkable(t.x, t.y) && !npcTile(t.x, t.y));
+      opts.sort((a, b) => Math.hypot(tileCenter(a).x - p.x, tileCenter(a).y - p.y) - Math.hypot(tileCenter(b).x - p.x, tileCenter(b).y - p.y));
+      return opts[0] ?? n.at;
+    };
+    /** Auta a lidé na ulici: postava jimi neprojde. */
+    const hitsObstacle = (x: number, y: number) => {
+      for (const c of cars) {
+        const cx = c.axis === "h" ? c.pos : c.lane;
+        const cy = c.axis === "h" ? c.lane : c.pos;
+        const hw = (c.axis === "h" ? 20 : 10) + R - 2;
+        const hh = (c.axis === "h" ? 10 : 20) + R - 2;
+        if (Math.abs(x - cx) < hw && Math.abs(y - cy) < hh) return true;
+      }
+      for (const n of STREET) {
+        const c = tileCenter(n.at);
+        if (Math.hypot(x - c.x, y - c.y) < R + NPC_R) return true;
+      }
+      return false;
+    };
+    // když už postava v překážce je (auto do ní najelo), smí se z ní dostat ven
+    const canMove = (x: number, y: number) => canStand(x, y) && (!hitsObstacle(x, y) || hitsObstacle(p.x, p.y));
 
     const goTo = (tile: V, b: Building | null) => {
-      path = findPath(playerTile(), tile);
+      path = findPath(playerTile(), tile, npcTile);
       pathBuilding = b;
       if (!path.length && b && playerTile().x === b.door.x && playerTile().y === b.door.y) path = [];
     };
@@ -322,7 +350,7 @@ export function CityCanvas() {
       const b = buildingAt(tx, ty);
       canvas.focus();
       const n = STREET.find((nn) => nn.at.x === tx && nn.at.y === ty);
-      if (n) goTo(n.at, null);
+      if (n) goTo(besideNpc(n), null);
       else if (b) goTo(b.door, b);
       else if (isWalkable(tx, ty)) goTo({ x: tx, y: ty }, null);
     };
@@ -383,8 +411,8 @@ export function CityCanvas() {
         vy /= len;
         const nx = p.x + vx * SPEED * dt;
         const ny = p.y + vy * SPEED * dt;
-        if (canStand(nx, p.y)) p.x = nx;
-        if (canStand(p.x, ny)) p.y = ny;
+        if (canMove(nx, p.y)) p.x = nx;
+        if (canMove(p.x, ny)) p.y = ny;
         p.angle = Math.atan2(vy, vx);
         p.step += dt * 14;
       }
@@ -778,7 +806,7 @@ export function CityCanvas() {
             frame(nowT);
           }
         },
-        state: () => ({ x: p.x, y: p.y, tile: playerTile(), path: path.length, ex: { active: ex.active, x: Math.round(ex.x), y: Math.round(ex.y), flee: ex.flee }, race: raceCase, raceLeft: raceCase ? RACE_BY_CASE.get(raceCase)!.days - (t - raceStart) / RACE_BY_CASE.get(raceCase)!.pace : null }),
+        state: () => ({ x: p.x, y: p.y, tile: playerTile(), path: path.length, blocked: hitsObstacle(p.x, p.y), ex: { active: ex.active, x: Math.round(ex.x), y: Math.round(ex.y), flee: ex.flee }, race: raceCase, raceLeft: raceCase ? RACE_BY_CASE.get(raceCase)!.days - (t - raceStart) / RACE_BY_CASE.get(raceCase)!.pace : null }),
         walkTo: (x: number, y: number) => goTo({ x, y }, null),
       };
     }

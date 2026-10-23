@@ -118,8 +118,12 @@ export function isWalkable(x: number, y: number): boolean {
   return isLand(x, y) && !buildingAt(x, y) && !inRect(x, y, FOUNTAIN);
 }
 
-/** Nejkratší cesta po průchozích dlaždicích (BFS). Vrací dlaždice bez startu. */
-export function findPath(from: { x: number; y: number }, to: { x: number; y: number }): { x: number; y: number }[] {
+/** Nejkratší cesta po průchozích dlaždicích (BFS). Vrací dlaždice bez startu. `blocked` = další překážky (lidé na ulici). */
+export function findPath(
+  from: { x: number; y: number },
+  to: { x: number; y: number },
+  blocked?: (x: number, y: number) => boolean,
+): { x: number; y: number }[] {
   const key = (p: { x: number; y: number }) => p.y * WORLD_W + p.x;
   const prev = new Map<number, number>([[key(from), -1]]);
   const queue = [from];
@@ -128,7 +132,7 @@ export function findPath(from: { x: number; y: number }, to: { x: number; y: num
     if (cur.x === to.x && cur.y === to.y) break;
     for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
       const n = { x: cur.x + dx, y: cur.y + dy };
-      if (isWalkable(n.x, n.y) && !prev.has(key(n))) {
+      if (isWalkable(n.x, n.y) && !blocked?.(n.x, n.y) && !prev.has(key(n))) {
         prev.set(key(n), key(cur));
         queue.push(n);
       }
