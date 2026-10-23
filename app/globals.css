@@ -596,3 +596,21 @@ a.trail-card:hover { border-color: var(--accent); }
 .dl-choice { text-align: left; font: inherit; font-size: 0.9rem; background: transparent; color: #ffd447; border: 1px dashed #ffd447; border-radius: 6px; padding: 0.5rem 0.7rem; cursor: pointer; }
 .dl-choice:hover { background: rgb(255 212 71 / 0.1); }
 .dialogue-choices .btn-primary { justify-self: start; background: #ffd447; color: #111; border-color: #111; }
+
+/* Hledanost a lhůty */
+.gta-stars { font-size: 1.05rem; letter-spacing: 1px; color: #ffd447; }
+.gta-stars .off { color: rgb(255 255 255 / 0.25); }
+.gta-stars.hot { animation: starblink 0.6s steps(2, jump-none) infinite; }
+@keyframes starblink { 50% { color: #ff4d4d; } }
+.gta-race { position: absolute; bottom: 10px; right: 10px; background: rgb(10 10 12 / 0.85); border: 2px solid #ffd447; border-radius: 6px; padding: 0.4rem 0.6rem; font-family: ui-monospace, Menlo, monospace; color: #f4f1e8; text-align: center; max-width: 180px; pointer-events: none; display: grid; gap: 0.1rem; }
+.gta-race span { font-size: 0.7rem; letter-spacing: 0.1em; color: #ffd447; }
+.gta-race strong { font-size: 1.6rem; color: #ffd447; line-height: 1; }
+.gta-race small { font-size: 0.68rem; color: #d8d3c7; }
+.gta-race.hurry { border-color: #ff4d4d; animation: pager 0.5s steps(2, jump-none) infinite; }
+.gta-race.hurry strong { color: #ff4d4d; }
+.gta-chase { position: absolute; top: 46px; left: 50%; transform: translateX(-50%); font-family: ui-monospace, Menlo, monospace; font-weight: 800; color: #fff; background: #c0392b; border: 2px solid #111; padding: 0.25rem 0.7rem; border-radius: 4px; animation: pager 0.5s steps(2, jump-none) infinite; pointer-events: none; }
+.gta-toast { position: absolute; left: 50%; bottom: 78px; transform: translateX(-50%); width: min(520px, calc(100% - 24px)); text-align: center; font-family: ui-monospace, Menlo, monospace; font-weight: 700; font-size: 0.85rem; padding: 0.5rem 0.75rem; border-radius: 6px; border: 2px solid #111; pointer-events: none; animation: rise 0.2s ease; }
+.gta-toast.good { background: #2f8f4e; color: #fff; }
+.gta-toast.bad { background: #ffd447; color: #111; }
+@media (max-width: 560px) { .gta-race { top: auto; bottom: 86px; transform: none; } .gta-race strong { font-size: 1.2rem; } .gta-chase { top: auto; bottom: 150px; font-size: 0.75rem; } }
+@media (prefers-reduced-motion: reduce) { .gta-stars.hot, .gta-race.hurry, .gta-chase { animation: none; } }

@@ -27,7 +27,9 @@ export default function GameHome() {
           <li><strong>Budova:</strong> uvnitř je příprava na téma a nástraha s rozhodnutím.</li>
           <li><strong>Verdikt:</strong> rozhoduje paragraf. Uvidíte dopad na peněženku a dluhovou zátěž.</li>
           <li><strong>Důsledky:</strong> každá nástraha posune čas o měsíc. Špatné rozhodnutí může poslat dopis do schránky.</li>
-          <li><strong>Pomoc:</strong> v Dluhové poradně na náměstí se dá kdykoli poradit a snížit zátěž.</li>
+          <li><strong>Lhůty:</strong> když běží LHŮTA, doběhněte do budovy včas – propadlá lhůta stojí peníze.</li>
+          <li><strong>Hledanost ★:</strong> čím větší dluhová zátěž, tím víc hvězd. Od 3 hvězd vás honí exekutor.</li>
+          <li><strong>Pomoc:</strong> Dluhová poradna na náměstí je úkryt před exekutorem a snižuje zátěž.</li>
         </ol>
       </div>
       <ResetButton />

@@ -48,12 +48,6 @@ export default function Home() {
             </div>
           </Link>
         ))}
-        <Link href="/kalkulacka" className="card topic-card">
-          <div className="eyebrow">Nástroj</div>
-          <h3>Kalkulačka srážek ze mzdy 2026</h3>
-          <p>Kolik vám při exekuci smí zaměstnavatel srazit a kolik vám zůstane – výpočet krok za krokem podle § 279 OSŘ.</p>
-          <div className="laws"><span className="tag">OSŘ</span><span className="tag">NV 595/2006</span></div>
-        </Link>
       </div>
     </>
   );

@@ -25,9 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <nav className="nav" aria-label="Hlavní navigace">
               <Link href="/hra">Hra</Link>
               <Link href="/#temata">Témata</Link>
-              <Link href="/kalkulacka">Kalkulačka srážek</Link>
               <Link href="/slovnik">Slovník</Link>
-              <Link href="/zakony">Rejstřík zákonů</Link>
               <Link href="/hledat">Hledat</Link>
             </nav>
           </div>

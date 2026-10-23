@@ -16,12 +16,17 @@ import {
   findPath,
   isSidewalk,
   isWalkable,
+  BUILDING_BY_ID,
+  EXECUTOR_FROM,
+  RACE_BY_CASE,
+  wantedLevel,
   type Building,
+  type Race,
 } from "@/content/game/city";
 import { SPRITES } from "@/content/game/sprites";
-import { buildingStates, type BuildingState } from "@/lib/game/city-logic";
+import { buildingStates, nextStoryCase, type BuildingState } from "@/lib/game/city-logic";
 import { drawCar, drawStatic } from "@/lib/game/render";
-import { characterOf, deliveredLetters, readGame, setPos, useGame } from "@/lib/game/store";
+import { caughtByExecutor, characterOf, deliveredLetters, raceResult, readGame, recordRace, setPos, useGame, type GameState } from "@/lib/game/store";
 import { monthLabel } from "./Mailbox";
 import { fill } from "@/content/game/characters";
 
@@ -122,7 +127,20 @@ export function CityCanvas() {
   const miniRef = useRef<HTMLCanvasElement>(null);
   const statesRef = useRef<BuildingState[]>([]);
   statesRef.current = buildingStates(g);
+  const gRef = useRef<GameState>(g);
+  gRef.current = g;
   const [door, setDoor] = useState<Building | null>(null);
+  const [race, setRace] = useState<{ r: Race; left: number } | null>(null);
+  const [chased, setChased] = useState(false);
+  const [toast, setToast] = useState<{ text: string; tone: "good" | "bad" } | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const showToast = (text: string, tone: "good" | "bad") => {
+    setToast({ text, tone });
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 4200);
+  };
+  const toastRef = useRef(showToast);
+  toastRef.current = showToast;
   const [hint, setHint] = useState<string>("");
   const [intro, setIntro] = useState(false);
   useEffect(() => {
@@ -181,6 +199,14 @@ export function CityCanvas() {
     let raf = 0;
     let last = performance.now();
     let t = 0;
+    // exekutor (hledanost)
+    const ex = { active: false, x: 0, y: 0, path: [] as V[], repath: 0, cooldown: 4, far: 0, flee: 0 };
+    // závod s lhůtou
+    let raceCase: string | null = null;
+    const doneRaces = new Set<string>();
+    let raceStart = 0;
+    let hudT = 0;
+    const poradna = BUILDING_BY_ID.get("poradna")!;
 
     const resize = () => {
       const dpr = window.devicePixelRatio || 1;
@@ -382,6 +408,128 @@ export function CityCanvas() {
         }
       }
 
+      // --- exekutor: od 3 hvězdiček honí postavu; poradna je úkryt
+      const gs = readGame();
+      const stars = wantedLevel(gs.load);
+      const ptile = playerTile();
+      const nearPoradna = Math.abs(ptile.x - poradna.door.x) + Math.abs(ptile.y - poradna.door.y) <= 3;
+      if (!ex.active) {
+        ex.cooldown -= dt;
+        if (stars >= EXECUTOR_FROM && ex.cooldown <= 0 && !nearPoradna) {
+          // objeví se na chodníku daleko od postavy
+          for (let i = 0; i < 200; i++) {
+            const tx = LAND.x0 + Math.floor(Math.random() * (LAND.x1 - LAND.x0));
+            const ty = LAND.y0 + Math.floor(Math.random() * (LAND.y1 - LAND.y0));
+            if (isSidewalk(tx, ty) && isWalkable(tx, ty) && Math.abs(tx - ptile.x) + Math.abs(ty - ptile.y) > 16) {
+              const c = tileCenter({ x: tx, y: ty });
+              Object.assign(ex, { active: true, x: c.x, y: c.y, path: [], repath: 0, far: 0, flee: 0 });
+              toastRef.current("Exekutor vás hledá! Utečte, nebo se schovejte v Dluhové poradně.", "bad");
+              break;
+            }
+          }
+        }
+      } else {
+        const exSpeed = 70 + stars * 14;
+        ex.repath -= dt;
+        if (ex.flee > 0) {
+          ex.flee -= dt;
+          // odchází směrem od postavy
+          const ax = ex.x - p.x;
+          const ay = ex.y - p.y;
+          const ad = Math.hypot(ax, ay) || 1;
+          const nx = ex.x + (ax / ad) * exSpeed * 0.6 * dt;
+          const ny = ex.y + (ay / ad) * exSpeed * 0.6 * dt;
+          if (isWalkable(Math.floor(nx / TILE), Math.floor(ny / TILE))) {
+            ex.x = nx;
+            ex.y = ny;
+          }
+          if (ex.flee <= 0) {
+            ex.active = false;
+            ex.cooldown = 12;
+          }
+        } else if (ex.repath <= 0) {
+          ex.repath = 0.7;
+          ex.path = findPath({ x: Math.floor(ex.x / TILE), y: Math.floor(ex.y / TILE) }, ptile).slice(0, 12);
+        }
+        const next = ex.path[0];
+        if (next && ex.flee <= 0) {
+          const c = tileCenter(next);
+          const dx = c.x - ex.x;
+          const dy = c.y - ex.y;
+          const d = Math.hypot(dx, dy);
+          if (d < 3) ex.path.shift();
+          else {
+            ex.x += (dx / d) * exSpeed * dt;
+            ex.y += (dy / d) * exSpeed * dt;
+          }
+        }
+        const dist = Math.hypot(ex.x - p.x, ex.y - p.y);
+        if (stars < EXECUTOR_FROM) {
+          ex.active = false;
+          ex.cooldown = 8;
+          toastRef.current("Hledanost klesla – exekutor to vzdal.", "good");
+        } else if (nearPoradna && ex.flee <= 0) {
+          ex.flee = 2.5;
+          ex.path = [];
+          toastRef.current("Do poradny za vámi exekutor nesmí. Promluvte si tu o dluzích.", "good");
+        } else if (dist < 18 && ex.flee <= 0) {
+          ex.active = false;
+          ex.cooldown = 20;
+          keys.clear();
+          path = [];
+          const redirect = caughtByExecutor();
+          if (redirect) {
+            setPos(ptile);
+            toastRef.current("Exekutor vás dostihl! Přišlo vyrozumění o exekuci.", "bad");
+            setTimeout(() => router.push(`/hra/pripad/${redirect}`), 900);
+          } else {
+            toastRef.current("Exekutor vás dostihl: další náklady exekuce −1 500 Kč.", "bad");
+          }
+        } else if (dist > 20 * TILE) {
+          ex.far += dt;
+          if (ex.far > 5) {
+            ex.active = false;
+            ex.cooldown = 10;
+            toastRef.current("Ztratili jste exekutora. Ale dluhy nezmizely…", "good");
+          }
+        } else ex.far = 0;
+      }
+
+      // --- závod s lhůtou (stav čteme přímo ze store, ne z posledního renderu)
+      const candidates = [
+        ...deliveredLetters(gs).filter((l) => !l.read && l.caseId).map((l) => l.caseId),
+        nextStoryCase(gs),
+      ].filter((id): id is string => Boolean(id));
+      const rc = candidates.find((id) => RACE_BY_CASE.has(id) && !raceResult(gs, id) && !doneRaces.has(id)) ?? null;
+      if (rc !== raceCase) {
+        raceCase = rc;
+        raceStart = t;
+        if (rc) toastRef.current(`Lhůta běží: ${RACE_BY_CASE.get(rc)!.label}. Doběhněte do budovy!`, "bad");
+      }
+      let raceLeft = 0;
+      if (raceCase) {
+        const r = RACE_BY_CASE.get(raceCase)!;
+        const tb = BUILDING_BY_ID.get(r.building)!;
+        raceLeft = r.days - (t - raceStart) / r.pace;
+        if (ptile.x === tb.door.x && ptile.y === tb.door.y) {
+          doneRaces.add(raceCase);
+          recordRace(raceCase, true, 0, 0);
+          toastRef.current(`Stihli jste to! Lhůta zachována (zbývalo ${Math.ceil(raceLeft)} dní).`, "good");
+          raceCase = null;
+        } else if (raceLeft <= 0) {
+          doneRaces.add(raceCase);
+          recordRace(raceCase, false, r.failWallet, r.failLoad);
+          toastRef.current(`${r.failText} ${r.failWallet ? `(${new Intl.NumberFormat("cs-CZ").format(r.failWallet)} Kč)` : ""}`, "bad");
+          raceCase = null;
+        }
+      }
+      hudT -= dt;
+      if (hudT <= 0) {
+        hudT = 0.2;
+        setRace(raceCase ? { r: RACE_BY_CASE.get(raceCase)!, left: Math.max(0, Math.ceil(raceLeft)) } : null);
+        setChased(ex.active && ex.flee <= 0);
+      }
+
       // --- kamera
       cam.x += (p.x - cam.x) * Math.min(1, dt * 6);
       cam.y += (p.y - cam.y) * Math.min(1, dt * 6);
@@ -472,6 +620,16 @@ export function CityCanvas() {
       ctx.globalAlpha = 0.6;
       ctx.stroke();
       ctx.globalAlpha = 1;
+      // exekutor
+      if (ex.active) {
+        drawPerson(ctx, ex.x, ex.y, Math.atan2(p.y - ex.y, p.x - ex.x), t * 14, "#1b1b1f", "#111111", "#d9a07a", "#111111", 1.2);
+        ctx.fillStyle = "#5a3a1e";
+        ctx.fillRect(ex.x + 6, ex.y + 6, 9, 7);
+        ctx.fillStyle = Math.floor(t * 6) % 2 ? "#ff3b3b" : "#3b7bff";
+        ctx.beginPath();
+        ctx.arc(ex.x, ex.y - 18, 4, 0, Math.PI * 2);
+        ctx.fill();
+      }
       // cíl kliknutí
       if (path.length) {
         const c = tileCenter(path[path.length - 1]);
@@ -482,7 +640,8 @@ export function CityCanvas() {
 
       // --- HUD šipka k cíli příběhu (když je mimo obraz)
       ctx.setTransform(1, 0, 0, 1, 0, 0);
-      const tgt = statesRef.current.find((s) => s.next) ?? statesRef.current.find((s) => s.calling);
+      const raceB = raceCase ? BUILDING_BY_ID.get(RACE_BY_CASE.get(raceCase)!.building) : undefined;
+      const tgt = (raceB && statesRef.current.find((s) => s.building.id === raceB.id)) ?? statesRef.current.find((s) => s.next) ?? statesRef.current.find((s) => s.calling);
       if (tgt) {
         const c = tileCenter(tgt.building.door);
         const sx = (c.x - cam.x) * zoom + canvas.width / 2;
@@ -525,6 +684,10 @@ export function CityCanvas() {
           mctx.fillStyle = "#ffd447";
           mctx.fillRect(c.x * sc - 3, c.y * sc - 3, 6, 6);
         }
+        if (ex.active && Math.floor(t * 4) % 2) {
+          mctx.fillStyle = "#3b7bff";
+          mctx.fillRect(ex.x * sc - 3, ex.y * sc - 3, 6, 6);
+        }
         mctx.fillStyle = "#ff4d4d";
         mctx.beginPath();
         mctx.arc(p.x * sc, p.y * sc, 3, 0, Math.PI * 2);
@@ -546,7 +709,8 @@ export function CityCanvas() {
             frame(nowT);
           }
         },
-        state: () => ({ x: p.x, y: p.y, tile: playerTile(), path: path.length }),
+        state: () => ({ x: p.x, y: p.y, tile: playerTile(), path: path.length, ex: { active: ex.active, x: Math.round(ex.x), y: Math.round(ex.y), flee: ex.flee }, race: raceCase, raceLeft: raceCase ? RACE_BY_CASE.get(raceCase)!.days - (t - raceStart) / RACE_BY_CASE.get(raceCase)!.pace : null }),
+        walkTo: (x: number, y: number) => goTo({ x, y }, null),
       };
     }
 
@@ -582,15 +746,28 @@ export function CityCanvas() {
           aria-label="Město dluhů. Šipkami nebo WASD chodíte, klepnutím na budovu k ní dojdete, E nebo Enter vstoupí."
         />
         <canvas ref={miniRef} className="gta-mini" width={162} height={105} aria-hidden />
-        <div className="gta-money" aria-label={`Peněženka ${g.wallet} Kč, měsíc ${g.month}`}>
+        <div className="gta-money" aria-label={`Peněženka ${g.wallet} Kč, měsíc ${g.month}, hledanost ${wantedLevel(g.load)} z 5`}>
           <span className={g.wallet < 0 ? "neg" : undefined}>{new Intl.NumberFormat("cs-CZ").format(g.wallet)} Kč</span>
-          <small>{monthLabel(g.month)} · zátěž {g.load}</small>
+          <span className={`gta-stars ${wantedLevel(g.load) >= EXECUTOR_FROM ? "hot" : ""}`} title={`Dluhová zátěž ${g.load}/100`}>
+            {"★".repeat(wantedLevel(g.load))}
+            <span className="off">{"★".repeat(5 - wantedLevel(g.load))}</span>
+          </span>
+          <small>{monthLabel(g.month)}</small>
         </div>
+        {race && (
+          <div className={`gta-race ${race.left <= 5 ? "hurry" : ""}`} role="timer" aria-live="off">
+            <span>LHŮTA</span>
+            <strong>{race.left} {race.left === 1 ? "den" : race.left < 5 && race.left > 1 ? "dny" : "dní"}</strong>
+            <small>{race.r.label} → {BUILDING_BY_ID.get(race.r.building)?.name}</small>
+          </div>
+        )}
+        {chased && <div className="gta-chase">EXEKUTOR VÁS HONÍ</div>}
+        {toast && <div className={`gta-toast ${toast.tone}`}>{toast.text}</div>}
         <div className="gta-hud">
-          <div className="gta-goal">{hint}</div>
+          <div className="gta-goal">{race ? `Cíl: ${BUILDING_BY_ID.get(race.r.building)?.name} – běží lhůta!` : hint}</div>
           {g.load >= 70 && (
             <Link href="/hra/budova/poradna" className="gta-pager gta-alarm">
-              ZÁTĚŽ {g.load}/100 · dluhy rostou – zajděte do Dluhové poradny na náměstí
+              HLEDANOST {"★".repeat(wantedLevel(g.load))} · dluhy rostou – Dluhová poradna na náměstí je úkryt
             </Link>
           )}
           {letters.length > 0 && (
@@ -606,6 +783,8 @@ export function CityCanvas() {
               <li><b>Chůze:</b> šipky / WASD, nebo klepněte na budovu – postava dojde ke dveřím.</li>
               <li><b>Žlutá šipka</b> ukazuje, kam vede váš příběh. Klepnutím do minimapy se dá cestovat.</li>
               <li><b>Dveře:</b> E / Enter nebo tlačítko Vstoupit.</li>
+              <li><b>LHŮTA</b> vpravo: doběhněte do budovy, než vyprší – jinak to bude dražší.</li>
+              <li><b>Hvězdičky ★</b> = hledanost podle dluhů. Od 3 vás honí exekutor; úkryt je Dluhová poradna.</li>
               <li><b>Pager</b> hlásí dopisy – následky vašich rozhodnutí.</li>
             </ul>
             <button type="button" className="gta-enter" onClick={closeIntro}>Jdeme na to</button>

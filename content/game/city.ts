@@ -169,3 +169,35 @@ export const LETTER_RULES: LetterRule[] = [
 export const START_LOAD: Record<string, number> = { ondrej: 10, jana: 40, marie: 15, radek: 35, petr: 45 };
 
 export const MONTH_NAMES = ["leden", "únor", "březen", "duben", "květen", "červen", "červenec", "srpen", "září", "říjen", "listopad", "prosinec"];
+
+/** Hledanost jako v GTA: dluhová zátěž → 0–5 hvězdiček. Od 3 hvězdiček honí postavu exekutor. */
+export function wantedLevel(load: number): number {
+  return Math.min(5, Math.floor(load / 20));
+}
+export const EXECUTOR_FROM = 3;
+
+/**
+ * Závod s lhůtou: když je nástraha na řadě (nebo přijde dopis), běží ve městě odpočet herních dnů.
+ * Doběhnout ke dveřím cílové budovy včas = lhůta zachována. Délky lhůt odpovídají zákonu.
+ */
+export type Race = {
+  caseId: string;
+  building: string;
+  days: number;
+  label: string;
+  /** Co hrozí při propadnutí (ilustrativní). */
+  failWallet: number;
+  failLoad: number;
+  failText: string;
+  /** Kolik reálných sekund trvá jeden herní den (vyrovnává různě daleké cíle). */
+  pace: number;
+};
+
+export const RACES: Race[] = [
+  { caseId: "rozmyslel-si-uver", building: "elektro", days: 14, label: "Odstoupení od úvěru (14 dní)", failWallet: -2400, failLoad: 6, failText: "Lhůta 14 dnů na odstoupení propadla – drahý úvěr zůstává.", pace: 1.0 },
+  { caseId: "sluchatka-z-eshopu", building: "eshop", days: 14, label: "Vrácení zboží z e-shopu (14 dní)", failWallet: -4000, failLoad: 4, failText: "Po 14 dnech od převzetí už zboží bez udání důvodu vrátit nejde.", pace: 0.75 },
+  { caseId: "podomni-prodej", building: "poradna", days: 14, label: "Odstoupení od podomní smlouvy (14 dní) – vzor dá poradna", failWallet: -6000, failLoad: 6, failText: "Lhůta 14 dnů propadla – dražší smlouva na energie platí.", pace: 0.6 },
+  { caseId: "vyrozumeni-o-exekuci", building: "exekutor", days: 30, label: "Výzva ke splnění (30 dní)", failWallet: -6000, failLoad: 10, failText: "30 dnů z výzvy uplynulo – exekutor provádí exekuci a náklady rostou.", pace: 0.3 },
+  { caseId: "danove-priznani", building: "fu", days: 30, label: "Daňové přiznání (poslední měsíc lhůty)", failWallet: -2000, failLoad: 6, failText: "Přiznání po lhůtě – hrozí pokuta za opožděné tvrzení.", pace: 0.2 },
+];
+export const RACE_BY_CASE = new Map(RACES.map((r) => [r.caseId, r]));

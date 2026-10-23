@@ -43,6 +43,8 @@ export type GameState = {
   pos: { x: number; y: number };
   /** Měsíc poslední konzultace v poradně. */
   consultMonth: number;
+  /** Výsledky závodů s lhůtou, klíč `${postava}:${případ}`. */
+  races: Record<string, "won" | "lost">;
 };
 
 export type Letter = {
@@ -74,6 +76,7 @@ const INITIAL: GameState = {
   letters: [],
   pos: SPAWN,
   consultMonth: 0,
+  races: {},
 };
 
 export const LEVELS = [
@@ -101,7 +104,7 @@ function load() {
     const raw = window.localStorage.getItem(KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as GameState;
-      if (parsed?.v === 1) state = { ...INITIAL, ...parsed, opened: parsed.opened ?? {}, preps: parsed.preps ?? {}, letters: parsed.letters ?? [], pos: parsed.pos ?? SPAWN };
+      if (parsed?.v === 1) state = { ...INITIAL, ...parsed, opened: parsed.opened ?? {}, preps: parsed.preps ?? {}, letters: parsed.letters ?? [], pos: parsed.pos ?? SPAWN, races: parsed.races ?? {} };
     }
   } catch {
     // Úložiště nedostupné (anonymní okno apod.) – hraje se bez uložení.
@@ -246,6 +249,39 @@ export function resolveEvent(letterId: string, choice: number | null) {
     xp: state.xp + 5,
     letters: state.letters.map((l) => (l.id === letterId ? { ...l, read: true, choice: choice ?? undefined } : l)),
   });
+}
+
+/** Výsledek závodu s lhůtou. */
+export function recordRace(caseId: string, won: boolean, wallet: number, dLoad: number) {
+  load();
+  set({
+    ...state,
+    xp: state.xp + (won ? 25 : 0),
+    wallet: state.wallet + (won ? 0 : wallet),
+    load: clampLoad(state.load + (won ? -3 : dLoad)),
+    races: { ...state.races, [caseKey(state.character, caseId)]: won ? "won" : "lost" },
+  });
+}
+
+export function raceResult(s: GameState, caseId: string): "won" | "lost" | undefined {
+  return s.races?.[caseKey(s.character, caseId)];
+}
+
+/** Exekutor postavu dostihl. Vrací nástrahu, kam hru přesměrovat, nebo null (jen náklady). */
+export function caughtByExecutor(): string | null {
+  load();
+  const exekuce = "vyrozumeni-o-exekuci";
+  const done = state.cases[caseKey(state.character, exekuce)]?.done;
+  if (!done) {
+    const has = state.letters.some((l) => l.caseId === exekuce && !l.read);
+    const letters = has
+      ? state.letters.map((l) => (l.caseId === exekuce ? { ...l, month: Math.min(l.month, state.month) } : l))
+      : [...state.letters, { id: `dopaden>${state.month}`, month: state.month, caseId: exekuce, sender: "Exekutorský úřad", subject: "Vyrozumění o zahájení exekuce", reason: "exekutor vás dostihl", read: false }];
+    set({ ...state, letters });
+    return exekuce;
+  }
+  set({ ...state, wallet: state.wallet - 1500 });
+  return null;
 }
 
 export function setPos(pos: { x: number; y: number }) {
