@@ -1,14 +1,20 @@
 /**
- * Město dluhů: pohled shora (inspirace GTA 1). Svět 54 × 35 dlaždic, pevnina x 2–51, y 2–32, kolem voda.
- * Silnice jsou dvoupruhové pásy, podél nich chodníky; budovy stojí v blocích a mají dveře na chodníku.
+ * Město dluhů: pohled shora (inspirace GTA 1). Svět 60 × 41 dlaždic, pevnina x 2–57, y 2–38, kolem voda.
+ * Silnice jsou dvoupruhové pásy, podél nich chodníky; po okraji vede okružní silnice, takže auta jezdí
+ * dokola a nikde nekončí ve vodě. Budovy stojí v blocích a mají dveře na chodníku.
  */
 export const TILE = 32;
-export const WORLD_W = 54;
-export const WORLD_H = 35;
-export const LAND = { x0: 2, y0: 2, x1: 51, y1: 32 };
-/** Řádky a sloupce silnic (každý pás má dva pruhy). */
-export const ROAD_ROWS = [11, 12, 22, 23];
-export const ROAD_COLS = [13, 14, 26, 27, 39, 40];
+export const WORLD_W = 60;
+export const WORLD_H = 41;
+export const LAND = { x0: 2, y0: 2, x1: 57, y1: 38 };
+/** Řádky a sloupce silnic (každý pás má dva pruhy); první a poslední pás tvoří okružní silnici. */
+export const ROAD_ROWS = [3, 4, 14, 15, 25, 26, 36, 37];
+export const ROAD_COLS = [3, 4, 16, 17, 29, 30, 42, 43, 55, 56];
+/** Silnice končí na okružní silnici (za ní je už jen chodník u vody). */
+const ROAD_SPAN = { x0: 3, x1: 56, y0: 3, y1: 37 };
+/** Dvojice pruhů: [první, druhý]. Vodorovně: první jede doleva, druhý doprava; svisle: první dolů, druhý nahoru. */
+export const ROW_PAIRS: [number, number][] = [[3, 4], [14, 15], [25, 26], [36, 37]];
+export const COL_PAIRS: [number, number][] = [[3, 4], [16, 17], [29, 30], [42, 43], [55, 56]];
 
 export type District = "obchod" | "finance" | "urady" | "bydleni" | "namesti";
 export type BuildingKind = "risk" | "normal" | "office" | "safe";
@@ -41,14 +47,14 @@ export const DISTRICT_NAMES: Record<District, string> = {
   namesti: "Náměstí",
 };
 
-const COL: Record<string, number> = { X1A: 3, X1B: 8, X2A: 16, X2B: 21, X3A: 29, X3B: 34, X4A: 42, X4B: 47 };
+const COL: Record<string, number> = { X1A: 6, X1B: 11, X2A: 19, X2B: 24, X3A: 32, X3B: 37, X4A: 45, X4B: 50 };
 
 /** Pozice v bloku: sloupec bloku X1–X4, místo A/B, řádek bloku Y1 (nahoře) nebo Y3 (dole). */
 function slot(col: string, row: "Y1" | "Y3") {
   const x = COL[col];
   return row === "Y1"
-    ? { x, y: 5, w: 4, h: 5, door: { x: x + 1, y: 10 } }
-    : { x, y: 25, w: 4, h: 5, door: { x: x + 1, y: 24 } };
+    ? { x, y: 8, w: 4, h: 5, door: { x: x + 1, y: 13 } }
+    : { x, y: 28, w: 4, h: 5, door: { x: x + 1, y: 27 } };
 }
 
 export const BUILDINGS: Building[] = [
@@ -73,8 +79,8 @@ export const BUILDINGS: Building[] = [
   { id: "byt", name: "Byt s hypotékou", district: "bydleni", kind: "normal", ...slot("X4A", "Y3"), cases: ["hypoteka-po-rozvodu"], prep: "rozvod", greeting: "Společný byt. Po rozvodu se bude prodávat." },
   { id: "dilna", name: "Dílna živnostníka", district: "bydleni", kind: "normal", ...slot("X4B", "Y3"), cases: ["neplatici-odberatel", "oddluzeni-zivnostnika"], prep: "dane", greeting: "Dílna, faktury a telefon, který zvoní jen kvůli upomínkám." },
   // Náměstí
-  { id: "skola", name: "Vysoká škola finanční", district: "namesti", kind: "normal", x: 42, y: 14, w: 9, h: 5, door: { x: 46, y: 13 }, cases: [], greeting: "Posluchárna. Na tabuli ještě visí vzorec z minulé přednášky." },
-  { id: "poradna", name: "Dluhová poradna", district: "namesti", kind: "safe", x: 16, y: 14, w: 9, h: 5, door: { x: 20, y: 13 }, cases: ["oddluzeni", "dedictvi-v-oddluzeni"], greeting: "„Posaďte se. Projdeme spolu, co dlužíte, a najdeme cestu ven. Zdarma.“" },
+  { id: "skola", name: "Vysoká škola finanční", district: "namesti", kind: "normal", x: 45, y: 17, w: 9, h: 5, door: { x: 49, y: 16 }, cases: [], greeting: "Posluchárna. Na tabuli ještě visí vzorec z minulé přednášky." },
+  { id: "poradna", name: "Dluhová poradna", district: "namesti", kind: "safe", x: 19, y: 17, w: 9, h: 5, door: { x: 23, y: 16 }, cases: ["oddluzeni", "dedictvi-v-oddluzeni"], greeting: "„Posaďte se. Projdeme spolu, co dlužíte, a najdeme cestu ven. Zdarma.“" },
 ];
 
 export const BUILDING_BY_ID = new Map(BUILDINGS.map((b) => [b.id, b]));
@@ -84,21 +90,46 @@ export function buildingForCase(caseId: string): Building | undefined {
 }
 
 /** Postava začíná před domovem (dlaždice). */
-export const SPAWN = { x: 30, y: 24 };
+export const SPAWN = { x: 33, y: 27 };
 
 /** Dekorace bloků (neprůchozí je jen kašna). */
 export type Decor = { kind: "parking" | "park" | "gas" | "grass"; x: number; y: number; w: number; h: number };
 export const DECOR: Decor[] = [
-  { kind: "parking", x: 3, y: 14, w: 9, h: 7 },
-  { kind: "park", x: 29, y: 14, w: 9, h: 7 },
+  { kind: "parking", x: 6, y: 17, w: 9, h: 7 },
+  { kind: "park", x: 32, y: 17, w: 9, h: 7 },
 ];
-export const FOUNTAIN = { x: 32, y: 16, w: 3, h: 3 };
+export const FOUNTAIN = { x: 35, y: 19, w: 3, h: 3 };
+
+/**
+ * Parkoviště s jednosměrnou uličkou: vjezd z jižního pruhu silnice x 16 přes chodník (15, 20),
+ * výjezd na západ přes chodník (5, 20) do severního pruhu okružní silnice. Stání po 8 ve dvou řadách.
+ * Souřadnice v pixelech.
+ */
+export const PARKING = {
+  entry: { x: 15, y: 20 },
+  exit: { x: 5, y: 20 },
+  laneX: 16 * TILE + 16,
+  exitLaneX: 4 * TILE + 16,
+  aisleY: 20 * TILE + 16,
+  edgeX: 15 * TILE - 20,
+  exitEdgeX: 6 * TILE + 8,
+  slots: Array.from({ length: 16 }, (_, i) => ({ x: 6 * TILE + 28 + (i % 8) * 32, y: i < 8 ? 17 * TILE + 38 : 22 * TILE + 26, up: i < 8 })),
+};
+
+/** Podzemní garáže budov: vjezd přes chodník u budovy z pruhu, který vede kolem ní. */
+export type Garage = { building: string; x: number; y: number; /** budova je nad chodníkem (řada Y1) */ above: boolean };
+export const GARAGES: Garage[] = ["operator", "banka", "soud", "byt", "dilna"].map((id) => {
+  const b = BUILDINGS.find((bb) => bb.id === id)!;
+  const above = b.door.y === b.y + b.h;
+  return { building: id, x: b.x + 3, y: b.door.y, above };
+});
 
 export function isLand(x: number, y: number): boolean {
   return x >= LAND.x0 && x <= LAND.x1 && y >= LAND.y0 && y <= LAND.y1;
 }
 export function isRoad(x: number, y: number): boolean {
-  return isLand(x, y) && (ROAD_ROWS.includes(y) || ROAD_COLS.includes(x));
+  if (x < ROAD_SPAN.x0 || x > ROAD_SPAN.x1 || y < ROAD_SPAN.y0 || y > ROAD_SPAN.y1) return false;
+  return ROAD_ROWS.includes(y) || ROAD_COLS.includes(x);
 }
 export function isSidewalk(x: number, y: number): boolean {
   if (!isLand(x, y) || isRoad(x, y)) return false;

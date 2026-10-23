@@ -8,6 +8,8 @@ import {
   TILE,
   WORLD_H,
   WORLD_W,
+  PARKING,
+  GARAGES,
   isLand,
   isRoad,
   isSidewalk,
@@ -322,7 +324,7 @@ export function drawStatic(ctx: CanvasRenderingContext2D) {
     const yLine = px(ROAD_ROWS[i + 1]) - 1;
     for (let x = px(LAND.x0); x < px(LAND.x1 + 1); x += 24) {
       const tx = Math.floor(x / TILE);
-      if (ROAD_COLS.includes(tx) || ROAD_COLS.includes(tx + 1)) continue;
+      if (!isRoad(tx, ROAD_ROWS[i]) || ROAD_COLS.includes(tx) || ROAD_COLS.includes(tx + 1)) continue;
       ctx.fillRect(x, yLine, 12, 2);
     }
   }
@@ -330,7 +332,7 @@ export function drawStatic(ctx: CanvasRenderingContext2D) {
     const xLine = px(ROAD_COLS[i + 1]) - 1;
     for (let y = px(LAND.y0); y < px(LAND.y1 + 1); y += 24) {
       const ty = Math.floor(y / TILE);
-      if (ROAD_ROWS.includes(ty) || ROAD_ROWS.includes(ty + 1)) continue;
+      if (!isRoad(ROAD_COLS[i], ty) || ROAD_ROWS.includes(ty) || ROAD_ROWS.includes(ty + 1)) continue;
       ctx.fillRect(xLine, y, 2, 12);
     }
   }
@@ -340,11 +342,16 @@ export function drawStatic(ctx: CanvasRenderingContext2D) {
     for (let j = 0; j < ROAD_ROWS.length; j += 2) {
       const cx0 = px(ROAD_COLS[i]);
       const cy0 = px(ROAD_ROWS[j]);
+      // přechod jen na stranách, kam silnice pokračuje (u okružní silnice ne do vody)
+      const n = isRoad(ROAD_COLS[i], ROAD_ROWS[j] - 1);
+      const s = isRoad(ROAD_COLS[i], ROAD_ROWS[j] + 2);
+      const w = isRoad(ROAD_COLS[i] - 1, ROAD_ROWS[j]);
+      const e = isRoad(ROAD_COLS[i] + 2, ROAD_ROWS[j]);
       for (let k = 0; k < 6; k++) {
-        ctx.fillRect(cx0 + 4 + k * 10, cy0 - 30, 6, 26); // nad křižovatkou (na silnici)
-        ctx.fillRect(cx0 + 4 + k * 10, cy0 + 2 * TILE + 4, 6, 26);
-        ctx.fillRect(cx0 - 30, cy0 + 4 + k * 10, 26, 6);
-        ctx.fillRect(cx0 + 2 * TILE + 4, cy0 + 4 + k * 10, 26, 6);
+        if (n) ctx.fillRect(cx0 + 4 + k * 10, cy0 - 30, 6, 26); // nad křižovatkou (na silnici)
+        if (s) ctx.fillRect(cx0 + 4 + k * 10, cy0 + 2 * TILE + 4, 6, 26);
+        if (w) ctx.fillRect(cx0 - 30, cy0 + 4 + k * 10, 26, 6);
+        if (e) ctx.fillRect(cx0 + 2 * TILE + 4, cy0 + 4 + k * 10, 26, 6);
       }
     }
   }
@@ -363,11 +370,22 @@ export function drawStatic(ctx: CanvasRenderingContext2D) {
         ctx.fillRect(x + 12 + i * 32, y + 10, 2, 54);
         ctx.fillRect(x + 12 + i * 32, y + h - 64, 2, 54);
       }
-      const colors = ["#c0392b", "#2e86c1", "#f1c40f", "#7f8c8d", "#27ae60", "#ecf0f1", "#8e44ad"];
-      for (let i = 0; i < 8; i++) {
-        if (rand() < 0.35) continue;
-        drawCar(ctx, x + 28 + i * 32, y + 38, Math.PI / 2, colors[Math.floor(rand() * colors.length)]);
-        if (rand() < 0.5) drawCar(ctx, x + 28 + i * 32, y + h - 38, -Math.PI / 2, colors[Math.floor(rand() * colors.length)]);
+      // vjezd z ulice (auta na stáních jsou pohyblivá, kreslí se zvlášť)
+      for (const e of [PARKING.entry, PARKING.exit]) {
+        ctx.fillStyle = "#47494e";
+        ctx.fillRect(px(e.x), px(e.y) - 10, TILE, TILE + 20);
+        ctx.fillStyle = C.curb;
+        ctx.fillRect(px(e.x), px(e.y) - 12, TILE, 2);
+        ctx.fillRect(px(e.x), px(e.y) + TILE + 10, TILE, 2);
+      }
+      // šipky jednosměrné uličky
+      ctx.fillStyle = "#cfcfc6";
+      for (const ax of [x + 60, x + w / 2, x + w - 60]) {
+        ctx.beginPath();
+        ctx.moveTo(ax - 10, PARKING.aisleY);
+        ctx.lineTo(ax + 4, PARKING.aisleY - 6);
+        ctx.lineTo(ax + 4, PARKING.aisleY + 6);
+        ctx.fill();
       }
     } else if (d.kind === "park") {
       ctx.fillStyle = "#5c9445";
@@ -429,6 +447,18 @@ export function drawStatic(ctx: CanvasRenderingContext2D) {
   }
   // budovy
   for (const b of BUILDINGS) drawBuilding(ctx, b);
+  // vjezdy do podzemních garáží
+  for (const g of GARAGES) {
+    const x = px(g.x);
+    const y = px(g.y);
+    ctx.fillStyle = "#55575c";
+    ctx.fillRect(x + 4, y, TILE - 8, TILE);
+    ctx.fillStyle = "#1a1a1d";
+    const gy = g.above ? y - 8 : y + TILE;
+    ctx.fillRect(x + 2, gy, TILE - 4, 8);
+    ctx.fillStyle = "#ffd447";
+    for (let k = 0; k < 4; k++) ctx.fillRect(x + 4 + k * 7, g.above ? y - 2 : y + TILE, 4, 2);
+  }
   // rohože u dveří
   for (const b of BUILDINGS) {
     ctx.fillStyle = "#5a4a3a";

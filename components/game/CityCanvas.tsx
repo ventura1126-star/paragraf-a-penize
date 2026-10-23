@@ -17,6 +17,7 @@ import {
   BUILDING_BY_ID,
   EXECUTOR_FROM,
   RACE_BY_CASE,
+  SPAWN,
   wantedLevel,
   type Building,
   type Race,
@@ -25,6 +26,7 @@ import { SPRITES } from "@/content/game/sprites";
 import { STREET, type StreetNpc } from "@/content/game/street";
 import { buildingStates, nextLecture, nextStoryCase, type BuildingState } from "@/lib/game/city-logic";
 import { drawCar, drawStatic } from "@/lib/game/render";
+import { carBox, hasLights, makeTraffic, stepTraffic } from "@/lib/game/traffic";
 import { caughtByExecutor, characterOf, deliveredLetters, levelOf, raceResult, readGame, recordRace, setPos, streetQuestionIndex, useGame, useHydrated, type GameState } from "@/lib/game/store";
 import { monthLabel } from "./Mailbox";
 import { fill } from "@/content/game/characters";
@@ -32,14 +34,12 @@ import { GameNavContext, type GameNav } from "./GameNav";
 import { panelView } from "./GamePanel";
 
 type V = { x: number; y: number };
-type Car = { axis: "h" | "v"; lane: number; dir: 1 | -1; pos: number; speed: number; color: string };
 
 const SPEED = 130; // px/s
 const R = 9; // poloměr postavy pro kolize
 const NPC_R = 11; // poloměr člověka na ulici pro kolize
 const NPC_TILES = new Set(STREET.map((n) => n.at.y * WORLD_W + n.at.x));
 const npcTile = (x: number, y: number) => NPC_TILES.has(y * WORLD_W + x);
-const CAR_COLORS = ["#c0392b", "#2e86c1", "#f1c40f", "#16a085", "#ecf0f1", "#8e44ad", "#d35400", "#2c3e50", "#7f8c8d"];
 
 function tileCenter(t: V): V {
   return { x: t.x * TILE + TILE / 2, y: t.y * TILE + TILE / 2 };
@@ -50,26 +50,6 @@ function canStand(x: number, y: number): boolean {
     if (!isWalkable(Math.floor((x + dx) / TILE), Math.floor((y + dy) / TILE))) return false;
   }
   return true;
-}
-
-function makeCars(): Car[] {
-  const cars: Car[] = [];
-  let k = 0;
-  // vodorovné pásy: horní pruh jede doleva, dolní doprava (jako v ČR)
-  for (let i = 0; i < ROAD_ROWS.length; i += 2) {
-    for (let n = 0; n < 4; n++) {
-      cars.push({ axis: "h", lane: ROAD_ROWS[i] * TILE + 16, dir: -1, pos: (n * 431 + i * 97) % (WORLD_W * TILE), speed: 90 + ((k * 37) % 60), color: CAR_COLORS[k++ % CAR_COLORS.length] });
-      cars.push({ axis: "h", lane: ROAD_ROWS[i + 1] * TILE + 16, dir: 1, pos: (n * 389 + i * 211) % (WORLD_W * TILE), speed: 90 + ((k * 41) % 60), color: CAR_COLORS[k++ % CAR_COLORS.length] });
-    }
-  }
-  // svislé pásy: levý pruh jede dolů, pravý nahoru
-  for (let i = 0; i < ROAD_COLS.length; i += 2) {
-    for (let n = 0; n < 2; n++) {
-      cars.push({ axis: "v", lane: ROAD_COLS[i] * TILE + 16, dir: 1, pos: (n * 467 + i * 131) % (WORLD_H * TILE), speed: 80 + ((k * 29) % 50), color: CAR_COLORS[k++ % CAR_COLORS.length] });
-      cars.push({ axis: "v", lane: ROAD_COLS[i + 1] * TILE + 16, dir: -1, pos: (n * 353 + i * 59) % (WORLD_H * TILE), speed: 80 + ((k * 31) % 50), color: CAR_COLORS[k++ % CAR_COLORS.length] });
-    }
-  }
-  return cars;
 }
 
 /** Postava shora: ramena, hlava, vlasy; nohy se při chůzi střídají. */
@@ -230,13 +210,13 @@ export function CityCanvas() {
     const mctx = mini?.getContext("2d");
 
     const start = readGame().pos;
-    const startTile = isWalkable(start.x, start.y) ? start : { x: 30, y: 24 };
+    const startTile = isWalkable(start.x, start.y) ? start : SPAWN;
     const p = { ...tileCenter(startTile), angle: Math.PI / 2, step: 0, moving: false };
     let path: V[] = [];
     let pathBuilding: Building | null = null;
     let stuck = 0;
     const keys = new Set<string>();
-    const cars = makeCars();
+    const cars = makeTraffic();
     let cam = { x: p.x, y: p.y };
     let zoom = 1;
     let vw = 0;
@@ -286,11 +266,9 @@ export function CityCanvas() {
     /** Auta a lidé na ulici: postava jimi neprojde. */
     const hitsObstacle = (x: number, y: number) => {
       for (const c of cars) {
-        const cx = c.axis === "h" ? c.pos : c.lane;
-        const cy = c.axis === "h" ? c.lane : c.pos;
-        const hw = (c.axis === "h" ? 20 : 10) + R - 2;
-        const hh = (c.axis === "h" ? 10 : 20) + R - 2;
-        if (Math.abs(x - cx) < hw && Math.abs(y - cy) < hh) return true;
+        if (c.mode === "inside") continue;
+        const b = carBox(c);
+        if (Math.abs(x - b.x) < b.hw + R - 2 && Math.abs(y - b.y) < b.hh + R - 2) return true;
       }
       for (const n of STREET) {
         const c = tileCenter(n.at);
@@ -301,11 +279,9 @@ export function CityCanvas() {
     /** Dlaždice, na které zrovna stojí auto. */
     const carTile = (tx: number, ty: number) =>
       cars.some((c) => {
-        const cx = c.axis === "h" ? c.pos : c.lane;
-        const cy = c.axis === "h" ? c.lane : c.pos;
-        const hw = c.axis === "h" ? 20 : 10;
-        const hh = c.axis === "h" ? 10 : 20;
-        return cx + hw > tx * TILE && cx - hw < (tx + 1) * TILE && cy + hh > ty * TILE && cy - hh < (ty + 1) * TILE;
+        if (c.mode === "inside") return false;
+        const b = carBox(c);
+        return b.x + b.hw > tx * TILE && b.x - b.hw < (tx + 1) * TILE && b.y + b.hh > ty * TILE && b.y - b.hh < (ty + 1) * TILE;
       });
     // když už postava v překážce je (auto do ní najelo), smí se z ní dostat ven
     const canMove = (x: number, y: number) => canStand(x, y) && (!hitsObstacle(x, y) || hitsObstacle(p.x, p.y));
@@ -475,45 +451,11 @@ export function CityCanvas() {
         if (saved.x !== pt.x || saved.y !== pt.y) setPos(pt);
       }
 
-      // --- auta: semafory na křižovatkách, odstup v pruhu, brzdí před postavou
+      // --- auta: odbočují na křižovatkách, stojí na červenou, parkují a zajíždějí do garáží
       const cyc = t % 16;
       const hGreen = cyc < 7;
       const vGreen = cyc >= 8 && cyc < 15;
-      for (const c of cars) {
-        const front = c.pos + c.dir * 20;
-        const next = c.pos + c.dir * c.speed * dt;
-        let stop = false;
-        // postava před autem
-        const ax = c.axis === "h" ? front + c.dir * 14 : c.lane;
-        const ay = c.axis === "h" ? c.lane : front + c.dir * 14;
-        if (Math.abs(ax - p.x) < 22 && Math.abs(ay - p.y) < 22) stop = true;
-        // červená: zastavit před stop čárou (pokud ještě není v křižovatce)
-        const green = c.axis === "h" ? hGreen : vGreen;
-        if (!stop && !green) {
-          const stops = c.axis === "h" ? ROAD_COLS : ROAD_ROWS;
-          for (let i = 0; i < stops.length; i += 2) {
-            const edge = c.dir === 1 ? stops[i] * TILE - 34 : (stops[i + 1] + 1) * TILE + 34;
-            const dist = (edge - front) * c.dir;
-            if (dist >= 0 && dist < 26) stop = true;
-          }
-        }
-        // auto před námi ve stejném pruhu
-        if (!stop) {
-          for (const o of cars) {
-            if (o === c || o.axis !== c.axis || o.lane !== c.lane) continue;
-            const gap = (o.pos - c.pos) * c.dir;
-            if (gap > 0 && gap < 52) {
-              stop = true;
-              break;
-            }
-          }
-        }
-        if (!stop) c.pos = next;
-        const lo = (c.axis === "h" ? LAND.x0 : LAND.y0) * TILE + 20;
-        const hi = ((c.axis === "h" ? LAND.x1 : LAND.y1) + 1) * TILE - 20;
-        if (c.pos > hi) c.pos = lo;
-        if (c.pos < lo) c.pos = hi;
-      }
+      stepTraffic(cars, dt, { player: p, hGreen, vGreen });
       // --- exekutor: od 3 hvězdiček honí postavu; poradna je úkryt
       const gs = readGame();
       const stars = wantedLevel(gs.load);
@@ -715,14 +657,15 @@ export function CityCanvas() {
       }
       // auta
       for (const c of cars) {
-        const x = c.axis === "h" ? c.pos : c.lane;
-        const y = c.axis === "h" ? c.lane : c.pos;
-        const a = c.axis === "h" ? (c.dir === 1 ? 0 : Math.PI) : c.dir === 1 ? Math.PI / 2 : -Math.PI / 2;
-        drawCar(ctx, x, y, a, c.color);
+        if (c.mode === "inside") continue;
+        ctx.globalAlpha = c.alpha;
+        drawCar(ctx, c.x, c.y, c.ang, c.color);
+        ctx.globalAlpha = 1;
       }
       // semafory na rozích křižovatek
       for (let i = 0; i < ROAD_COLS.length; i += 2) {
         for (let j = 0; j < ROAD_ROWS.length; j += 2) {
+          if (!hasLights(j / 2, i / 2)) continue;
           const x0 = ROAD_COLS[i] * TILE;
           const y0 = ROAD_ROWS[j] * TILE;
           const corners: [number, number, boolean][] = [

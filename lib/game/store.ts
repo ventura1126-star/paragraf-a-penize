@@ -49,6 +49,8 @@ export type GameState = {
   lectures: Record<string, number>;
   /** Rady lidem na ulici, klíč `${postava}:${člověk}:${otázka}` = poradil(a) správně. */
   advice: Record<string, boolean>;
+  /** Verze mapy (2 = město s okružní silnicí, souřadnice posunuté o 3 dlaždice). */
+  mapV?: number;
 };
 
 export type Letter = {
@@ -83,6 +85,7 @@ const INITIAL: GameState = {
   races: {},
   lectures: {},
   advice: {},
+  mapV: 2,
 };
 
 export const LEVELS = [
@@ -111,6 +114,8 @@ function load() {
     if (raw) {
       const parsed = JSON.parse(raw) as GameState;
       if (parsed?.v === 1) state = { ...INITIAL, ...parsed, opened: parsed.opened ?? {}, preps: parsed.preps ?? {}, letters: parsed.letters ?? [], pos: parsed.pos ?? SPAWN, races: parsed.races ?? {}, lectures: parsed.lectures ?? {}, advice: parsed.advice ?? {} };
+      // starší uložená pozice je z menší mapy bez okružní silnice
+      if (parsed?.v === 1 && parsed.mapV !== 2) state = { ...state, pos: parsed.pos ? { x: parsed.pos.x + 3, y: parsed.pos.y + 3 } : SPAWN, mapV: 2 };
     }
   } catch {
     // Úložiště nedostupné (anonymní okno apod.) – hraje se bez uložení.

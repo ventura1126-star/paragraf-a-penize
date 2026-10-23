@@ -29,7 +29,7 @@ export const STREET: StreetNpc[] = [
   {
     id: "student",
     npc: { name: "Tomáš", role: "student", shape: "ondrej", palette: { h: "#c98a3a", t: "#4a7bd1", T: "#365ea3", p: "#2b2f36" } },
-    at: { x: 6, y: 10 },
+    at: { x: 9, y: 13 },
     questions: [
       {
         ask: "Koupil jsem včera telefon na splátky a už toho lituju. Dá se to ještě vzít zpátky?",
@@ -50,7 +50,7 @@ export const STREET: StreetNpc[] = [
   {
     id: "babicka",
     npc: { name: "paní Věra", role: "důchodkyně", shape: "marie", palette: { h: "#e2e2e2", t: "#7a9a5a", T: "#5c7a42", p: "#4a4a52" } },
-    at: { x: 19, y: 10 },
+    at: { x: 22, y: 13 },
     questions: [
       {
         ask: "Byla jsem na zájezdu s obědem zdarma a podepsala tam smlouvu na hrnce za 30 tisíc. Prý to už nejde zrušit…",
@@ -71,7 +71,7 @@ export const STREET: StreetNpc[] = [
   {
     id: "mlady-otec",
     npc: { name: "Lukáš", role: "táta na rodičovské", shape: "radek", palette: { c: "#3d8c58", h: "#2b1d14", t: "#d8d2c4", p: "#3b4a6b" } },
-    at: { x: 32, y: 13 },
+    at: { x: 35, y: 16 },
     questions: [
       {
         ask: "Srovnávám dvě půjčky. Jedna má úrok 9 %, druhá 11 %. Ta první je levnější, ne?",
@@ -92,7 +92,7 @@ export const STREET: StreetNpc[] = [
   {
     id: "remeslnik",
     npc: { name: "pan Jarda", role: "instalatér", shape: "petr", palette: { h: "#5a5650", t: "#c0392b", T: "#922b21", w: "#e8eef5", a: "#e8eef5", p: "#2f5d8a" } },
-    at: { x: 44, y: 21 },
+    at: { x: 47, y: 24 },
     questions: [
       {
         ask: "Daňové přiznání jsem vždycky podával na papíře. Kolik mám času, když ho pošlu elektronicky?",
@@ -113,7 +113,7 @@ export const STREET: StreetNpc[] = [
   {
     id: "maminka",
     npc: { name: "Petra", role: "maminka dvou dětí", shape: "jana", palette: { h: "#6b3a1e", t: "#3a8fb0", T: "#2a6c86", a: "#f4f4f4", p: "#3a3a52" } },
-    at: { x: 7, y: 21 },
+    at: { x: 10, y: 24 },
     questions: [
       {
         ask: "Bývalý muž půl roku neplatí výživné na děti. Je nějaká pomoc, než to vymůžu?",
@@ -134,7 +134,7 @@ export const STREET: StreetNpc[] = [
   {
     id: "podnikatelka",
     npc: { name: "Zdena", role: "kadeřnice", shape: "jana", palette: { h: "#9b2d5a", t: "#1f1d22", T: "#111111", a: "#ffd447", p: "#2a2a35" } },
-    at: { x: 24, y: 24 },
+    at: { x: 27, y: 27 },
     questions: [
       {
         ask: "Přišlo mi vyrozumění o exekuci na 8 tisíc. Dá se to ještě nějak zlevnit?",
@@ -155,7 +155,7 @@ export const STREET: StreetNpc[] = [
   {
     id: "dedecek",
     npc: { name: "pan Karel", role: "důchodce", shape: "petr", palette: { h: "#d9d9d9", s: "#f0c8a8", S: "#cfcfcf", t: "#6b6f4a", T: "#4f5236", w: "#f4f4f4", a: "#6b6f4a", p: "#3b3b42" } },
-    at: { x: 37, y: 24 },
+    at: { x: 40, y: 27 },
     questions: [
       {
         ask: "Volal mi pán z banky, že mi někdo vybírá účet a mám mu nadiktovat kód z SMS. Mám?",
@@ -176,7 +176,7 @@ export const STREET: StreetNpc[] = [
   {
     id: "sousedka",
     npc: { name: "Iveta", role: "prodavačka", shape: "jana", palette: { h: "#e0b33a", t: "#7d4fb3", T: "#5d3a86", a: "#f2c94c", p: "#2f2f3a" } },
-    at: { x: 15, y: 17 },
+    at: { x: 18, y: 20 },
     questions: [
       {
         ask: "Pračka se mi rozbila po osmi měsících. Prodejce tvrdí, že je to moje chyba. Musím mu dokazovat opak?",
@@ -197,7 +197,7 @@ export const STREET: StreetNpc[] = [
   {
     id: "investor",
     npc: { name: "Marek", role: "programátor", shape: "ondrej", palette: { h: "#1f1d22", t: "#2d3440", T: "#1f252e", w: "#5fe08a", p: "#22262d" } },
-    at: { x: 28, y: 6 },
+    at: { x: 31, y: 9 },
     questions: [
       {
         ask: "Kamarád mi nabízí investici s výnosem 15 % ročně, garantovaně. Mám do toho jít?",
@@ -217,7 +217,7 @@ export const STREET: StreetNpc[] = [
   {
     id: "ridic",
     npc: { name: "Standa", role: "řidič dodávky", shape: "radek", palette: { c: "#2e86c1", h: "#3a2416", t: "#f1c40f", T: "#c19b0b", p: "#2b2f36" } },
-    at: { x: 41, y: 28 },
+    at: { x: 44, y: 31 },
     questions: [
       {
         ask: "Přišel mi dopis kvůli dluhu z doby před pěti lety. Inkasní agentura chce, abych podepsal uznání dluhu. Mám?",
@@ -238,7 +238,7 @@ export const STREET: StreetNpc[] = [
   {
     id: "studentka",
     npc: { name: "Eliška", role: "studentka", shape: "jana", palette: { h: "#c98a3a", t: "#3d8c58", T: "#2a633e", a: "#f4f4f4", p: "#3b4a6b" } },
-    at: { x: 12, y: 28 },
+    at: { x: 15, y: 31 },
     questions: [
       {
         ask: "Objednala jsem boty z e-shopu, přišly dneska a nesedí. Dá se to vrátit bez důvodu?",
@@ -259,7 +259,7 @@ export const STREET: StreetNpc[] = [
   {
     id: "manzele",
     npc: { name: "Hanka", role: "účetní", shape: "marie", palette: { h: "#6b4a2b", t: "#b03a7a", T: "#86295c", w: "#f4f4f4", p: "#3a3a52", a: "#3a3a52" } },
-    at: { x: 50, y: 13 },
+    at: { x: 53, y: 16 },
     questions: [
       {
         ask: "Manžel si chce vzít velkou půjčku na auto a mně se to nelíbí. Můžu se nějak chránit?",
