@@ -21,6 +21,8 @@ import { HelpBanner } from "./HelpBanner";
 import { GameLink } from "./GameNav";
 import { PixelSprite } from "./PixelSprite";
 import { LectureScreen } from "./Lecture";
+import { StreetAdvice } from "./StreetAdvice";
+import { STREET_BY_ID } from "@/content/game/street";
 import { LECTURE_BY_ID } from "@/content/game/lectures";
 
 type View = { eyebrow?: string; title: string; body: ReactNode };
@@ -83,6 +85,10 @@ export function panelView(href: string): View | null {
       return c
         ? { eyebrow: c.boss ? "Boss příběhu" : "Nástraha", title: c.title, body: <><CasePlayer gameCase={c} /><HelpBanner /></> }
         : null;
+    }
+    case "rada": {
+      const p = STREET_BY_ID.get(id);
+      return p ? { eyebrow: "Na ulici · chce poradit", title: p.npc.name, body: <StreetAdvice person={p} /> } : null;
     }
     case "prednaska": {
       const l = LECTURE_BY_ID.get(id);

@@ -708,3 +708,9 @@ a.trail-card:hover { border-color: var(--accent); }
   .lec-teacher { flex-direction: row; display: flex; max-width: none; text-align: left; align-items: flex-end; }
   .lec-board { min-height: 100px; }
 }
+
+/* --- Rady lidem na ulici --- */
+.adv-good { border-color: #2f8f4e; }
+.adv-bad { border-color: #c2721e; }
+.adv-result { margin: 0.25rem 0 0.5rem; }
+.adv-xp { color: #2f8f4e; font-family: ui-monospace, Menlo, monospace; font-size: 1.1rem; }

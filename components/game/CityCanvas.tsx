@@ -22,9 +22,10 @@ import {
   type Race,
 } from "@/content/game/city";
 import { SPRITES } from "@/content/game/sprites";
+import { STREET, type StreetNpc } from "@/content/game/street";
 import { buildingStates, nextLecture, nextStoryCase, type BuildingState } from "@/lib/game/city-logic";
 import { drawCar, drawStatic } from "@/lib/game/render";
-import { caughtByExecutor, characterOf, deliveredLetters, raceResult, readGame, recordRace, setPos, useGame, useHydrated, type GameState } from "@/lib/game/store";
+import { caughtByExecutor, characterOf, deliveredLetters, raceResult, readGame, recordRace, setPos, streetQuestionIndex, useGame, useHydrated, type GameState } from "@/lib/game/store";
 import { monthLabel } from "./Mailbox";
 import { fill } from "@/content/game/characters";
 import { GameNavContext, type GameNav } from "./GameNav";
@@ -32,12 +33,10 @@ import { panelView } from "./GamePanel";
 
 type V = { x: number; y: number };
 type Car = { axis: "h" | "v"; lane: number; dir: 1 | -1; pos: number; speed: number; color: string };
-type Ped = { x: number; y: number; tx: number; ty: number; color: string; hair: string };
 
 const SPEED = 130; // px/s
 const R = 9; // poloměr postavy pro kolize
 const CAR_COLORS = ["#c0392b", "#2e86c1", "#f1c40f", "#16a085", "#ecf0f1", "#8e44ad", "#d35400", "#2c3e50", "#7f8c8d"];
-const PED_COLORS = ["#e74c3c", "#3498db", "#f39c12", "#9b59b6", "#1abc9c", "#ecf0f1", "#34495e", "#e67e22"];
 
 function tileCenter(t: V): V {
   return { x: t.x * TILE + TILE / 2, y: t.y * TILE + TILE / 2 };
@@ -68,21 +67,6 @@ function makeCars(): Car[] {
     }
   }
   return cars;
-}
-
-function makePeds(): Ped[] {
-  const peds: Ped[] = [];
-  let i = 0;
-  for (let ty = LAND.y0; ty <= LAND.y1 && peds.length < 26; ty += 3) {
-    for (let tx = LAND.x0; tx <= LAND.x1 && peds.length < 26; tx += 7) {
-      if (isSidewalk(tx, ty) && isWalkable(tx, ty)) {
-        const c = tileCenter({ x: tx, y: ty });
-        peds.push({ x: c.x, y: c.y, tx, ty, color: PED_COLORS[i % PED_COLORS.length], hair: i % 3 ? "#3a2416" : "#c9c9c9" });
-        i++;
-      }
-    }
-  }
-  return peds;
 }
 
 /** Postava shora: ramena, hlava, vlasy; nohy se při chůzi střídají. */
@@ -129,6 +113,7 @@ export function CityCanvas() {
   const gRef = useRef<GameState>(g);
   gRef.current = g;
   const [door, setDoor] = useState<Building | null>(null);
+  const [person, setPerson] = useState<StreetNpc | null>(null);
   const [race, setRace] = useState<{ r: Race; left: number } | null>(null);
   const [chased, setChased] = useState(false);
   const [toast, setToast] = useState<{ text: string; tone: "good" | "bad" } | null>(null);
@@ -233,7 +218,6 @@ export function CityCanvas() {
     let pathBuilding: Building | null = null;
     const keys = new Set<string>();
     const cars = makeCars();
-    const peds = makePeds();
     let cam = { x: p.x, y: p.y };
     let zoom = 1;
     let vw = 0;
@@ -266,6 +250,12 @@ export function CityCanvas() {
     window.addEventListener("resize", resize);
 
     const playerTile = () => ({ x: Math.floor(p.x / TILE), y: Math.floor(p.y / TILE) });
+    /** Člověk na ulici v dosahu (sousední dlaždice). */
+    const nearPerson = () => {
+      const pt = playerTile();
+      return STREET.find((n) => Math.abs(n.at.x - pt.x) <= 1 && Math.abs(n.at.y - pt.y) <= 1) ?? null;
+    };
+    let lastPerson: string | null = null;
 
     const goTo = (tile: V, b: Building | null) => {
       path = findPath(playerTile(), tile);
@@ -276,7 +266,16 @@ export function CityCanvas() {
     const enter = () => {
       const pt = playerTile();
       const b = BUILDINGS.find((bb) => bb.door.x === pt.x && bb.door.y === pt.y);
-      if (!b) return;
+      if (!b) {
+        const n = nearPerson();
+        if (n) {
+          setPos(pt);
+          keys.clear();
+          path = [];
+          navRef.current.go(`/hra/rada/${n.id}`);
+        }
+        return;
+      }
       const st = statesRef.current.find((s) => s.building.id === b.id);
       if (!st?.open) return;
       setPos(pt);
@@ -322,7 +321,9 @@ export function CityCanvas() {
       const ty = Math.floor(wy / TILE);
       const b = buildingAt(tx, ty);
       canvas.focus();
-      if (b) goTo(b.door, b);
+      const n = STREET.find((nn) => nn.at.x === tx && nn.at.y === ty);
+      if (n) goTo(n.at, null);
+      else if (b) goTo(b.door, b);
       else if (isWalkable(tx, ty)) goTo({ x: tx, y: ty }, null);
     };
     canvas.addEventListener("click", onClick);
@@ -395,6 +396,11 @@ export function CityCanvas() {
         lastDoor = atDoor?.id ?? null;
         setDoor(atDoor);
       }
+      const np = atDoor ? null : nearPerson();
+      if ((np?.id ?? null) !== lastPerson) {
+        lastPerson = np?.id ?? null;
+        setPerson(np);
+      }
       if (!p.moving && pathBuilding && atDoor?.id === pathBuilding.id) {
         pathBuilding = null;
       }
@@ -443,27 +449,6 @@ export function CityCanvas() {
         if (c.pos > hi) c.pos = lo;
         if (c.pos < lo) c.pos = hi;
       }
-      // --- chodci (náhodná procházka po chodnících)
-      for (const ped of peds) {
-        const c = tileCenter({ x: ped.tx, y: ped.ty });
-        const dx = c.x - ped.x;
-        const dy = c.y - ped.y;
-        const d = Math.hypot(dx, dy);
-        if (d < 1.5) {
-          const opts = [[1, 0], [-1, 0], [0, 1], [0, -1]]
-            .map(([a, b]) => ({ x: ped.tx + a, y: ped.ty + b }))
-            .filter((n) => isSidewalk(n.x, n.y) && isWalkable(n.x, n.y));
-          const n = opts[Math.floor(Math.random() * opts.length)];
-          if (n) {
-            ped.tx = n.x;
-            ped.ty = n.y;
-          }
-        } else {
-          ped.x += (dx / d) * 28 * dt;
-          ped.y += (dy / d) * 28 * dt;
-        }
-      }
-
       // --- exekutor: od 3 hvězdiček honí postavu; poradna je úkryt
       const gs = readGame();
       const stars = wantedLevel(gs.load);
@@ -641,9 +626,27 @@ export function CityCanvas() {
           ctx.stroke();
         }
       }
-      // chodci
-      for (const ped of peds) {
-        drawPerson(ctx, ped.x, ped.y, Math.atan2(ped.ty * TILE + 16 - ped.y, ped.tx * TILE + 16 - ped.x), t * 10, ped.color, ped.hair, "#e0b48c", "#2b2f36", 0.85);
+      // lidé na ulici, kteří chtějí poradit
+      for (const n of STREET) {
+        const c = tileCenter(n.at);
+        const pl = { ...SPRITES[n.npc.shape]?.palette, ...n.npc.palette };
+        drawPerson(ctx, c.x, c.y, Math.atan2(p.y - c.y, p.x - c.x), 0, pl.t ?? "#888", pl.h ?? "#333", pl.s ?? "#e0b48c", pl.p ?? "#2b2f36", 1.05);
+        const open = streetQuestionIndex(gRef.current, n.id, n.questions.length) >= 0;
+        const by = c.y - 24 - (open ? pulse * 3 : 0);
+        ctx.fillStyle = "#1a1a1d";
+        ctx.beginPath();
+        ctx.arc(c.x, by, 9, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = open ? "#ffd447" : "#5fe08a";
+        ctx.beginPath();
+        ctx.arc(c.x, by, 7.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#1a1a1d";
+        ctx.font = "bold 11px ui-monospace, Menlo, monospace";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(open ? "?" : "✓", c.x, by + 1);
+        ctx.textAlign = "start";
       }
       // auta
       for (const c of cars) {
@@ -743,6 +746,12 @@ export function CityCanvas() {
           const c = tileCenter(tgt.building.door);
           mctx.fillStyle = "#ffd447";
           mctx.fillRect(c.x * sc - 3, c.y * sc - 3, 6, 6);
+        }
+        mctx.fillStyle = "#f4f1e8";
+        for (const n of STREET) {
+          if (streetQuestionIndex(gRef.current, n.id, n.questions.length) < 0) continue;
+          const c = tileCenter(n.at);
+          mctx.fillRect(c.x * sc - 1.5, c.y * sc - 1.5, 3, 3);
         }
         if (ex.active && Math.floor(t * 4) % 2) {
           mctx.fillStyle = "#3b7bff";
@@ -854,6 +863,7 @@ export function CityCanvas() {
               <li><b>Chůze:</b> šipky / WASD, nebo klepněte na budovu – postava dojde ke dveřím.</li>
               <li><b>Žlutá šipka</b> ukazuje, kam vede váš příběh. Klepnutím do minimapy se dá cestovat.</li>
               <li><b>Dveře:</b> E / Enter nebo tlačítko Vstoupit.</li>
+              <li><b>Lidé s otazníkem</b> chtějí poradit. Dojděte k nim a promluvte si – za dobrou radu jsou XP.</li>
               <li><b>LHŮTA</b> vpravo: doběhněte do budovy, než vyprší – jinak to bude dražší.</li>
               <li><b>Hvězdičky ★</b> = hledanost podle dluhů. Od 3 vás honí exekutor; úkryt je Dluhová poradna.</li>
               <li><b>Pager</b> hlásí dopisy – následky vašich rozhodnutí.</li>
@@ -887,6 +897,20 @@ export function CityCanvas() {
                 Vstoupit <kbd>E</kbd>
               </button>
             )}
+          </div>
+        )}
+        {person && !door && !intro && !panel && (
+          <div className="gta-door">
+            <div>
+              <div className="gta-door-district">{person.npc.role}</div>
+              <strong>{person.npc.name}</strong>
+              <div className="gta-door-status">
+                {streetQuestionIndex(g, person.id, person.questions.length) >= 0 ? "Chce od vás poradit s penězi." : "Už jste poradili. Děkuje."}
+              </div>
+            </div>
+            <button type="button" className="gta-enter" onClick={() => enterRef.current()}>
+              Promluvit <kbd>E</kbd>
+            </button>
           </div>
         )}
         {view && (

@@ -47,6 +47,8 @@ export type GameState = {
   races: Record<string, "won" | "lost">;
   /** Absolvované přednášky ve Vysoké škole finanční (počet správných odpovědí), klíč `${postava}:${přednáška}`. */
   lectures: Record<string, number>;
+  /** Rady lidem na ulici, klíč `${postava}:${člověk}:${otázka}` = poradil(a) správně. */
+  advice: Record<string, boolean>;
 };
 
 export type Letter = {
@@ -80,6 +82,7 @@ const INITIAL: GameState = {
   consultMonth: 0,
   races: {},
   lectures: {},
+  advice: {},
 };
 
 export const LEVELS = [
@@ -107,7 +110,7 @@ function load() {
     const raw = window.localStorage.getItem(KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as GameState;
-      if (parsed?.v === 1) state = { ...INITIAL, ...parsed, opened: parsed.opened ?? {}, preps: parsed.preps ?? {}, letters: parsed.letters ?? [], pos: parsed.pos ?? SPAWN, races: parsed.races ?? {}, lectures: parsed.lectures ?? {} };
+      if (parsed?.v === 1) state = { ...INITIAL, ...parsed, opened: parsed.opened ?? {}, preps: parsed.preps ?? {}, letters: parsed.letters ?? [], pos: parsed.pos ?? SPAWN, races: parsed.races ?? {}, lectures: parsed.lectures ?? {}, advice: parsed.advice ?? {} };
     }
   } catch {
     // Úložiště nedostupné (anonymní okno apod.) – hraje se bez uložení.
@@ -352,6 +355,22 @@ export function recordLecture(lectureId: string, correct: number): number {
   const xp = first ? 30 + correct * 20 : 0;
   set({ ...state, xp: state.xp + xp, lectures: { ...state.lectures, [key]: Math.max(correct, state.lectures[key] ?? 0) } });
   return xp;
+}
+
+/** Kterou otázku má člověk na ulici právě připravenou (-1 = všechno vyřešeno). */
+export function streetQuestionIndex(s: GameState, npcId: string, count: number): number {
+  for (let i = 0; i < count; i++) if (!s.advice[`${s.character ?? "-"}:${npcId}:${i}`]) return i;
+  return -1;
+}
+
+/** Rada člověku na ulici: XP za správnou radu, špatnou si může zopakovat při další návštěvě. */
+export function recordAdvice(npcId: string, index: number, ok: boolean): number {
+  load();
+  if (!ok) return 0;
+  const key = `${state.character ?? "-"}:${npcId}:${index}`;
+  if (state.advice[key]) return 0;
+  set({ ...state, xp: state.xp + 25, advice: { ...state.advice, [key]: true } });
+  return 25;
 }
 
 export function openAll() {
