@@ -1,8 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   BUILDINGS,
   DISTRICT_NAMES,
@@ -26,9 +24,11 @@ import {
 import { SPRITES } from "@/content/game/sprites";
 import { buildingStates, nextStoryCase, type BuildingState } from "@/lib/game/city-logic";
 import { drawCar, drawStatic } from "@/lib/game/render";
-import { caughtByExecutor, characterOf, deliveredLetters, raceResult, readGame, recordRace, setPos, useGame, type GameState } from "@/lib/game/store";
+import { caughtByExecutor, characterOf, deliveredLetters, raceResult, readGame, recordRace, setPos, useGame, useHydrated, type GameState } from "@/lib/game/store";
 import { monthLabel } from "./Mailbox";
 import { fill } from "@/content/game/characters";
+import { GameNavContext, type GameNav } from "./GameNav";
+import { panelView } from "./GamePanel";
 
 type V = { x: number; y: number };
 type Car = { axis: "h" | "v"; lane: number; dir: 1 | -1; pos: number; speed: number; color: string };
@@ -121,7 +121,6 @@ function drawPerson(ctx: CanvasRenderingContext2D, x: number, y: number, angle: 
 export function CityCanvas() {
   const g = useGame();
   const ch = characterOf(g);
-  const router = useRouter();
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const miniRef = useRef<HTMLCanvasElement>(null);
@@ -161,6 +160,49 @@ export function CityCanvas() {
   };
   const enterRef = useRef<() => void>(() => {});
 
+  // Herní obrazovky (budova, nástraha, schránka…) jako panel nad mapou; historie kvůli tlačítku zpět.
+  const [stack, setStack] = useState<string[]>([]);
+  const hydrated = useHydrated();
+  const panel = !hydrated ? null : ch ? stack[stack.length - 1] ?? null : "/hra/postava";
+  const pausedRef = useRef(false);
+  pausedRef.current = !hydrated || Boolean(panel) || intro;
+  const nav = useMemo<GameNav>(
+    () => ({
+      go: (href) => {
+        if (href === "/hra") setStack([]);
+        else setStack((s) => (s[s.length - 1] === href ? s : [...s, href]));
+      },
+    }),
+    [],
+  );
+  const navRef = useRef(nav);
+  const closePanel = () => {
+    setStack([]);
+    setTimeout(() => canvasRef.current?.focus(), 0);
+  };
+  const back = () => setStack((s) => s.slice(0, -1));
+  useEffect(() => {
+    if (!panel) setTimeout(() => canvasRef.current?.focus(), 0);
+    document.querySelector(".gta-panel-body")?.scrollTo({ top: 0 });
+  }, [panel]);
+  // celá obrazovka patří hře: stránka pod ní se neposouvá
+  useEffect(() => {
+    const el = document.documentElement;
+    const prev = el.style.overflow;
+    el.style.overflow = "hidden";
+    return () => {
+      el.style.overflow = prev;
+    };
+  }, []);
+  useEffect(() => {
+    const onEsc = (e: KeyboardEvent) => {
+      if (e.key !== "Escape" || !characterOf(gRef.current)) return;
+      setStack((s) => (s.length ? s.slice(0, -1) : ["/hra/menu"]));
+    };
+    window.addEventListener("keydown", onEsc);
+    return () => window.removeEventListener("keydown", onEsc);
+  }, []);
+
   const states = statesRef.current;
   const target = states.find((s) => s.next) ?? states.find((s) => s.calling);
   const letters = deliveredLetters(g).filter((l) => !l.read);
@@ -168,9 +210,9 @@ export function CityCanvas() {
   useEffect(() => {
     const canvas = canvasRef.current;
     const wrap = wrapRef.current;
-    if (!canvas || !wrap || !ch) return;
+    if (!canvas || !wrap) return;
     const ctx = canvas.getContext("2d")!;
-    const pal = SPRITES[ch.id]?.palette ?? {};
+    const pal = (ch && SPRITES[ch.id]?.palette) || {};
 
     // statická vrstva
     const world = document.createElement("canvas");
@@ -211,12 +253,12 @@ export function CityCanvas() {
     const resize = () => {
       const dpr = window.devicePixelRatio || 1;
       vw = wrap.clientWidth;
-      vh = Math.round(Math.min(560, Math.max(340, window.innerHeight * 0.62)));
+      vh = wrap.clientHeight;
       canvas.width = Math.round(vw * dpr);
       canvas.height = Math.round(vh * dpr);
       canvas.style.width = `${vw}px`;
       canvas.style.height = `${vh}px`;
-      zoom = Math.max(0.7, Math.min(1.35, vw / (17 * TILE))) * dpr;
+      zoom = Math.max(0.8, Math.min(1.6, Math.max(vw / (22 * TILE), vh / (14 * TILE)))) * dpr;
     };
     resize();
     window.addEventListener("resize", resize);
@@ -236,7 +278,9 @@ export function CityCanvas() {
       const st = statesRef.current.find((s) => s.building.id === b.id);
       if (!st?.open) return;
       setPos(pt);
-      router.push(`/hra/budova/${b.id}`);
+      keys.clear();
+      path = [];
+      navRef.current.go(`/hra/budova/${b.id}`);
     };
     enterRef.current = enter;
 
@@ -244,6 +288,10 @@ export function CityCanvas() {
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
       const k = e.key.toLowerCase();
+      if (pausedRef.current) {
+        keys.clear();
+        return;
+      }
       if (["arrowup", "arrowdown", "arrowleft", "arrowright", "w", "a", "s", "d"].includes(k)) {
         if (document.activeElement === canvas || wrap.contains(document.activeElement)) e.preventDefault();
         if (e.type === "keydown") {
@@ -292,7 +340,9 @@ export function CityCanvas() {
     mini?.addEventListener("click", onMini);
 
     const frame = (now: number) => {
-      const dt = Math.min(0.05, (now - last) / 1000);
+      // v panelu nebo úvodu hra stojí (čas, auta, exekutor i lhůta)
+      const paused = pausedRef.current;
+      const dt = paused ? 0 : Math.min(0.05, (now - last) / 1000);
       last = now;
       t += dt;
 
@@ -413,7 +463,9 @@ export function CityCanvas() {
       const stars = wantedLevel(gs.load);
       const ptile = playerTile();
       const nearPoradna = Math.abs(ptile.x - poradna.door.x) + Math.abs(ptile.y - poradna.door.y) <= 3;
-      if (!ex.active) {
+      if (paused) {
+        // nic
+      } else if (!ex.active) {
         ex.cooldown -= dt;
         if (stars >= EXECUTOR_FROM && ex.cooldown <= 0 && !nearPoradna) {
           // objeví se na chodníku daleko od postavy
@@ -481,7 +533,7 @@ export function CityCanvas() {
           if (redirect) {
             setPos(ptile);
             toastRef.current("Exekutor vás dostihl! Přišlo vyrozumění o exekuci.", "bad");
-            setTimeout(() => router.push(`/hra/pripad/${redirect}`), 900);
+            setTimeout(() => navRef.current.go(`/hra/pripad/${redirect}`), 900);
           } else {
             toastRef.current("Exekutor vás dostihl: další náklady exekuce −1 500 Kč.", "bad");
           }
@@ -501,7 +553,7 @@ export function CityCanvas() {
         nextStoryCase(gs),
       ].filter((id): id is string => Boolean(id));
       const rc = candidates.find((id) => RACE_BY_CASE.has(id) && !raceResult(gs, id) && !doneRaces.has(id)) ?? null;
-      if (rc !== raceCase) {
+      if (!paused && rc !== raceCase) {
         raceCase = rc;
         raceStart = t;
         if (rc) toastRef.current(`Lhůta běží: ${RACE_BY_CASE.get(rc)!.label}. Doběhněte do budovy!`, "bad");
@@ -511,7 +563,9 @@ export function CityCanvas() {
         const r = RACE_BY_CASE.get(raceCase)!;
         const tb = BUILDING_BY_ID.get(r.building)!;
         raceLeft = r.days - (t - raceStart) / r.pace;
-        if (ptile.x === tb.door.x && ptile.y === tb.door.y) {
+        if (paused) {
+          // lhůta stojí
+        } else if (ptile.x === tb.door.x && ptile.y === tb.door.y) {
           doneRaces.add(raceCase);
           recordRace(raceCase, true, 0, 0);
           toastRef.current(`Stihli jste to! Lhůta zachována (zbývalo ${Math.ceil(raceLeft)} dní).`, "good");
@@ -732,11 +786,12 @@ export function CityCanvas() {
     else setHint("Všechno hotovo – projděte se městem, nebo zkuste jinou postavu.");
   }, [target?.building.id, target?.next]);
 
-  if (!ch) return null;
+  const view = panel ? panelView(panel) : null;
   const doorState = door ? states.find((s) => s.building.id === door.id) : undefined;
 
   return (
-    <div className="gta">
+    <GameNavContext.Provider value={nav}>
+    <div className="gta gta-full">
       <div className="gta-frame" ref={wrapRef}>
         <canvas
           ref={canvasRef}
@@ -764,19 +819,24 @@ export function CityCanvas() {
         {chased && <div className="gta-chase">EXEKUTOR VÁS HONÍ</div>}
         {toast && <div className={`gta-toast ${toast.tone}`}>{toast.text}</div>}
         <div className="gta-hud">
-          <div className="gta-goal">{race ? `Cíl: ${BUILDING_BY_ID.get(race.r.building)?.name} – běží lhůta!` : hint}</div>
+          <div className="gta-top">
+            <button type="button" className="gta-menu" onClick={() => nav.go("/hra/menu")} aria-label="Menu (Esc)">
+              ☰ MENU
+            </button>
+            <div className="gta-goal">{race ? `Cíl: ${BUILDING_BY_ID.get(race.r.building)?.name} – běží lhůta!` : hint}</div>
+          </div>
           {g.load >= 70 && (
-            <Link href="/hra/budova/poradna" className="gta-pager gta-alarm">
+            <button type="button" onClick={() => nav.go("/hra/budova/poradna")} className="gta-pager gta-alarm">
               HLEDANOST {"★".repeat(wantedLevel(g.load))} · dluhy rostou – Dluhová poradna na náměstí je úkryt
-            </Link>
+            </button>
           )}
           {letters.length > 0 && (
-            <Link href="/hra/schranka" className="gta-pager">
-              PAGER · {letters.length === 1 ? "nová zpráva" : `${letters.length} nové zprávy`}: {fill(letters[0].subject, ch)}
-            </Link>
+            <button type="button" onClick={() => nav.go("/hra/schranka")} className="gta-pager">
+              PAGER · {letters.length === 1 ? "nová zpráva" : `${letters.length} nové zprávy`}: {ch ? fill(letters[0].subject, ch) : letters[0].subject}
+            </button>
           )}
         </div>
-        {intro && (
+        {intro && ch && !panel && (
           <div className="gta-intro" role="dialog" aria-label="Jak se hraje">
             <strong>Vítejte v Městě dluhů</strong>
             <ul>
@@ -790,7 +850,7 @@ export function CityCanvas() {
             <button type="button" className="gta-enter" onClick={closeIntro}>Jdeme na to</button>
           </div>
         )}
-        {door && !intro && (
+        {door && !intro && !panel && (
           <div className="gta-door">
             <div>
               <div className="gta-door-district">{DISTRICT_NAMES[door.district]}</div>
@@ -818,23 +878,27 @@ export function CityCanvas() {
             )}
           </div>
         )}
+        {view && (
+          <div className="gta-panel-back" onClick={(e) => e.target === e.currentTarget && ch && closePanel()}>
+            <div className="gta-panel" role="dialog" aria-modal="true" aria-label={view.title}>
+              <div className="gta-panel-head">
+                {ch && stack.length > 1 && (
+                  <button type="button" className="gta-panel-btn" onClick={back} aria-label="Zpět">←</button>
+                )}
+                <div className="gta-panel-title">
+                  {view.eyebrow && <small>{view.eyebrow}</small>}
+                  <strong>{view.title}</strong>
+                </div>
+                {ch && (
+                  <button type="button" className="gta-panel-btn" onClick={closePanel} aria-label="Zavřít a zpět do města (Esc)">✕</button>
+                )}
+              </div>
+              <div className="gta-panel-body" key={panel}>{view.body}</div>
+            </div>
+          </div>
+        )}
       </div>
-      <details className="city-list">
-        <summary>Budovy v seznamu (bez chůze)</summary>
-        <ul>
-          {states
-            .filter((s) => s.open)
-            .map((s) => (
-              <li key={s.building.id}>
-                <Link href={`/hra/budova/${s.building.id}`}>{s.building.name}</Link>{" "}
-                <span className="muted small">
-                  · {DISTRICT_NAMES[s.building.district]}
-                  {s.next ? " · pokračuje tu příběh" : s.calling ? " · čeká nástraha" : ""}
-                </span>
-              </li>
-            ))}
-        </ul>
-      </details>
     </div>
+    </GameNavContext.Provider>
   );
 }

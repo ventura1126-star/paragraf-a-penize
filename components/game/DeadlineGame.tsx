@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { generatePuzzle, type DeadlinePuzzle } from "@/lib/game/deadlines";
 import { characterOf, recordReview, useGame, useHydrated } from "@/lib/game/store";
 import { NeedCharacter } from "./NeedCharacter";
+import { scrollGameTop } from "./GameNav";
 import { DeadlineQuestion } from "./DeadlineQuestion";
 
 export function DeadlineGame() {
@@ -36,7 +37,7 @@ export function DeadlineGame() {
             recordReview(puzzle.cards, ok, "deadline");
             setStreak((s) => (ok ? s + 1 : 0));
             setN((x) => x + 1);
-            window.scrollTo({ top: 0, behavior: "smooth" });
+            scrollGameTop();
           }}
         />
       ) : (

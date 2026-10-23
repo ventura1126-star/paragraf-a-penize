@@ -15,6 +15,8 @@ export function GameHeader() {
   const due = dueCards(g).length;
   const ch = characterOf(g);
   const mail = deliveredLetters(g).filter((l) => !l.read).length;
+  // ve městě je všechno v herním okně
+  if (path === "/hra") return null;
 
   const tabs = [
     { href: "/hra", label: "Město" },

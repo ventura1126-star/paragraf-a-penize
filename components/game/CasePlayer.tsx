@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { GameLink as Link, scrollGameTop } from "./GameNav";
 import { useState } from "react";
 import type { GameCase, Outcome } from "@/content/game/types";
 import { CARD_BY_ID } from "@/content/game/cards";
@@ -44,7 +44,7 @@ export function CasePlayer({ gameCase: raw }: { gameCase: GameCase }) {
         onContinue={(correct) => {
           recordPrep(prep.id, correct);
           setShowPrep(false);
-          window.scrollTo({ top: 0, behavior: "smooth" });
+          scrollGameTop();
         }}
       />
     );
@@ -129,7 +129,7 @@ export function CasePlayer({ gameCase: raw }: { gameCase: GameCase }) {
           setResults(next);
           if (next.length === total) setScheduled(recordCase(gameCase.id, next.filter((r) => r.outcome === "correct").length, total));
           else setIdx(idx + 1);
-          window.scrollTo({ top: 0, behavior: "smooth" });
+          scrollGameTop();
         }}
       />
     </>

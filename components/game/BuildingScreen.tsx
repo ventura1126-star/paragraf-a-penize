@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { GameLink as Link } from "./GameNav";
 import { useState } from "react";
 import type { Building } from "@/content/game/city";
 import { CASE_BY_ID } from "@/content/game/cases";

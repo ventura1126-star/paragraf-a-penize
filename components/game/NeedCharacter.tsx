@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { GameLink as Link } from "./GameNav";
 
 export function NeedCharacter() {
   return (

@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { GameLink as Link } from "./GameNav";
 import { CASE_BY_ID } from "@/content/game/cases";
 import { CAMPAIGN_BY_CHARACTER, campaignCaseIds } from "@/content/game/campaigns";
 import { CARDS } from "@/content/game/cards";

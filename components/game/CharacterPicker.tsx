@@ -7,6 +7,7 @@ import { chooseCharacter, readGame, useGame } from "@/lib/game/store";
 import { formatCzk } from "@/lib/format";
 import { Avatar } from "./Avatar";
 import { PixelSprite } from "./PixelSprite";
+import { useGameGo } from "./GameNav";
 
 function dependents(n: number): string {
   if (n === 0) return "žádné";
@@ -16,6 +17,7 @@ function dependents(n: number): string {
 export function CharacterPicker({ redirectTo = "/hra" }: { redirectTo?: string }) {
   const g = useGame();
   const router = useRouter();
+  const go = useGameGo();
   const [sel, setSel] = useState<string | null>(null);
 
   useEffect(() => setSel(readGame().character ?? CHARACTERS[0].id), []);
@@ -79,8 +81,10 @@ export function CharacterPicker({ redirectTo = "/hra" }: { redirectTo?: string }
             className="btn-primary"
             onClick={() => {
               chooseCharacter(chosen.id, chosen.wallet);
-              router.push(redirectTo);
-              window.scrollTo({ top: 0 });
+              go(redirectTo, (h) => {
+                router.push(h);
+                window.scrollTo({ top: 0 });
+              });
             }}
           >
             {current === chosen.id ? "Pokračovat" : `Hrát za ${chosen.forms.a}`}

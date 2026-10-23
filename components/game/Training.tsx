@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { GameLink as Link, scrollGameTop } from "./GameNav";
 import { useEffect, useState } from "react";
 import { CARD_BY_ID } from "@/content/game/cards";
 import { roundForCard } from "@/content/game/cases";
@@ -89,7 +89,7 @@ export function Training() {
     recordReview([item.cardId], ok, "training");
     if (ok) setScore((s) => s + 1);
     setIdx(idx + 1);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    scrollGameTop();
   };
   const camp = CAMPAIGN_BY_CHARACTER.get(ch.id);
   const raw = roundForCard(item.cardId, camp ? campaignCaseIds(camp) : []);

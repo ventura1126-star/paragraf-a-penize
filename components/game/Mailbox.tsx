@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { GameLink as Link } from "./GameNav";
 import { buildingForCase, MONTH_NAMES } from "@/content/game/city";
 import { characterOf, deliveredLetters, resolveEvent, useGame } from "@/lib/game/store";
 import { EVENT_BY_ID } from "@/content/game/events";
