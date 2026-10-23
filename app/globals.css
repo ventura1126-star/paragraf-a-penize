@@ -324,19 +324,29 @@ a.case-tile:hover { border-color: var(--accent); }
 
 /* Karta paragrafu */
 .pcard {
-  flex: none; display: flex; flex-direction: column; justify-content: space-between; border-radius: 10px;
-  border: 2px solid var(--accent); background: linear-gradient(160deg, var(--accent-soft), var(--surface)); color: var(--text);
-  padding: 0.55rem 0.6rem; text-align: left;
+  --c1: #1f4e79; --c2: #8ab4e0;
+  position: relative; flex: none; display: flex; flex-direction: column; align-items: stretch; gap: 0.2rem;
+  border-radius: 10px; border: 3px solid var(--c1); overflow: hidden; text-align: left; color: #1c1d1f;
+  background: linear-gradient(165deg, var(--c2) 0%, #fdfbf6 55%, #f4efe3 100%);
+  padding: 0.45rem 0.5rem 0.5rem; box-shadow: 0 2px 0 rgb(0 0 0 / 0.15), 0 6px 14px rgb(0 0 0 / 0.12);
 }
-.pcard-md { width: 132px; height: 172px; }
-.pcard-sm { width: 116px; height: 132px; padding: 0.45rem 0.55rem; }
-.pcard-law { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; color: var(--accent); text-transform: uppercase; }
-.pcard-par { font-family: var(--font-serif), Georgia, serif; font-weight: 700; font-size: 1.15rem; line-height: 1.15; }
-.pcard-sm .pcard-par { font-size: 0.85rem; }
-.pcard-name { font-size: 0.82rem; font-weight: 600; line-height: 1.25; }
-.pcard-sm .pcard-name { font-size: 0.72rem; }
-.pcard-empty { border-style: dashed; border-color: var(--border); background: var(--surface-2); color: var(--muted); }
-.pcard-empty .pcard-law { color: var(--muted); }
+.pcard::after { content: ""; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 35%, rgb(255 255 255 / 0.45) 48%, transparent 60%); pointer-events: none; }
+.pcard-md { width: 132px; height: 184px; }
+.pcard-sm { width: 116px; height: 150px; padding: 0.35rem 0.45rem 0.4rem; }
+.pcard-top { display: flex; justify-content: space-between; align-items: center; }
+.pcard-law { font-size: 0.68rem; font-weight: 800; letter-spacing: 0.06em; color: #fff; background: var(--c1); padding: 0.05rem 0.35rem; border-radius: 4px; }
+.pcard-sect { font-family: var(--font-serif), Georgia, serif; font-weight: 700; color: var(--c1); font-size: 1rem; }
+.pcard-art { display: grid; place-items: center; color: var(--c1); background: rgb(255 255 255 / 0.65); border: 2px solid var(--c1); border-radius: 50%; width: 62px; height: 62px; margin: 0.15rem auto 0.25rem; }
+.pcard-sm .pcard-art { width: 46px; height: 46px; margin: 0.05rem auto 0.15rem; }
+.pcard-par { font-family: var(--font-serif), Georgia, serif; font-weight: 700; font-size: 0.95rem; line-height: 1.1; color: var(--c1); text-align: center; }
+.pcard-sm .pcard-par { font-size: 0.78rem; }
+.pcard-name { font-size: 0.76rem; font-weight: 700; line-height: 1.2; text-align: center; margin-top: auto; }
+.pcard-sm .pcard-name { font-size: 0.68rem; }
+.pcard-empty { border-style: dashed; border-color: var(--border); background: var(--surface-2); color: var(--muted); box-shadow: none; justify-content: center; }
+.pcard-empty::after { display: none; }
+.pcard-empty .pcard-law { color: var(--muted); background: none; padding: 0; }
+.pcard-empty .pcard-par { color: var(--muted); font-size: 2rem; }
+.pcard-empty .pcard-name { margin-top: 0; color: var(--muted); }
 .pcard-back h3 { font-size: 1rem; margin-bottom: 0.3rem; }
 .pcard-back p { margin-bottom: 0.4rem; font-size: 0.95rem; }
 .pcard-back blockquote { margin: 0 0 0.4rem; padding: 0.5rem 0.7rem; background: var(--surface-2); border-radius: 6px; font-family: var(--font-serif), Georgia, serif; font-style: italic; font-size: 0.9rem; }
@@ -561,3 +571,28 @@ a.trail-card:hover { border-color: var(--accent); }
 .gta-money span.neg { color: #ff6b6b; }
 .gta-money small { font-size: 0.72rem; color: #f4f1e8; }
 @media (max-width: 560px) { .gta-money { top: 86px; } .gta-money span { font-size: 0.95rem; } }
+.letter-event { border-left-color: var(--change); }
+.letter-subject { font-weight: 700; }
+.letter-text { margin: 0.2rem 0 0.4rem; }
+.letter-choices { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.letter-result { font-size: 0.95rem; }
+
+/* Rozhovor v budově */
+.dialogue { background: #1c1d21; color: #f4f1e8; border: 3px solid #111; font-family: ui-monospace, Menlo, monospace; }
+.dialogue .muted { color: #bdb8ad; }
+.dialogue-npc { display: flex; gap: 0.8rem; align-items: center; margin-bottom: 0.8rem; }
+.dialogue-npc strong { font-size: 1.05rem; color: #ffd447; }
+.dialogue-portrait { display: inline-flex; align-items: flex-end; justify-content: center; width: 72px; height: 72px; background: #3a3f48; border: 2px solid #ffd447; border-radius: 6px; overflow: hidden; }
+.dialogue-portrait svg { image-rendering: pixelated; }
+.dialogue-log { display: grid; gap: 0.55rem; max-height: 46vh; overflow-y: auto; padding: 0.2rem 0.1rem; }
+.dl-line { display: flex; gap: 0.5rem; align-items: flex-end; animation: rise 0.2s ease; }
+.dl-you { justify-content: flex-end; }
+.dl-you .dl-you-face { order: 2; display: inline-flex; width: 32px; height: 32px; background: #3a3f48; border-radius: 4px; overflow: hidden; align-items: flex-end; justify-content: center; }
+.dl-bubble { max-width: 80%; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.92rem; line-height: 1.45; }
+.dl-npc .dl-bubble { background: #2c3038; border: 1px solid #4a4f59; }
+.dl-you .dl-bubble { background: #ffd447; color: #111; }
+.dl-bubble .cite-chip { font-family: var(--font-sans), system-ui, sans-serif; margin-left: 0.25rem; }
+.dialogue-choices { display: grid; gap: 0.45rem; margin-top: 0.9rem; }
+.dl-choice { text-align: left; font: inherit; font-size: 0.9rem; background: transparent; color: #ffd447; border: 1px dashed #ffd447; border-radius: 6px; padding: 0.5rem 0.7rem; cursor: pointer; }
+.dl-choice:hover { background: rgb(255 212 71 / 0.1); }
+.dialogue-choices .btn-primary { justify-self: start; background: #ffd447; color: #111; border-color: #111; }

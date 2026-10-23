@@ -9,6 +9,8 @@ import { PREP_BY_ID, PREPS } from "@/content/game/preps";
 import { caseAccess } from "@/lib/game/city-logic";
 import { caseProgress, characterOf, consult, prepDone, useGame, useHydrated } from "@/lib/game/store";
 import { RoofPreview } from "./RoofPreview";
+import { Dialogue } from "./Dialogue";
+import { DIALOGUES } from "@/content/game/dialogues";
 import { PixelSprite } from "./PixelSprite";
 import { NeedCharacter } from "./NeedCharacter";
 import { Mailbox } from "./Mailbox";
@@ -19,12 +21,26 @@ export function BuildingScreen({ b }: { b: Building }) {
   const hydrated = useHydrated();
   const ch = characterOf(g);
   const [consulted, setConsulted] = useState<boolean | null>(null);
+  const [talked, setTalked] = useState(false);
   if (!hydrated) return <p className="muted">Načítám…</p>;
   if (!ch) return <NeedCharacter />;
 
   const here = b.cases.map((id) => ({ id, c: CASE_BY_ID.get(id)!, acc: caseAccess(g, id) })).filter((x) => x.c);
   const mine = here.filter((x) => x.acc !== "elsewhere");
   const prep = b.prep ? PREP_BY_ID.get(b.prep) : undefined;
+
+  const dlg = DIALOGUES[b.id];
+  const hook = mine.some((x) => x.acc === "available");
+  if (dlg && !talked) {
+    return (
+      <>
+        <Dialogue d={dlg} ch={ch} hook={hook} onDone={() => setTalked(true)} />
+        <div className="summary-actions" style={{ marginTop: "1rem" }}>
+          <Link href="/hra" className="btn-secondary">← Odejít zpět do města</Link>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>

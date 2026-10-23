@@ -4,6 +4,7 @@ import { useSyncExternalStore } from "react";
 import type { Outcome } from "@/content/game/types";
 import { CHARACTER_BY_ID, type Character } from "@/content/game/characters";
 import { LETTER_RULES, SPAWN, START_LOAD } from "@/content/game/city";
+import { EVENTS, EVENT_BY_ID } from "@/content/game/events";
 import { addDays, todayIso } from "./dates";
 
 /** Intervaly opakování ve dnech pro přihrádky 0–2; přihrádka 3 = zvládnuto. */
@@ -47,7 +48,11 @@ export type GameState = {
 export type Letter = {
   id: string;
   month: number;
+  /** Nástraha, kterou dopis otevře (prázdné u náhodné události). */
   caseId: string;
+  /** Náhodná událost (events.ts) a zvolená odpověď. */
+  eventId?: string;
+  choice?: number;
   sender: string;
   subject: string;
   reason: string;
@@ -203,6 +208,13 @@ export function recordCase(caseId: string, correct: number, total: number): Lett
     letters.push(letter);
     scheduled.push(letter);
   }
+  // Náhodná událost do schránky (zhruba v každém druhém měsíci, každá jen jednou za příběh).
+  const used = new Set(letters.map((l) => l.eventId).filter(Boolean));
+  const pool = EVENTS.filter((e) => !used.has(e.id));
+  if (pool.length && Math.random() < 0.5) {
+    const e = pool[Math.floor(Math.random() * pool.length)];
+    letters.push({ id: `udalost>${e.id}`, month, caseId: "", eventId: e.id, sender: e.sender, subject: e.subject, reason: "", read: false });
+  }
   set({
     ...state,
     month,
@@ -217,6 +229,23 @@ export function recordCase(caseId: string, correct: number, total: number): Lett
 
 function clampLoad(n: number): number {
   return Math.max(0, Math.min(100, Math.round(n)));
+}
+
+/** Vyřízení náhodné události: volba (nebo jen přečtení oznámení) a její dopad. */
+export function resolveEvent(letterId: string, choice: number | null) {
+  load();
+  const letter = state.letters.find((l) => l.id === letterId);
+  const e = letter?.eventId ? EVENT_BY_ID.get(letter.eventId) : undefined;
+  if (!letter || !e || letter.read) return;
+  const c = choice === null ? undefined : e.choices[choice];
+  const notice = e.choices.length === 0 ? e.notice ?? 0 : 0;
+  set({
+    ...state,
+    wallet: state.wallet + (c?.wallet ?? notice),
+    load: clampLoad(state.load + (c?.load ?? 0)),
+    xp: state.xp + 5,
+    letters: state.letters.map((l) => (l.id === letterId ? { ...l, read: true, choice: choice ?? undefined } : l)),
+  });
 }
 
 export function setPos(pos: { x: number; y: number }) {

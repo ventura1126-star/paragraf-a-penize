@@ -1,12 +1,20 @@
 import { LAWS, lawUrl } from "@/content/laws";
 import type { Card } from "@/content/game/types";
 import { formatCitation } from "@/lib/format";
+import { CardIcon, LAW_COLOR } from "@/content/game/icons";
 
-/** Líc karty: číslo paragrafu a lidský název. */
+/** Líc karty: barva podle zákona, symbol toho, co ustanovení znamená, číslo paragrafu a lidský název. */
 export function CardFace({ card, size = "md" }: { card: Card; size?: "sm" | "md" }) {
+  const [dark, light] = LAW_COLOR[card.cite.law];
   return (
-    <div className={`pcard pcard-${size}`}>
-      <div className="pcard-law">{LAWS[card.cite.law].abbr}</div>
+    <div className={`pcard pcard-${size}`} style={{ "--c1": dark, "--c2": light } as React.CSSProperties}>
+      <div className="pcard-top">
+        <span className="pcard-law">{LAWS[card.cite.law].abbr}</span>
+        <span className="pcard-sect">§</span>
+      </div>
+      <div className="pcard-art">
+        <CardIcon id={card.id} size={size === "sm" ? 30 : 42} />
+      </div>
       <div className="pcard-par">{formatCitation(card.cite, false)}</div>
       <div className="pcard-name">{card.name}</div>
     </div>

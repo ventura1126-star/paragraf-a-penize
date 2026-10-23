@@ -114,9 +114,10 @@ export const SPRITES: Record<string, Sprite> = {
 };
 
 /** Vodorovné úseky stejné barvy – méně obdélníků v SVG. */
-export function spriteRuns(id: string): { x: number; y: number; w: number; fill: string }[] {
-  const sp = SPRITES[id];
-  if (!sp) return [];
+export function spriteRuns(id: string, palette?: Record<string, string>): { x: number; y: number; w: number; fill: string }[] {
+  const base = SPRITES[id];
+  if (!base) return [];
+  const sp = palette ? { rows: base.rows, palette: { ...base.palette, ...palette } } : base;
   const runs: { x: number; y: number; w: number; fill: string }[] = [];
   sp.rows.forEach((row, y) => {
     let x = 0;

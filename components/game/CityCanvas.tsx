@@ -23,6 +23,7 @@ import { buildingStates, type BuildingState } from "@/lib/game/city-logic";
 import { drawCar, drawStatic } from "@/lib/game/render";
 import { characterOf, deliveredLetters, readGame, setPos, useGame } from "@/lib/game/store";
 import { monthLabel } from "./Mailbox";
+import { fill } from "@/content/game/characters";
 
 type V = { x: number; y: number };
 type Car = { axis: "h" | "v"; lane: number; dir: 1 | -1; pos: number; speed: number; color: string };
@@ -594,7 +595,7 @@ export function CityCanvas() {
           )}
           {letters.length > 0 && (
             <Link href="/hra/schranka" className="gta-pager">
-              PAGER · {letters.length === 1 ? "nová zpráva" : `${letters.length} nové zprávy`}: {letters[0].subject}
+              PAGER · {letters.length === 1 ? "nová zpráva" : `${letters.length} nové zprávy`}: {fill(letters[0].subject, ch)}
             </Link>
           )}
         </div>

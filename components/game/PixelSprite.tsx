@@ -10,8 +10,10 @@ export function PixelSprite({
   scale = 4,
   className,
   title,
+  palette,
 }: {
   id: string;
+  palette?: Record<string, string>;
   variant?: "full" | "bust";
   scale?: number;
   className?: string;
@@ -29,7 +31,7 @@ export function PixelSprite({
       aria-label={title}
       aria-hidden={title ? undefined : true}
     >
-      {spriteRuns(id).map((r, i) => (
+      {spriteRuns(id, palette).map((r, i) => (
         <rect key={i} x={r.x} y={r.y} width={r.w} height={1} fill={r.fill} />
       ))}
     </svg>
