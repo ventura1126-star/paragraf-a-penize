@@ -11,7 +11,7 @@ import { firstSentence, restSentences } from "@/lib/text";
 const OUTCOME_LABEL = { correct: "Správně", partial: "Napůl", wrong: "Takhle ne" } as const;
 
 /** Stabilní zamíchání možností podle textu kola – správná odpověď není vždy první, ale pořadí se mezi návštěvami nemění. */
-function shuffled<T>(items: T[], seed: string): T[] {
+export function shuffled<T>(items: T[], seed: string): T[] {
   let h = 2166136261;
   for (let i = 0; i < seed.length; i++) h = Math.imul(h ^ seed.charCodeAt(i), 16777619);
   const rand = () => {

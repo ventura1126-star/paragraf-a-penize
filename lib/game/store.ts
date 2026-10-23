@@ -45,6 +45,8 @@ export type GameState = {
   consultMonth: number;
   /** Výsledky závodů s lhůtou, klíč `${postava}:${případ}`. */
   races: Record<string, "won" | "lost">;
+  /** Absolvované přednášky ve Vysoké škole finanční (počet správných odpovědí), klíč `${postava}:${přednáška}`. */
+  lectures: Record<string, number>;
 };
 
 export type Letter = {
@@ -77,6 +79,7 @@ const INITIAL: GameState = {
   pos: SPAWN,
   consultMonth: 0,
   races: {},
+  lectures: {},
 };
 
 export const LEVELS = [
@@ -104,7 +107,7 @@ function load() {
     const raw = window.localStorage.getItem(KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as GameState;
-      if (parsed?.v === 1) state = { ...INITIAL, ...parsed, opened: parsed.opened ?? {}, preps: parsed.preps ?? {}, letters: parsed.letters ?? [], pos: parsed.pos ?? SPAWN, races: parsed.races ?? {} };
+      if (parsed?.v === 1) state = { ...INITIAL, ...parsed, opened: parsed.opened ?? {}, preps: parsed.preps ?? {}, letters: parsed.letters ?? [], pos: parsed.pos ?? SPAWN, races: parsed.races ?? {}, lectures: parsed.lectures ?? {} };
     }
   } catch {
     // Úložiště nedostupné (anonymní okno apod.) – hraje se bez uložení.
@@ -334,6 +337,20 @@ export function recordPrep(prepId: string, correct: boolean): number {
   const first = !state.preps[key];
   const xp = first ? (correct ? 20 : 5) : 0;
   set({ ...state, xp: state.xp + xp, preps: { ...state.preps, [key]: true } });
+  return xp;
+}
+
+export function lectureDone(s: GameState, lectureId: string): boolean {
+  return caseKey(s.character, lectureId) in s.lectures;
+}
+
+/** Absolvování přednášky – XP jen poprvé (lepší výsledek testu se zapíše vždy). */
+export function recordLecture(lectureId: string, correct: number): number {
+  load();
+  const key = caseKey(state.character, lectureId);
+  const first = !(key in state.lectures);
+  const xp = first ? 30 + correct * 20 : 0;
+  set({ ...state, xp: state.xp + xp, lectures: { ...state.lectures, [key]: Math.max(correct, state.lectures[key] ?? 0) } });
   return xp;
 }
 

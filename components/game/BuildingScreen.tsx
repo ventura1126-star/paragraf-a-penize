@@ -15,6 +15,7 @@ import { PixelSprite } from "./PixelSprite";
 import { NeedCharacter } from "./NeedCharacter";
 import { Mailbox } from "./Mailbox";
 import { HelpBanner } from "./HelpBanner";
+import { SchoolScreen } from "./Lecture";
 
 export function BuildingScreen({ b }: { b: Building }) {
   const g = useGame();
@@ -24,6 +25,7 @@ export function BuildingScreen({ b }: { b: Building }) {
   const [talked, setTalked] = useState(false);
   if (!hydrated) return <p className="muted">Načítám…</p>;
   if (!ch) return <NeedCharacter />;
+  if (b.id === "skola") return <SchoolScreen />;
 
   const here = b.cases.map((id) => ({ id, c: CASE_BY_ID.get(id)!, acc: caseAccess(g, id) })).filter((x) => x.c);
   const mine = here.filter((x) => x.acc !== "elsewhere");

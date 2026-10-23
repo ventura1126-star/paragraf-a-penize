@@ -20,6 +20,8 @@ import { ResetButton } from "./ResetButton";
 import { HelpBanner } from "./HelpBanner";
 import { GameLink } from "./GameNav";
 import { PixelSprite } from "./PixelSprite";
+import { LectureScreen } from "./Lecture";
+import { LECTURE_BY_ID } from "@/content/game/lectures";
 
 type View = { eyebrow?: string; title: string; body: ReactNode };
 
@@ -81,6 +83,10 @@ export function panelView(href: string): View | null {
       return c
         ? { eyebrow: c.boss ? "Boss příběhu" : "Nástraha", title: c.title, body: <><CasePlayer gameCase={c} /><HelpBanner /></> }
         : null;
+    }
+    case "prednaska": {
+      const l = LECTURE_BY_ID.get(id);
+      return l ? { eyebrow: "Vysoká škola finanční · přednáška", title: l.title, body: <LectureScreen lecture={l} /> } : null;
     }
     case "priprava": {
       const p = PREP_BY_ID.get(id);

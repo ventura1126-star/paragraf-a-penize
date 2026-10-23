@@ -73,6 +73,7 @@ export const BUILDINGS: Building[] = [
   { id: "byt", name: "Byt s hypotékou", district: "bydleni", kind: "normal", ...slot("X4A", "Y3"), cases: ["hypoteka-po-rozvodu"], prep: "rozvod", greeting: "Společný byt. Po rozvodu se bude prodávat." },
   { id: "dilna", name: "Dílna živnostníka", district: "bydleni", kind: "normal", ...slot("X4B", "Y3"), cases: ["neplatici-odberatel", "oddluzeni-zivnostnika"], prep: "dane", greeting: "Dílna, faktury a telefon, který zvoní jen kvůli upomínkám." },
   // Náměstí
+  { id: "skola", name: "Vysoká škola finanční", district: "namesti", kind: "normal", x: 42, y: 14, w: 9, h: 5, door: { x: 46, y: 13 }, cases: [], greeting: "Posluchárna. Na tabuli ještě visí vzorec z minulé přednášky." },
   { id: "poradna", name: "Dluhová poradna", district: "namesti", kind: "safe", x: 16, y: 14, w: 9, h: 5, door: { x: 20, y: 13 }, cases: ["oddluzeni", "dedictvi-v-oddluzeni"], greeting: "„Posaďte se. Projdeme spolu, co dlužíte, a najdeme cestu ven. Zdarma.“" },
 ];
 
@@ -90,7 +91,6 @@ export type Decor = { kind: "parking" | "park" | "gas" | "grass"; x: number; y: 
 export const DECOR: Decor[] = [
   { kind: "parking", x: 3, y: 14, w: 9, h: 7 },
   { kind: "park", x: 29, y: 14, w: 9, h: 7 },
-  { kind: "gas", x: 42, y: 14, w: 9, h: 7 },
 ];
 export const FOUNTAIN = { x: 32, y: 16, w: 3, h: 3 };
 

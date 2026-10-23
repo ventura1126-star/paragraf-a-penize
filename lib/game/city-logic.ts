@@ -1,6 +1,7 @@
 import { BUILDINGS, type Building } from "@/content/game/city";
 import { CAMPAIGN_BY_CHARACTER, campaignCaseIds } from "@/content/game/campaigns";
-import { caseProgress, deliveredLetters, type GameState } from "./store";
+import { caseProgress, deliveredLetters, lectureDone, type GameState } from "./store";
+import { LECTURES, type Lecture } from "@/content/game/lectures";
 
 export type CaseAccess = "available" | "done" | "later" | "elsewhere";
 
@@ -42,9 +43,9 @@ export function buildingStates(s: GameState): BuildingState[] {
   const next = nextStoryCase(s);
   return BUILDINGS.map((b) => {
     const acc = b.cases.map((c) => caseAccess(s, c));
-    // Domov se schránkou a bezpečná místa jsou otevřená vždy.
-    const open = b.kind === "safe" || b.id === "domov" || acc.some((a) => a !== "elsewhere");
-    const calling = acc.some((a) => a === "available");
+    // Domov se schránkou, škola a bezpečná místa jsou otevřená vždy.
+    const open = b.kind === "safe" || b.id === "domov" || b.id === "skola" || acc.some((a) => a !== "elsewhere");
+    const calling = acc.some((a) => a === "available") || (b.id === "skola" && Boolean(nextLecture(s)));
     const later = acc.some((a) => a === "later");
     const done = acc.some((a) => a === "done") && !calling && !later;
     return { building: b, open, calling, next: Boolean(next && b.cases.includes(next)), later, done };
@@ -54,4 +55,23 @@ export function buildingStates(s: GameState): BuildingState[] {
 export function storyFinished(s: GameState): boolean {
   const camp = s.character ? CAMPAIGN_BY_CHARACTER.get(s.character) : undefined;
   return Boolean(camp && caseProgress(s, camp.boss)?.done);
+}
+
+/** Počet vyřešených nástrah aktuální postavy. */
+export function casesSolved(s: GameState): number {
+  const prefix = `${s.character ?? "-"}:`;
+  return Object.entries(s.cases).filter(([k, v]) => k.startsWith(prefix) && v.done).length;
+}
+
+export type LectureAccess = "done" | "open" | "locked";
+
+/** Přednášky ve škole: každá vyřešená nástraha otevře další. */
+export function lectureAccess(s: GameState, i: number): LectureAccess {
+  if (lectureDone(s, LECTURES[i].id)) return "done";
+  return i < casesSolved(s) ? "open" : "locked";
+}
+
+/** První otevřená přednáška, na které postava ještě nebyla. */
+export function nextLecture(s: GameState): Lecture | undefined {
+  return LECTURES.find((_, i) => lectureAccess(s, i) === "open");
 }

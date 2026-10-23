@@ -141,6 +141,48 @@ export function drawBuilding(ctx: CanvasRenderingContext2D, b: Building, ox = 0,
     ctx.fillStyle = "#f4f1e8";
     ctx.fillRect(cxr - 6, cyr - 20, 12, 40);
     ctx.fillRect(cxr - 20, cyr - 6, 40, 12);
+  } else if (b.id === "skola") {
+    // akademická budova: sloupořadí u vchodu, kopule a cedule
+    ctx.fillStyle = "rgba(0,0,0,0.3)";
+    ctx.fillRect(x + 14, y + 16, w - 24, 20);
+    ctx.fillStyle = "#efe6cf";
+    ctx.fillRect(x + 10, y + 12, w - 24, 20);
+    ctx.fillStyle = "#2a4a7a";
+    ctx.font = "bold 10px ui-monospace, Menlo, monospace";
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "center";
+    ctx.fillText("VYSOKÁ ŠKOLA FINANČNÍ", x + w / 2 - 2, y + 23, w - 34);
+    ctx.textAlign = "start";
+    for (let i = 0; i < 6; i++) {
+      ctx.fillStyle = "#efe6cf";
+      ctx.fillRect(x + 22 + i * 44, y + 2, 8, 8);
+    }
+    const kx = x + w / 2;
+    const ky = y + h / 2 + 14;
+    ctx.fillStyle = "rgba(0,0,0,0.3)";
+    ctx.beginPath();
+    ctx.arc(kx + 5, ky + 5, 26, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#4f8a7a";
+    ctx.beginPath();
+    ctx.arc(kx, ky, 26, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#72b09e";
+    ctx.beginPath();
+    ctx.arc(kx - 7, ky - 7, 12, 0, Math.PI * 2);
+    ctx.fill();
+    // čepice absolventa
+    ctx.fillStyle = "#1a1a1d";
+    ctx.beginPath();
+    ctx.moveTo(kx, ky - 9);
+    ctx.lineTo(kx + 14, ky - 2);
+    ctx.lineTo(kx, ky + 5);
+    ctx.lineTo(kx - 14, ky - 2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillRect(kx - 7, ky, 14, 8);
+    ctx.fillStyle = "#ffd447";
+    ctx.fillRect(kx + 10, ky - 2, 2, 10);
   } else if (b.id === "kulturak" || b.id === "nebankovka") {
     ctx.fillStyle = "rgba(0,0,0,0.35)";
     ctx.fillRect(x + 14, y + 18, w - 24, 22);

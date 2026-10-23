@@ -22,7 +22,7 @@ import {
   type Race,
 } from "@/content/game/city";
 import { SPRITES } from "@/content/game/sprites";
-import { buildingStates, nextStoryCase, type BuildingState } from "@/lib/game/city-logic";
+import { buildingStates, nextLecture, nextStoryCase, type BuildingState } from "@/lib/game/city-logic";
 import { drawCar, drawStatic } from "@/lib/game/render";
 import { caughtByExecutor, characterOf, deliveredLetters, raceResult, readGame, recordRace, setPos, useGame, useHydrated, type GameState } from "@/lib/game/store";
 import { monthLabel } from "./Mailbox";
@@ -159,6 +159,7 @@ export function CityCanvas() {
     canvasRef.current?.focus();
   };
   const enterRef = useRef<() => void>(() => {});
+  const walkRef = useRef<(b: Building) => void>(() => {});
 
   // Herní obrazovky (budova, nástraha, schránka…) jako panel nad mapou; historie kvůli tlačítku zpět.
   const [stack, setStack] = useState<string[]>([]);
@@ -206,6 +207,7 @@ export function CityCanvas() {
   const states = statesRef.current;
   const target = states.find((s) => s.next) ?? states.find((s) => s.calling);
   const letters = deliveredLetters(g).filter((l) => !l.read);
+  const lecture = ch ? nextLecture(g) : undefined;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -283,6 +285,10 @@ export function CityCanvas() {
       navRef.current.go(`/hra/budova/${b.id}`);
     };
     enterRef.current = enter;
+    walkRef.current = (b) => {
+      canvas.focus();
+      goTo(b.door, b);
+    };
 
     const onKey = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement)?.tagName;
@@ -828,6 +834,11 @@ export function CityCanvas() {
           {g.load >= 70 && (
             <button type="button" onClick={() => nav.go("/hra/budova/poradna")} className="gta-pager gta-alarm">
               HLEDANOST {"★".repeat(wantedLevel(g.load))} · dluhy rostou – Dluhová poradna na náměstí je úkryt
+            </button>
+          )}
+          {lecture && (
+            <button type="button" onClick={() => walkRef.current(BUILDING_BY_ID.get("skola")!)} className="gta-pager gta-school">
+              ŠKOLA · nová přednáška: {lecture.title} – klepněte a postava tam dojde
             </button>
           )}
           {letters.length > 0 && (

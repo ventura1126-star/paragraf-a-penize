@@ -111,6 +111,31 @@ export const SPRITES: Record<string, Sprite> = {
     }),
     palette: { k: OUTLINE, h: "#5a5650", s: "#c98d66", S: "#6b5a4a", e: EYE, m: MOUTH, t: "#4a4f5a", T: "#363a43", w: "#e8eef5", a: "#2c6e9b", p: "#2b2f36", b: "#1e1e1e" },
   },
+  // učitelé Vysoké školy finanční
+  gros: {
+    rows: build({
+      1: "....kkkkkkkk....",
+      2: "...khsssssshk...",
+      3: "...khsssssshk...",
+      5: "...kgegssgegk...",
+      7: "...ksSSmmSSsk...",
+      8: "....kSSSSSSk....",
+      10: "..kttwwaawwttk..",
+      11: ".ktttwwaawwtttk.",
+      12: ".kttttwwwwttttk.",
+    }),
+    palette: { k: OUTLINE, h: "#d9d9d9", s: "#f0c8a8", S: "#cfcfcf", e: EYE, m: MOUTH, g: "#333333", t: "#6b4a2b", T: "#4d3520", w: "#f4f4f4", a: "#b33939", p: "#3b3b42", b: "#2a2a2a" },
+  },
+  vynosova: {
+    rows: build({
+      0: "......kkkk......",
+      1: "....kkhhhhkk....",
+      5: "...kgegssgegk...",
+      10: "..ktttwwwwtttk..",
+      11: ".kttttwwwwttttk.",
+    }),
+    palette: { k: OUTLINE, h: "#2b1d14", s: "#f1c7a1", e: EYE, m: MOUTH, g: "#333333", t: "#2a4a7a", T: "#1d3559", w: "#f4f4f4", p: "#2a2a35", b: "#1e1e1e" },
+  },
 };
 
 /** Vodorovné úseky stejné barvy – méně obdélníků v SVG. */
