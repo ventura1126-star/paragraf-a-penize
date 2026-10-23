@@ -25,7 +25,7 @@ import { SPRITES } from "@/content/game/sprites";
 import { STREET, type StreetNpc } from "@/content/game/street";
 import { buildingStates, nextLecture, nextStoryCase, type BuildingState } from "@/lib/game/city-logic";
 import { drawCar, drawStatic } from "@/lib/game/render";
-import { caughtByExecutor, characterOf, deliveredLetters, raceResult, readGame, recordRace, setPos, streetQuestionIndex, useGame, useHydrated, type GameState } from "@/lib/game/store";
+import { caughtByExecutor, characterOf, deliveredLetters, levelOf, raceResult, readGame, recordRace, setPos, streetQuestionIndex, useGame, useHydrated, type GameState } from "@/lib/game/store";
 import { monthLabel } from "./Mailbox";
 import { fill } from "@/content/game/characters";
 import { GameNavContext, type GameNav } from "./GameNav";
@@ -117,6 +117,9 @@ export function CityCanvas() {
   gRef.current = g;
   const [door, setDoor] = useState<Building | null>(null);
   const [person, setPerson] = useState<StreetNpc | null>(null);
+  // nově získané XP vyskočí v HUD, jakmile je hráč zpátky na mapě
+  const [xpPop, setXpPop] = useState<{ n: number; id: number } | null>(null);
+  const shownXp = useRef<number | null>(null);
   const [race, setRace] = useState<{ r: Race; left: number } | null>(null);
   const [chased, setChased] = useState(false);
   const [toast, setToast] = useState<{ text: string; tone: "good" | "bad" } | null>(null);
@@ -174,6 +177,18 @@ export function CityCanvas() {
     if (!panel) setTimeout(() => canvasRef.current?.focus(), 0);
     document.querySelector(".gta-panel-body")?.scrollTo({ top: 0 });
   }, [panel]);
+  useEffect(() => {
+    if (!hydrated) return;
+    if (shownXp.current === null) shownXp.current = g.xp;
+    if (panel || g.xp <= shownXp.current) {
+      if (g.xp < shownXp.current) shownXp.current = g.xp;
+      return;
+    }
+    setXpPop({ n: g.xp - shownXp.current, id: Date.now() });
+    shownXp.current = g.xp;
+    const t = setTimeout(() => setXpPop(null), 2600);
+    return () => clearTimeout(t);
+  }, [hydrated, panel, g.xp]);
   // celá obrazovka patří hře: stránka pod ní se neposouvá
   useEffect(() => {
     const el = document.documentElement;
@@ -219,6 +234,7 @@ export function CityCanvas() {
     const p = { ...tileCenter(startTile), angle: Math.PI / 2, step: 0, moving: false };
     let path: V[] = [];
     let pathBuilding: Building | null = null;
+    let stuck = 0;
     const keys = new Set<string>();
     const cars = makeCars();
     let cam = { x: p.x, y: p.y };
@@ -282,6 +298,15 @@ export function CityCanvas() {
       }
       return false;
     };
+    /** Dlaždice, na které zrovna stojí auto. */
+    const carTile = (tx: number, ty: number) =>
+      cars.some((c) => {
+        const cx = c.axis === "h" ? c.pos : c.lane;
+        const cy = c.axis === "h" ? c.lane : c.pos;
+        const hw = c.axis === "h" ? 20 : 10;
+        const hh = c.axis === "h" ? 10 : 20;
+        return cx + hw > tx * TILE && cx - hw < (tx + 1) * TILE && cy + hh > ty * TILE && cy - hh < (ty + 1) * TILE;
+      });
     // když už postava v překážce je (auto do ní najelo), smí se z ní dostat ven
     const canMove = (x: number, y: number) => canStand(x, y) && (!hitsObstacle(x, y) || hitsObstacle(p.x, p.y));
 
@@ -411,8 +436,20 @@ export function CityCanvas() {
         vy /= len;
         const nx = p.x + vx * SPEED * dt;
         const ny = p.y + vy * SPEED * dt;
+        const ox = p.x;
+        const oy = p.y;
         if (canMove(nx, p.y)) p.x = nx;
         if (canMove(p.x, ny)) p.y = ny;
+        // cesta po kliknutí narazila na auto (to zase čeká na postavu): najít cestu kolem aut
+        if (path.length && Math.hypot(p.x - ox, p.y - oy) < 0.2) {
+          stuck += dt;
+          if (stuck > 0.4) {
+            stuck = 0;
+            const dest = path[path.length - 1];
+            const around = findPath(playerTile(), dest, (x, y) => npcTile(x, y) || carTile(x, y));
+            if (around.length) path = around;
+          }
+        } else stuck = 0;
         p.angle = Math.atan2(vy, vx);
         p.step += dt * 14;
       }
@@ -830,6 +867,8 @@ export function CityCanvas() {
   }, [target?.building.id, target?.next]);
 
   const view = panel ? panelView(panel) : null;
+  const lvl = levelOf(g.xp);
+  const lvlPct = lvl.to ? ((g.xp - lvl.from) / (lvl.to - lvl.from)) * 100 : 100;
   const doorState = door ? states.find((s) => s.building.id === door.id) : undefined;
 
   return (
@@ -844,13 +883,20 @@ export function CityCanvas() {
           aria-label="Město dluhů. Šipkami nebo WASD chodíte, klepnutím na budovu k ní dojdete, E nebo Enter vstoupí."
         />
         <canvas ref={miniRef} className="gta-mini" width={162} height={105} aria-hidden />
-        <div className="gta-money" aria-label={`Peněženka ${g.wallet} Kč, měsíc ${g.month}, hledanost ${wantedLevel(g.load)} z 5`}>
+        <div className="gta-money" aria-label={`Peněženka ${g.wallet} Kč, ${g.xp} XP, měsíc ${g.month}, hledanost ${wantedLevel(g.load)} z 5`}>
           <span className={g.wallet < 0 ? "neg" : undefined}>{new Intl.NumberFormat("cs-CZ").format(g.wallet)} Kč</span>
           <span className={`gta-stars ${wantedLevel(g.load) >= EXECUTOR_FROM ? "hot" : ""}`} title={`Dluhová zátěž ${g.load}/100`}>
             {"★".repeat(wantedLevel(g.load))}
             <span className="off">{"★".repeat(5 - wantedLevel(g.load))}</span>
           </span>
           <small>{monthLabel(g.month)}</small>
+          <div className="gta-xp" title={lvl.to ? `${lvl.to - g.xp} XP do úrovně ${lvl.index + 2}` : "Nejvyšší úroveň"}>
+            <b>{g.xp} XP</b> <small>{lvl.name}</small>
+            <div className="gta-xpbar">
+              <div style={{ width: `${lvlPct}%` }} />
+            </div>
+          </div>
+          {xpPop && <div key={xpPop.id} className="gta-xp-pop">+{xpPop.n} XP</div>}
         </div>
         {race && (
           <div className={`gta-race ${race.left <= 5 ? "hurry" : ""}`} role="timer" aria-live="off">

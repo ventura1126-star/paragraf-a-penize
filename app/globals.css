@@ -714,3 +714,14 @@ a.trail-card:hover { border-color: var(--accent); }
 .adv-bad { border-color: #c2721e; }
 .adv-result { margin: 0.25rem 0 0.5rem; }
 .adv-xp { color: #2f8f4e; font-family: ui-monospace, Menlo, monospace; font-size: 1.1rem; }
+
+/* --- XP v HUD --- */
+.gta-xp { margin-top: 0.35rem; display: grid; justify-items: end; gap: 2px; }
+.gta-xp b { font-size: 0.95rem; color: #8fd0ff; }
+.gta-xp small { color: #f4f1e8; }
+.gta-xpbar { width: 120px; height: 6px; background: rgb(0 0 0 / 0.55); border: 1px solid #111; }
+.gta-xpbar div { height: 100%; background: #8fd0ff; }
+.gta-xp-pop { justify-self: end; margin-top: 0.3rem; font-size: 1.3rem; color: #8fd0ff; animation: xppop 2.6s ease forwards; }
+@keyframes xppop { 0% { opacity: 0; transform: translateY(8px) scale(0.8); } 12% { opacity: 1; transform: none; } 75% { opacity: 1; } 100% { opacity: 0; transform: translateY(-10px); } }
+@media (max-width: 560px) { .gta-xpbar { width: 84px; } .gta-xp b { font-size: 0.8rem; } }
+@media (prefers-reduced-motion: reduce) { .gta-xp-pop { animation: none; } }
