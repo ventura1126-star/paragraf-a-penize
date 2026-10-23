@@ -15,6 +15,7 @@ export const LAWS = {
   nv595: { abbr: "NV 595/2006", name: "Nařízení vlády o nezabavitelných částkách", year: 2006, num: 595 },
   zek: { abbr: "ZEK", name: "Zákon o elektronických komunikacích", year: 2005, num: 127 },
   znv: { abbr: "ZNV", name: "Zákon o náhradním výživném", year: 2020, num: 588 },
+  zps: { abbr: "ZPS", name: "Zákon o platebním styku", year: 2017, num: 370 },
 } as const;
 
 export type LawId = keyof typeof LAWS;

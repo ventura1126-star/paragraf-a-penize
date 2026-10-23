@@ -9,6 +9,24 @@ import { CardBack, CardFace } from "./ParagraphCard";
 
 const OUTCOME_LABEL = { correct: "Správně", partial: "Napůl", wrong: "Takhle ne" } as const;
 
+/** Stabilní zamíchání možností podle textu kola – správná odpověď není vždy první, ale pořadí se mezi návštěvami nemění. */
+function shuffled<T>(items: T[], seed: string): T[] {
+  let h = 2166136261;
+  for (let i = 0; i < seed.length; i++) h = Math.imul(h ^ seed.charCodeAt(i), 16777619);
+  const rand = () => {
+    h ^= h << 13;
+    h ^= h >>> 17;
+    h ^= h << 5;
+    return (h >>> 0) / 4294967296;
+  };
+  const a = [...items];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 /** Jedno kolo: rozhodnutí → verdikt → pokračovat. Paragraf se odkryje až po volbě. */
 export function RoundPlayer({
   round,
@@ -22,7 +40,8 @@ export function RoundPlayer({
   onContinue: (picked: Option) => void;
 }) {
   const [picked, setPicked] = useState<number | null>(null);
-  const opt = picked === null ? null : round.options[picked];
+  const options = shuffled(round.options, round.card + round.prompt);
+  const opt = picked === null ? null : options[picked];
   const card = CARD_BY_ID.get(round.card);
   const correct = round.options.find((o) => o.outcome === "correct");
 
@@ -30,7 +49,7 @@ export function RoundPlayer({
     <div className="round">
       <h2 className="round-prompt">{round.prompt}</h2>
       <div className="round-options">
-        {round.options.map((o, i) => {
+        {options.map((o, i) => {
           let cls = "round-option";
           if (opt) {
             if (o.outcome === "correct") cls += " correct";

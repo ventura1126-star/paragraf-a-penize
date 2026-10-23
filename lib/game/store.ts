@@ -191,6 +191,18 @@ export function recordCase(caseId: string, correct: number, total: number): Lett
       }
     }
   }
+  // Vysoká dluhová zátěž: dluhy přerostou přes hlavu a přijde exekutor (jen jednou).
+  const exekuce = "vyrozumeni-o-exekuci";
+  if (
+    state.load >= 70 &&
+    caseId !== exekuce &&
+    !letters.some((l) => l.caseId === exekuce && !l.read) &&
+    !state.cases[caseKey(state.character, exekuce)]?.done
+  ) {
+    const letter = { id: `zatez>${exekuce}>${month}`, month: month + 1, caseId: exekuce, sender: "Exekutorský úřad", subject: "Vyrozumění o zahájení exekuce", reason: "dluhová zátěž přerostla přes hlavu", read: false };
+    letters.push(letter);
+    scheduled.push(letter);
+  }
   set({
     ...state,
     month,

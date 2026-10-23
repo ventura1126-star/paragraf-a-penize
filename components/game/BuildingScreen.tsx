@@ -8,7 +8,7 @@ import { fill } from "@/content/game/characters";
 import { PREP_BY_ID, PREPS } from "@/content/game/preps";
 import { caseAccess } from "@/lib/game/city-logic";
 import { caseProgress, characterOf, consult, prepDone, useGame, useHydrated } from "@/lib/game/store";
-import { PixelBuilding } from "./PixelBuilding";
+import { RoofPreview } from "./RoofPreview";
 import { PixelSprite } from "./PixelSprite";
 import { NeedCharacter } from "./NeedCharacter";
 import { Mailbox } from "./Mailbox";
@@ -29,9 +29,7 @@ export function BuildingScreen({ b }: { b: Building }) {
   return (
     <>
       <div className="building-hero card">
-        <svg viewBox="-4 -4 56 40" width="168" height="120" shapeRendering="crispEdges" aria-hidden>
-          <PixelBuilding b={b} x={0} y={0} />
-        </svg>
+        <RoofPreview b={b} />
         <div className="building-talk">
           <PixelSprite id={ch.id} variant="bust" scale={4} className="building-you" />
           <div className="bubble">{fill(b.greeting, ch)}</div>
@@ -64,7 +62,7 @@ export function BuildingScreen({ b }: { b: Building }) {
           </ul>
         </section>
       )}
-      {mine.length === 0 && b.kind !== "safe" && (
+      {mine.length === 0 && b.kind !== "safe" && b.id !== "domov" && (
         <p className="muted">Tahle budova do příběhu vaší postavy nepatří. Ostatní nástrahy tu čekají na jiné postavy.</p>
       )}
 

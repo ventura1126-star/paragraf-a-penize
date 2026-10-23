@@ -42,7 +42,8 @@ export function buildingStates(s: GameState): BuildingState[] {
   const next = nextStoryCase(s);
   return BUILDINGS.map((b) => {
     const acc = b.cases.map((c) => caseAccess(s, c));
-    const open = b.kind === "safe" || acc.some((a) => a !== "elsewhere");
+    // Domov se schránkou a bezpečná místa jsou otevřená vždy.
+    const open = b.kind === "safe" || b.id === "domov" || acc.some((a) => a !== "elsewhere");
     const calling = acc.some((a) => a === "available");
     const later = acc.some((a) => a === "later");
     const done = acc.some((a) => a === "done") && !calling && !later;

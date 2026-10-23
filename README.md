@@ -33,6 +33,19 @@ včetně českých svátků).
 - `lib/game/store.ts` – herní stav v `localStorage` (XP, peněženka, karty, opakování)
 - `lib/game/dates.ts`, `lib/game/deadlines.ts` – svátky ČR, posun konce lhůty, generátor zadání
 
+## Město dluhů (pohled shora)
+
+`/hra` po výběru postavy otevře město vykreslené v canvasu (`components/game/CityCanvas.tsx`, kresba
+`lib/game/render.ts`, geometrie a budovy `content/game/city.ts`). Ovládání: šipky / WASD, klepnutí na budovu
+nebo do minimapy, E / Enter u dveří. Každá nástraha posune čas o měsíc, špatná rozhodnutí plánují dopisy
+(`LETTER_RULES`), vysoká dluhová zátěž přivolá exekutora.
+
+Vývoj a testování:
+
+- `NEXT_DIST_DIR=.next-build npm run build` – kontrolní build bez přepsání běžícího `npm run dev`
+- ve vývojovém režimu `window.__city.step(n)` posune hru o n snímků (užitečné ve skrytém okně, kde neběží
+  `requestAnimationFrame`) a `window.__city.state()` vrátí pozici postavy
+
 ## Přidání lekce
 
 Přidejte objekt `Lesson` do příslušného souboru v `content/topics/`. Každé ustanovení uvádějte jako `Citation`,

@@ -363,6 +363,77 @@ export const CARDS: Card[] = [
     summary: "Kdo se do 3 let po rozvodu nevypořádá, má dluhy a pohledávky napůl ze zákona.",
     quote: "Nedojde-li do tří let od zúžení, zrušení nebo zániku společného jmění k vypořádání",
   },
+  // ---- nové nástrahy: arbitr, platby, výživné
+  {
+    id: "zfa-10-1",
+    cite: { law: "zfa", par: "10", odst: 1, pism: "b" },
+    name: "Nejdřív stížnost u instituce",
+    summary: "K návrhu arbitrovi patří doklad, že instituce byla neúspěšně vyzvána k nápravě.",
+    quote: "doklad o tom, že instituce byla neúspěšně vyzvána k nápravě",
+  },
+  {
+    id: "zfa-18-1",
+    cite: { law: "zfa", par: "18", odst: 1 },
+    name: "Arbitr bez poplatku",
+    summary: "Řízení se nezpoplatňuje; každý nese jen své vlastní náklady.",
+    quote: "Každý účastník řízení nese své náklady řízení sám",
+  },
+  {
+    id: "zfa-17a",
+    cite: { law: "zfa", par: "17a" },
+    name: "Sankce pro instituci",
+    summary: "Prohraje-li instituce, platí navíc státu sankci 10 % z přisouzené částky, nejméně 15 000 Kč.",
+    quote: "uloží současně instituci povinnost zaplatit sankci ve výši 10 % z částky, kterou je instituce podle nálezu povinna zaplatit navrhovateli, nejméně však 15 000 Kč",
+  },
+  {
+    id: "zps-165",
+    cite: { law: "zps", par: "165", pism: "a" },
+    name: "Chraňte své kódy",
+    summary: "Uživatel musí chránit PIN, hesla a kódy z SMS – nikomu je nesdělovat.",
+    quote: "přijme veškerá přiměřená opatření na ochranu jeho osobních bezpečnostních prvků",
+  },
+  {
+    id: "zps-182-1",
+    cite: { law: "zps", par: "182", odst: 1 },
+    name: "Ukradená karta: max. 50 EUR",
+    summary: "Při zneužití ztracené či ukradené karty nese plátce ztrátu nejvýš do 50 EUR – pokud nejednal podvodně ani hrubě nedbale.",
+    quote: "do částky odpovídající 50 eurům, byla-li tato ztráta způsobena použitím ztraceného nebo odcizeného platebního prostředku",
+  },
+  {
+    id: "zps-181-1",
+    cite: { law: "zps", par: "181", odst: 1 },
+    name: "Vrácení neautorizované platby",
+    summary: "Banka musí neautorizovanou platbu vrátit nejpozději do konce následujícího pracovního dne.",
+    quote: "nejpozději však do konce následujícího pracovního dne poté, co neautorizovanou platební transakci zjistil nebo mu ji plátce oznámil",
+  },
+  {
+    id: "oz-923-1",
+    cite: { law: "oz", par: "923", odst: 1 },
+    name: "Změna výživného",
+    summary: "Změní-li se poměry a rodiče se nedohodnou, rozhodne o výživném soud.",
+    quote: "Změní-li se poměry a nedohodnou-li se rodiče o výživném pro nezletilé dítě, které nenabylo plné svéprávnosti, rozhodne o tom soud i bez návrhu.",
+  },
+  {
+    id: "oz-923-2",
+    cite: { law: "oz", par: "923", odst: 2 },
+    name: "Spotřebované výživné se nevrací",
+    summary: "Při snížení výživného zpětně se to, co děti spotřebovaly, nevrací – sníží se budoucí dávky.",
+    quote: "spotřebované výživné se nevrací",
+  },
+  {
+    id: "dr-250-3",
+    cite: { law: "dr", par: "250", odst: 3 },
+    name: "Pokuta pod 1 000 Kč se neplatí",
+    summary: "Pokuta za pozdní přiznání se nepředepíše, když by byla nižší než 1 000 Kč.",
+    quote: "dosáhne-li její výše částku menší než 1000 Kč",
+  },
+  {
+    id: "dr-250-1",
+    cite: { law: "dr", par: "250", odst: 1 },
+    name: "Pokuta za pozdní přiznání",
+    summary: "0,05 % daně za každý den prodlení, nejvýše 5 % daně; vzniká až při zpoždění přes 5 pracovních dnů.",
+    quote: "0,05 % stanovené daně za každý následující den prodlení, nejvýše však 5 % stanovené daně",
+  },
 ];
 
 export const CARD_BY_ID = new Map(CARDS.map((c) => [c.id, c]));

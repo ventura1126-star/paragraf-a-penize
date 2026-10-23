@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { CampaignMap } from "@/components/game/CampaignMap";
-import { CityMap } from "@/components/game/CityMap";
+import { CityCanvas } from "@/components/game/CityCanvas";
 import { YearReport } from "@/components/game/YearReport";
 import { ResetButton } from "@/components/game/ResetButton";
 import { GameStart } from "@/components/game/GameStart";
@@ -15,7 +15,7 @@ export default function GameHome() {
     <GameStart>
       <CampaignMap part="hero" />
       <YearReport />
-      <CityMap />
+      <CityCanvas />
       <details className="city-list">
         <summary>Příběh v bodech</summary>
         <CampaignMap part="trail" />

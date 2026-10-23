@@ -1110,4 +1110,278 @@ export const STORY_CASES: GameCase[] = [
       },
     ],
   },
+
+  // ===== Nové nástrahy: arbitr, falešný bankéř, změna výživného =====
+  {
+    id: "stiznost-u-arbitra",
+    title: "Spor s věřitelem",
+    teaser: "Věřitel si účtuje, na co nemá nárok.",
+    story:
+      "Věřitel {D} naúčtoval poplatek, na který podle zákona nemá nárok. {N} to reklamoval{a}, ale věřitel odpověděl, že poplatek „je ve smlouvě“ a trvá na něm.",
+    lesson: { topic: "uvery-a-dluhy", lesson: "prodleni-a-sankce" },
+    rounds: [
+      {
+        prompt: "{N} chce spor řešit u finančního arbitra. Co musí mít v ruce?",
+        card: "zfa-10-1",
+        options: [
+          {
+            text: "Doklad, že věřitele nejdřív neúspěšně vyzval{a} k nápravě – třeba tu zamítnutou reklamaci.",
+            outcome: "correct",
+            verdict: "Návrh musí obsahovat doklad o tom, že instituce byla neúspěšně vyzvána k nápravě. Zamítnutá písemná reklamace to splňuje.",
+            wallet: 0,
+            cites: [{ law: "zfa", par: "10", odst: 1, pism: "b" }],
+          },
+          {
+            text: "Nic, k arbitrovi se jde rovnou.",
+            outcome: "partial",
+            verdict: "Bez dokladu o neúspěšné výzvě k nápravě má návrh vadu a arbitr vyzve k jejímu odstranění.",
+            wallet: 0,
+            cites: [{ law: "zfa", par: "10", odst: 1, pism: "b" }, { law: "zfa", par: "10", odst: 3 }],
+          },
+          {
+            text: "Nejdřív žalobu u soudu, arbitr až potom.",
+            outcome: "wrong",
+            verdict: "Probíhá-li v téže věci řízení u soudu, je návrh k arbitrovi nepřípustný. Je to buď–anebo.",
+            wallet: -3000,
+            cites: [{ law: "zfa", par: "9", pism: "b" }],
+          },
+        ],
+      },
+      {
+        prompt: "Kolik řízení u arbitra stojí?",
+        card: "zfa-18-1",
+        options: [
+          {
+            text: "Nezpoplatňuje se; každý nese jen své náklady (třeba poštovné).",
+            outcome: "correct",
+            verdict: "Každý účastník nese své náklady sám a řízení se nezpoplatňuje. Advokát není povinný.",
+            wallet: 0,
+            cites: [{ law: "zfa", par: "18", odst: 1 }],
+          },
+          {
+            text: "Soudní poplatek 1 000 Kč.",
+            outcome: "wrong",
+            verdict: "Žádný poplatek se neplatí – to je hlavní výhoda arbitra proti soudu.",
+            wallet: -1000,
+            cites: [{ law: "zfa", par: "18", odst: 1 }],
+          },
+        ],
+      },
+      {
+        prompt: "Arbitr dá {D} za pravdu. Co to znamená pro věřitele?",
+        card: "zfa-17a",
+        options: [
+          {
+            text: "Vrátí poplatek a navíc zaplatí státu sankci – 10 % z částky, nejméně 15 000 Kč.",
+            outcome: "correct",
+            verdict: "V nálezu, kterým arbitr vyhoví, uloží instituci i sankci 10 % z přisouzené částky, nejméně 15 000 Kč. Proto se instituce často raději dohodnou.",
+            wallet: 2000,
+            cites: [{ law: "zfa", par: "17a" }],
+          },
+          {
+            text: "Nic, nález arbitra je jen doporučení.",
+            outcome: "wrong",
+            verdict: "Nález arbitra je závazný. Instituce musí plnit, a když prohraje, platí navíc sankci.",
+            wallet: 0,
+            cites: [{ law: "zfa", par: "17a" }],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "falesny-bankar",
+    title: "Falešný bankéř",
+    teaser: "„Váš účet je ohrožen, převeďte peníze.“",
+    story:
+      "Volá „bezpečnostní oddělení banky“. Na účtu {G} je prý podezřelá platba, a aby peníze nezmizely, má je hned převést na „bezpečný účet“ a potvrdit kód z SMS.",
+    lesson: { topic: "investice-a-sporeni", lesson: "ochrana-investora" },
+    rounds: [
+      {
+        prompt: "Co má {N} udělat?",
+        card: "zps-165",
+        options: [
+          {
+            text: "Zavěsit a zavolat bance na číslo z karty nebo z webu. Žádný kód nikomu nesdělovat.",
+            outcome: "correct",
+            verdict:
+              "Uživatel musí chránit své bezpečnostní prvky – PIN, hesla, kódy. Banka nikdy nechce převod na „bezpečný účet“.",
+            wallet: 0,
+            cites: [{ law: "zps", par: "165", pism: "a" }],
+          },
+          {
+            text: "Peníze převést – banka je pak stejně vrátí.",
+            outcome: "wrong",
+            verdict:
+              "Platbu, kterou {N} {sam} zadá a potvrdí, banka zpravidla považuje za autorizovanou. Povinnost vrátit peníze se týká neautorizovaných plateb.",
+            wallet: -60000,
+            cites: [{ law: "zps", par: "181", odst: 1 }, { law: "zps", par: "165", pism: "a" }],
+          },
+          {
+            text: "Nic nepřevádět, jen nadiktovat kód z SMS.",
+            outcome: "wrong",
+            verdict:
+              "Sdělení kódu je porušení povinnosti chránit bezpečnostní prvky. Při hrubé nedbalosti nese plátce ztrátu v plném rozsahu.",
+            wallet: -60000,
+            cites: [{ law: "zps", par: "182", odst: 1, pism: "b" }, { law: "zps", par: "165", pism: "a" }],
+          },
+        ],
+      },
+      {
+        prompt: "Jiný den {D} ukradnou kabelku s kartou. Než kartu zablokuje, někdo s ní zaplatí 6 000 Kč. Kolik ztratí?",
+        card: "zps-182-1",
+        options: [
+          {
+            text: "Nejvýš částku odpovídající 50 EUR – pokud nejednal{a} podvodně ani hrubě nedbale.",
+            outcome: "correct",
+            verdict: "Při zneužití ztraceného nebo odcizeného platebního prostředku nese plátce ztrátu do částky odpovídající 50 EUR. Po oznámení ztráty už nic.",
+            wallet: -1250,
+            cites: [{ law: "zps", par: "182", odst: 1, pism: "a" }, { law: "zps", par: "182", odst: 3 }],
+          },
+          {
+            text: "Celých 6 000 Kč.",
+            outcome: "wrong",
+            verdict: "Celou ztrátu nese plátce jen při podvodu nebo hrubé nedbalosti (třeba PIN napsaný na kartě).",
+            wallet: -6000,
+            cites: [{ law: "zps", par: "182", odst: 1 }],
+          },
+        ],
+      },
+      {
+        prompt: "{N} nahlásí bance neautorizovanou platbu. Do kdy ji banka musí vrátit?",
+        card: "zps-181-1",
+        options: [
+          {
+            text: "Nejpozději do konce následujícího pracovního dne.",
+            outcome: "correct",
+            verdict: "U neautorizované platby musí banka účet uvést do původního stavu nejpozději do konce následujícího pracovního dne po oznámení.",
+            wallet: 4750,
+            cites: [{ law: "zps", par: "181", odst: 1 }],
+          },
+          {
+            text: "Do 30 dnů, po prošetření.",
+            outcome: "wrong",
+            verdict: "Zákon dává bance jen do konce následujícího pracovního dne (výjimkou je důvodné podezření z podvodu plátce, které musí oznámit ČNB).",
+            wallet: 0,
+            cites: [{ law: "zps", par: "181", odst: 1 }, { law: "zps", par: "181", odst: 3 }],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "zmena-vyzivneho",
+    title: "Výživné po ztrátě práce",
+    teaser: "Příjem klesl, výživné zůstalo.",
+    story:
+      "{N} přišel o práci a jeho příjem klesl o třetinu. Výživné na dvě děti ale pořád platí podle rozsudku z doby, kdy vydělával víc.",
+    lesson: { topic: "pohledavky-exekuce-insolvence", lesson: "exekuce" },
+    rounds: [
+      {
+        prompt: "Může si {N} výživné sám snížit, dokud nenajde práci?",
+        card: "oz-923-1",
+        options: [
+          {
+            text: "Ne. Buď se rodiče dohodnou, nebo rozhodne soud. Do té doby platí rozsudek.",
+            outcome: "correct",
+            verdict: "Změní-li se poměry a rodiče se nedohodnou, rozhodne o výživném soud. Snížit si ho sám nelze – nedoplatek by se vymáhal jako přednostní pohledávka.",
+            wallet: 0,
+            cites: [{ law: "oz", par: "923", odst: 1 }, { law: "osr", par: "279", odst: 2 }],
+          },
+          {
+            text: "Ano, prostě pošle méně.",
+            outcome: "wrong",
+            verdict: "Rozsudek platí, dokud ho nezmění soud nebo dohoda. Rozdíl je dluh – a výživné se ze mzdy sráží ze dvou třetin.",
+            wallet: -12000,
+            cites: [{ law: "oz", par: "923", odst: 1 }, { law: "osr", par: "279", odst: 2 }],
+          },
+        ],
+      },
+      {
+        prompt: "Soud nakonec výživné sníží i zpětně. Musí bývalá žena vrátit, co děti mezitím spotřebovaly?",
+        card: "oz-923-2",
+        options: [
+          {
+            text: "Ne – spotřebované výživné se nevrací, přiměřeně se sníží budoucí platby.",
+            outcome: "correct",
+            verdict: "Při zpětném snížení výživného pro nezletilé dítě se spotřebované výživné nevrací; o přeplatek se přiměřeně sníží dávky splatné v budoucnu.",
+            wallet: 3000,
+            cites: [{ law: "oz", par: "923", odst: 2 }],
+          },
+          {
+            text: "Ano, celý přeplatek najednou.",
+            outcome: "wrong",
+            verdict: "Zákon vrácení spotřebovaného výživného vylučuje.",
+            wallet: 0,
+            cites: [{ law: "oz", par: "923", odst: 2 }],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "pozde-podane-priznani",
+    title: "Přiznání po termínu",
+    teaser: "Zakázky měly přednost, přiznání počkalo.",
+    story:
+      "Kvůli zakázkám {N} podal{a} daňové přiznání o 20 dní později, než měl{a}. Daň vyšla 40 000 Kč a zaplatil{a} ji hned.",
+    lesson: { topic: "dane", lesson: "lhuty-a-sankce" },
+    rounds: [
+      {
+        prompt: "Kolik zaplatí na pokutě za opožděné přiznání?",
+        card: "dr-250-3",
+        options: [
+          {
+            text: "Nic – pokuta by vyšla jen na stovky korun a pod 1 000 Kč se nepředepisuje.",
+            outcome: "correct",
+            verdict:
+              "Pokuta je 0,05 % daně za den prodlení: za 20 dní zhruba 1 % ze 40 000 Kč, tedy kolem 400 Kč. Pokuta pod 1 000 Kč se nepředepíše.",
+            wallet: 0,
+            cites: [{ law: "dr", par: "250", odst: 1, pism: "a" }, { law: "dr", par: "250", odst: 3 }],
+          },
+          {
+            text: "2 000 Kč – pokuta je vždy 5 % daně.",
+            outcome: "wrong",
+            verdict: "5 % je strop, ne pevná sazba. Počítá se 0,05 % za každý den prodlení.",
+            wallet: -2000,
+            cites: [{ law: "dr", par: "250", odst: 1, pism: "a" }],
+          },
+          {
+            text: "400 Kč, které přijdou platebním výměrem.",
+            outcome: "partial",
+            verdict: "Výpočet sedí, ale pokuta pod 1 000 Kč se vůbec nepředepíše – platit se nic nebude.",
+            wallet: 0,
+            cites: [{ law: "dr", par: "250", odst: 3 }],
+          },
+        ],
+      },
+      {
+        prompt: "Příští rok se {N} zpozdí o čtyři měsíce a daň vyjde 100 000 Kč. Jaká pokuta hrozí?",
+        card: "dr-250-1",
+        options: [
+          {
+            text: "5 000 Kč – za tolik dní by to bylo přes 5 %, ale víc než 5 % daně pokuta být nemůže.",
+            outcome: "correct",
+            verdict: "Za každý den prodlení 0,05 % daně, nejvýše však 5 % stanovené daně. U 100 000 Kč je strop 5 000 Kč.",
+            wallet: -5000,
+            cites: [{ law: "dr", par: "250", odst: 1, pism: "a" }],
+          },
+          {
+            text: "6 000 Kč – 0,05 % za každý ze zhruba 120 dnů.",
+            outcome: "partial",
+            verdict: "Výpočet by tak vyšel, jenže zákon pokutu omezuje na 5 % daně, tedy 5 000 Kč.",
+            wallet: -6000,
+            cites: [{ law: "dr", par: "250", odst: 1, pism: "a" }],
+          },
+          {
+            text: "Nic, daň byla nakonec zaplacená.",
+            outcome: "wrong",
+            verdict: "Pokuta se váže k pozdnímu podání přiznání, ne k zaplacení daně. Zaplacení ji neruší.",
+            wallet: -5000,
+            cites: [{ law: "dr", par: "250", odst: 1 }],
+          },
+        ],
+      },
+    ],
+  },
 ];

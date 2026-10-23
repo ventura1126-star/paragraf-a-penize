@@ -379,11 +379,11 @@ const BASE_CASES: GameCase[] = [
     teaser: "Cesta z dluhové pasti.",
     boss: true,
     story:
-      "Půjčky na splácení jiných půjček se nasčítaly: {N} má pět exekucí od různých věřitelů, všechny dluhy jsou déle než rok po splatnosti. Z příjmu zbývá jen nezabavitelná částka a dluhy dál rostou.",
+      "Závěrečná zkouška: poradkyně v Dluhové poradně dá {D} skutečný případ, se kterým tu pomáhají. Pan Novák má pět exekucí od různých věřitelů, všechny dluhy jsou déle než rok po splatnosti. Z příjmu mu zbývá jen nezabavitelná částka a dluhy dál rostou. Poraďte mu.",
     lesson: { topic: DEBT_TOPIC, lesson: "oddluzeni" },
     rounds: [
       {
-        prompt: "Je {N} podle zákona v úpadku?",
+        prompt: "Je pan Novák podle zákona v úpadku?",
         card: "iz-3-1",
         options: [
           {
@@ -411,7 +411,7 @@ const BASE_CASES: GameCase[] = [
         ],
       },
       {
-        prompt: "Kdo může {D} sepsat a podat návrh na oddlužení?",
+        prompt: "Kdo může panu Novákovi sepsat a podat návrh na oddlužení?",
         card: "iz-390a-1",
         options: [
           {
@@ -425,12 +425,12 @@ const BASE_CASES: GameCase[] = [
           {
             text: "Jakákoli „oddlužovací agentura“ z inzerátu.",
             outcome: "wrong",
-            verdict: "Bez akreditace Ministerstva spravedlnosti agentura návrh podat nesmí. {N} by platil{a} zbytečně.",
+            verdict: "Bez akreditace Ministerstva spravedlnosti agentura návrh podat nesmí. Pan Novák by platil zbytečně.",
             wallet: -8000,
             cites: [{ law: "iz", par: "390a", odst: 1 }],
           },
           {
-            text: "{N} si ho podá {sam}, formulář je na internetu.",
+            text: "Pan Novák si ho podá sám, formulář je na internetu.",
             outcome: "partial",
             verdict:
               "Bez prostředníka ho podat může jen s magisterským právním či ekonomickým vzděláním nebo zkouškou insolvenčního správce.",

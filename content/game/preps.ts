@@ -435,6 +435,7 @@ export const PREPS: Prep[] = [
     concepts: [
       { term: "Povinnost podat", explain: "Při zdanitelných příjmech nad 50 000 Kč za rok (s výjimkami pro zaměstnance).", cite: { law: "zdp", par: "38g", odst: 1 } },
       { term: "Lhůty", explain: "3 / 4 (elektronicky) / 6 měsíců (poradce).", cite: { law: "dr", par: "136", odst: 2 } },
+      { term: "Pokuta za pozdní přiznání", explain: "0,05 % daně za den prodlení, max. 5 %; pod 1 000 Kč se nepředepisuje.", cite: { law: "dr", par: "250", odst: 1 } },
       { term: "Penále", explain: "20 % z daně, kterou doměří úřad.", cite: { law: "dr", par: "251", odst: 1 } },
       { term: "Dodatečné přiznání", explain: "Opravíte-li chybu sami, penále nevzniká.", cite: { law: "dr", par: "251", odst: 4 } },
       { term: "Lhůta pro stanovení daně", explain: "Úřad má na doměření zásadně 3 roky.", cite: { law: "dr", par: "148", odst: 1 } },
@@ -515,4 +516,8 @@ export const PREP_FOR_CASE: Record<string, string> = {
   "dodatecne-priznani": "dane",
   "hypoteka-po-rozvodu": "rozvod",
   "rozvod-a-dluhy": "rozvod",
+  "stiznost-u-arbitra": "prodleni",
+  "falesny-bankar": "investice",
+  "zmena-vyzivneho": "vyzivne",
+  "pozde-podane-priznani": "dane",
 };

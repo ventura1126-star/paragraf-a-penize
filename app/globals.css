@@ -523,3 +523,41 @@ a.trail-card:hover { border-color: var(--accent); }
 .letter .btn-primary, .letter .tag { justify-self: start; margin-top: 0.3rem; }
 .year-report { border: 2px solid var(--ok); margin-bottom: 1rem; }
 .year-report h2 { margin-top: 0.2rem; }
+
+/* Město ve stylu GTA 1 */
+.gta { margin: 1rem 0 1.5rem; }
+.gta-frame { position: relative; border-radius: 10px; overflow: hidden; border: 3px solid #111; background: #24527d; box-shadow: 0 8px 30px rgb(0 0 0 / 0.25); }
+.gta-canvas { display: block; outline: none; cursor: crosshair; touch-action: manipulation; }
+.gta-canvas:focus-visible { box-shadow: inset 0 0 0 3px #ffd447; }
+.gta-mini { position: absolute; top: 10px; right: 10px; width: 162px; height: 105px; border: 2px solid #111; background: #24527d; image-rendering: pixelated; opacity: 0.92; cursor: pointer; }
+.gta-hud { position: absolute; top: 10px; left: 10px; right: 184px; display: grid; gap: 6px; pointer-events: none; }
+.gta-goal, .gta-pager { font-family: ui-monospace, Menlo, monospace; font-weight: 700; font-size: 0.82rem; color: #ffd447; background: rgb(10 10 12 / 0.78); padding: 0.35rem 0.6rem; border-radius: 4px; text-shadow: 1px 1px 0 #000; justify-self: start; }
+.gta-pager { color: #7cf29a; pointer-events: auto; text-decoration: none; animation: pager 1s steps(2, jump-none) infinite; }
+@keyframes pager { 50% { opacity: 0.55; } }
+.gta-door { position: absolute; left: 10px; bottom: 10px; max-width: min(460px, calc(100% - 20px)); display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; background: rgb(10 10 12 / 0.85); color: #f4f1e8; border: 2px solid #ffd447; border-radius: 6px; padding: 0.45rem 0.6rem; font-family: ui-monospace, Menlo, monospace; }
+.gta-door strong { font-size: 1rem; }
+.gta-door-district { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: #bdb8ad; }
+.gta-door-status { font-size: 0.8rem; color: #d8d3c7; }
+.gta-enter { font: inherit; font-weight: 700; background: #ffd447; color: #111; border: 2px solid #111; border-radius: 4px; padding: 0.5rem 0.9rem; cursor: pointer; white-space: nowrap; }
+.gta-enter kbd { font: inherit; background: #111; color: #ffd447; padding: 0 0.3rem; border-radius: 3px; margin-left: 0.3rem; font-size: 0.75rem; }
+.gta-help { margin-top: 0.4rem; }
+@media (max-width: 560px) {
+  .gta-mini { width: 108px; height: 70px; }
+  .gta-hud { right: 126px; }
+  .gta-goal, .gta-pager { font-size: 0.72rem; }
+  .gta-enter kbd { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .gta-pager { animation: none; } }
+.roof-preview { display: block; image-rendering: pixelated; border: 2px solid #111; }
+.building-hero { background: #2b2d31; }
+.gta-alarm { color: #ff7a7a; }
+.gta-intro { position: absolute; inset: 50% auto auto 50%; transform: translate(-50%, -50%); width: min(420px, calc(100% - 24px)); background: rgb(10 10 12 / 0.92); color: #f4f1e8; border: 2px solid #ffd447; border-radius: 6px; padding: 1rem 1.1rem; font-family: ui-monospace, Menlo, monospace; font-size: 0.85rem; }
+.gta-intro strong { color: #ffd447; font-size: 1rem; }
+.gta-intro ul { padding-left: 1.1rem; margin: 0.6rem 0 0.9rem; }
+.gta-intro li { margin-bottom: 0.3rem; }
+@media (max-width: 560px) { .gta-intro { font-size: 0.76rem; padding: 0.75rem 0.85rem; } }
+.gta-money { position: absolute; top: 122px; right: 10px; text-align: right; font-family: ui-monospace, Menlo, monospace; font-weight: 800; color: #ffd447; text-shadow: 2px 2px 0 #000; pointer-events: none; display: grid; }
+.gta-money span { font-size: 1.15rem; }
+.gta-money span.neg { color: #ff6b6b; }
+.gta-money small { font-size: 0.72rem; color: #f4f1e8; }
+@media (max-width: 560px) { .gta-money { top: 86px; } .gta-money span { font-size: 0.95rem; } }
