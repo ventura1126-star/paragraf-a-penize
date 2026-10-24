@@ -963,9 +963,9 @@ export function CityCanvas() {
           <div className="gta-intro" role="dialog" aria-label="Jak se hraje">
             <strong>Vítejte v Městě dluhů</strong>
             <ul>
-              <li><b>Chůze:</b> šipky / WASD, nebo klepněte na budovu – postava dojde ke dveřím.</li>
+              <li><b>Chůze:</b> klepněte na budovu nebo místo na mapě – postava tam dojde. Na počítači i šipky / WASD.</li>
               <li><b>Žlutá šipka</b> ukazuje, kam vede váš příběh. Klepnutím do minimapy se dá cestovat.</li>
-              <li><b>Dveře:</b> E / Enter nebo tlačítko Vstoupit.</li>
+              <li><b>Dveře:</b> tlačítko Vstoupit dole (na počítači i E / Enter).</li>
               <li><b>Lidé s otazníkem</b> chtějí poradit. Dojděte k nim a promluvte si – za dobrou radu jsou XP.</li>
               <li><b>LHŮTA</b> vpravo: doběhněte do budovy, než vyprší – jinak to bude dražší.</li>
               <li><b>Hvězdičky ★</b> = hledanost podle dluhů. Od 3 vás honí exekutor; úkryt je Dluhová poradna.</li>

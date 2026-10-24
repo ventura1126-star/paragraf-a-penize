@@ -802,4 +802,23 @@ a.trail-card:hover { border-color: var(--accent); }
 .wo-routes { display: flex; justify-content: center; flex-wrap: wrap; gap: 0.5rem 1.2rem; margin: 1rem 0 0.9rem; font-size: 0.85rem; color: #f4f1e8; }
 .wo-routes span { background: #262a31; padding: 0.3rem 0.6rem; border-radius: 4px; }
 .wo-go { display: block; margin: 0 auto; min-width: 220px; }
-@media (max-width: 720px) { .wo-list { grid-template-columns: 1fr; gap: 1rem; } .wo-thumb { max-height: 160px; } }
+@media (max-width: 720px) {
+  /* na telefonu: malá mapa vlevo, text vpravo, ať je tlačítko Pokračovat blízko */
+  .wo-list { grid-template-columns: 1fr; gap: 0.9rem; }
+  .wo-world { grid-template-columns: 96px 1fr; column-gap: 0.7rem; row-gap: 0.2rem; padding: 0.55rem; }
+  .wo-thumb { grid-row: 1 / span 3; width: 96px; align-self: start; }
+  .wo-world p { font-size: 0.78rem; }
+  .wo-routes { font-size: 0.75rem; margin: 0.7rem 0; }
+}
+
+/* --- Telefon: HUD tak, aby se nic nepřekrývalo --- */
+@media (max-width: 560px) {
+  .gta-hud { gap: 4px; }
+  .gta-pager { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; font-size: 0.66rem; padding: 0.25rem 0.45rem; }
+  .gta-goal { font-size: 0.68rem; padding: 0.25rem 0.45rem; }
+  .gta-race { top: 214px; bottom: auto; right: 10px; max-width: 120px; padding: 0.3rem 0.45rem; }
+  .gta-race strong { font-size: 1.05rem; }
+  .gta-race small { font-size: 0.6rem; }
+  .gta-chase { top: auto; bottom: 104px; font-size: 0.72rem; }
+  .gta-toast { bottom: 138px; font-size: 0.74rem; padding: 0.4rem 0.55rem; }
+}

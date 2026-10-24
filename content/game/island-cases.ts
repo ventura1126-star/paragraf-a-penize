@@ -189,8 +189,8 @@ export const ISLAND_CASES: GameCase[] = [
         prompt: "A co DPH 52 500 Kč z faktury za člun?",
         card: "zdph-72-1",
         options: [
-          { text: "Odečíst si ji – člun slouží podnikání.", outcome: "correct", verdict: "Plátce má nárok na odpočet daně u nákupů, které použije pro svou ekonomickou činnost.", wallet: 52500, cites: [{ law: "zdph", par: "72", odst: 1 }] },
-          { text: "Nic, je to náklad jako každý jiný.", outcome: "partial", verdict: "Je to náklad, ale DPH z něj si plátce může odečíst. {N} by zbytečně ztratil{a} 52 500 Kč.", wallet: 0, cites: [{ law: "zdph", par: "72", odst: 1 }] },
+          { text: "Odečíst si ji – člun slouží podnikání.", outcome: "correct", verdict: "Plátce má nárok na odpočet daně u nákupů, které použije pro svou ekonomickou činnost.", wallet: 0, cites: [{ law: "zdph", par: "72", odst: 1 }] },
+          { text: "Nic, je to náklad jako každý jiný.", outcome: "partial", verdict: "Je to náklad, ale DPH z něj si plátce může odečíst. {N} by zbytečně ztratil{a} 52 500 Kč.", wallet: -52500, cites: [{ law: "zdph", par: "72", odst: 1 }] },
           { text: "Odečíst si ji, i když člun jezdí jen na výlety s rodinou.", outcome: "wrong", verdict: "Nárok na odpočet je jen u plnění použitých pro ekonomickou činnost. Soukromý člun by úřad doměřil i s penále.", wallet: -10500, cites: [{ law: "zdph", par: "72", odst: 1 }, { law: "dr", par: "251", odst: 1 }] },
         ],
       },
@@ -274,17 +274,17 @@ export const ISLAND_CASES: GameCase[] = [
         card: "zdp-21-1",
         options: [
           { text: "21 %, tedy 210 000 Kč.", outcome: "correct", verdict: "Sazba daně z příjmů právnických osob je 21 %. Firmě zbude 790 000 Kč.", wallet: 0, cites: [{ law: "zdp", par: "21", odst: 1 }] },
-          { text: "15 % jako fyzická osoba.", outcome: "wrong", verdict: "15 % je sazba pro fyzické osoby. Firma platí 21 %.", wallet: -60000, cites: [{ law: "zdp", par: "21", odst: 1 }] },
-          { text: "Nic, firma na ostrově je offshore.", outcome: "wrong", verdict: "Česká s.r.o. je český daňový poplatník, ať sídlí její půjčovna kdekoli.", wallet: -210000, cites: [{ law: "zdp", par: "21", odst: 1 }] },
+          { text: "15 % jako fyzická osoba.", outcome: "wrong", verdict: "15 % je sazba pro fyzické osoby. Firma platí 21 %.", wallet: -12000, cites: [{ law: "zdp", par: "21", odst: 1 }] },
+          { text: "Nic, firma na ostrově je offshore.", outcome: "wrong", verdict: "Česká s.r.o. je český daňový poplatník, ať sídlí její půjčovna kdekoli.", wallet: -42000, cites: [{ law: "zdp", par: "21", odst: 1 }] },
         ],
       },
       {
         prompt: "Z čistého zisku si {N} chce vyplatit podíl na zisku 500 000 Kč. Jaká daň se z něj sráží?",
         card: "zdp-36-2",
         options: [
-          { text: "Srážková daň 15 % – firma pošle úřadu 75 000 Kč.", outcome: "correct", verdict: "Z podílu na zisku ze s.r.o. se sráží zvláštní daň 15 %. {N} dostane 425 000 Kč a do přiznání to už nedává.", wallet: 425000, cites: [{ law: "zdp", par: "36", odst: 2, pism: "b" }] },
-          { text: "Žádná, zisk už jednou zdaněn byl.", outcome: "wrong", verdict: "Zdanění je dvojí: firma platí 21 % ze zisku, společník 15 % z vyplaceného podílu.", wallet: 400000, cites: [{ law: "zdp", par: "36", odst: 2, pism: "b" }] },
-          { text: "Daň 21 % podruhé.", outcome: "wrong", verdict: "Podíl na zisku se daní zvláštní sazbou 15 %, ne 21 %.", wallet: 395000, cites: [{ law: "zdp", par: "36", odst: 2, pism: "b" }] },
+          { text: "Srážková daň 15 % – firma pošle úřadu 75 000 Kč.", outcome: "correct", verdict: "Z podílu na zisku ze s.r.o. se sráží zvláštní daň 15 %. {N} dostane 425 000 Kč a do přiznání to už nedává.", wallet: 0, cites: [{ law: "zdp", par: "36", odst: 2, pism: "b" }] },
+          { text: "Žádná, zisk už jednou zdaněn byl.", outcome: "wrong", verdict: "Zdanění je dvojí: firma platí 21 % ze zisku, společník 15 % z vyplaceného podílu.", wallet: -15000, cites: [{ law: "zdp", par: "36", odst: 2, pism: "b" }] },
+          { text: "Daň 21 % podruhé.", outcome: "wrong", verdict: "Podíl na zisku se daní zvláštní sazbou 15 %, ne 21 %.", wallet: -30000, cites: [{ law: "zdp", par: "36", odst: 2, pism: "b" }] },
         ],
       },
       {
@@ -292,8 +292,8 @@ export const ISLAND_CASES: GameCase[] = [
         card: "zok-40-1",
         options: [
           { text: "Ne, dokud by vlastní kapitál klesl pod základní kapitál a nedělitelné fondy.", outcome: "correct", verdict: "Kapitálová společnost nesmí rozdělit zisk, pokud by se tím vlastní kapitál dostal pod tuto hranici. Nejdřív se musí pokrýt ztráta.", wallet: 0, cites: [{ law: "zok", par: "40", odst: 1 }] },
-          { text: "Ano, zisk je zisk.", outcome: "wrong", verdict: "Taková výplata je v rozporu se zákonem a jednatel za ni může odpovídat.", wallet: -425000, cites: [{ law: "zok", par: "40", odst: 1 }] },
-          { text: "Ano, když to jednatel podepíše.", outcome: "wrong", verdict: "Podpis jednatele zákonné omezení nepřebije.", wallet: -425000, cites: [{ law: "zok", par: "40", odst: 1 }] },
+          { text: "Ano, zisk je zisk.", outcome: "wrong", verdict: "Taková výplata je v rozporu se zákonem a jednatel za ni může odpovídat.", wallet: -40000, cites: [{ law: "zok", par: "40", odst: 1 }] },
+          { text: "Ano, když to jednatel podepíše.", outcome: "wrong", verdict: "Podpis jednatele zákonné omezení nepřebije.", wallet: -40000, cites: [{ law: "zok", par: "40", odst: 1 }] },
         ],
       },
     ],
@@ -312,8 +312,8 @@ export const ISLAND_CASES: GameCase[] = [
         card: "zdp-2-2",
         options: [
           { text: "Ne – daňový rezident ČR daní příjmy z Česka i ze zahraničí.", outcome: "correct", verdict: "Rezident ČR má daňovou povinnost ze všech příjmů. Fiktivní faktury za „poradenství“ by úřad neuznal jako výdaj.", wallet: 0, cites: [{ law: "zdp", par: "2", odst: 2 }] },
-          { text: "Ano, ostrov má nulovou daň.", outcome: "wrong", verdict: "Na rezidentství rozhoduje bydliště a pobyt, ne adresa firmy. A uměle přesunutý zisk je daňový únik.", wallet: -250000, cites: [{ law: "zdp", par: "2", odst: 2 }] },
-          { text: "Ano, pokud firma vede účty v eurech.", outcome: "wrong", verdict: "Měna na daňovém rezidentství nic nemění.", wallet: -250000, cites: [{ law: "zdp", par: "2", odst: 2 }] },
+          { text: "Ano, ostrov má nulovou daň.", outcome: "wrong", verdict: "Na rezidentství rozhoduje bydliště a pobyt, ne adresa firmy. A uměle přesunutý zisk je daňový únik.", wallet: -60000, cites: [{ law: "zdp", par: "2", odst: 2 }] },
+          { text: "Ano, pokud firma vede účty v eurech.", outcome: "wrong", verdict: "Měna na daňovém rezidentství nic nemění.", wallet: -60000, cites: [{ law: "zdp", par: "2", odst: 2 }] },
         ],
       },
       {
