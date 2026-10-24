@@ -1,7 +1,7 @@
 import type { Citation } from "@/lib/types";
 
 /**
- * Vysoká škola finanční: krátké přednášky o tématech ze světa financí.
+ * Školy ve všech světech (Střední škola finanční, Vysoká škola daní, Univerzita investic): krátké přednášky.
  * Každá vyřešená nástraha otevře další přednášku. Částky v příkladech jsou ilustrativní.
  * Paragrafy a čísla ze zákonů jsou ověřené proti znění na zakonyprolidi.cz.
  */

@@ -45,7 +45,7 @@ export type GameState = {
   consultMonth: number;
   /** Výsledky závodů s lhůtou, klíč `${postava}:${případ}`. */
   races: Record<string, "won" | "lost">;
-  /** Absolvované přednášky ve Vysoké škole finanční (počet správných odpovědí), klíč `${postava}:${přednáška}`. */
+  /** Absolvované přednášky ve školách (počet správných odpovědí), klíč `${postava}:${přednáška}`. */
   lectures: Record<string, number>;
   /** Rady lidem na ulici, klíč `${postava}:${člověk}:${otázka}` = poradil(a) správně. */
   advice: Record<string, boolean>;

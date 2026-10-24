@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { LECTURES, TEACHERS, type Lecture } from "@/content/game/lectures";
+import { SCHOOL_IDS, worldBuildings } from "@/content/game/city";
 import { fill } from "@/content/game/characters";
 import { lectureAccess, nextLecture, casesSolved } from "@/lib/game/city-logic";
 import { characterOf, recordLecture, useGame, useHydrated } from "@/lib/game/store";
@@ -11,12 +12,13 @@ import { NeedCharacter } from "./NeedCharacter";
 import { GameLink } from "./GameNav";
 import { shuffled } from "./RoundPlayer";
 
-/** Rozvrh Vysoké školy finanční: každá vyřešená nástraha otevře další přednášku. */
+/** Rozvrh školy (ve městě, na ostrově i na planetě): každá vyřešená nástraha otevře další přednášku. */
 export function SchoolScreen() {
   const g = useGame();
   const ch = characterOf(g);
   if (!ch) return <NeedCharacter />;
   const solved = casesSolved(g);
+  const school = worldBuildings(g.world).find((b) => SCHOOL_IDS.has(b.id))?.name ?? "škola";
   const next = nextLecture(g);
   return (
     <>
@@ -24,9 +26,9 @@ export function SchoolScreen() {
         <PixelSprite id="gros" variant="bust" scale={4} />
         <div className="dl-bubble">
           {next
-            ? `Vítejte na Vysoké škole finanční. Dnes máte na rozvrhu: ${next.title}.`
+            ? `${school} vás vítá. Dnes máte na rozvrhu: ${next.title}.`
             : solved === 0
-              ? "Vítejte na Vysoké škole finanční. První přednáška se otevře, až ve městě vyřešíte první nástrahu."
+              ? `${school} vás vítá. První přednáška se otevře, až vyřešíte první nástrahu.`
               : "Na všech otevřených přednáškách jste byl" + (ch.feminine ? "a" : "") + ". Další se otevře po další vyřešené nástraze."}
         </div>
       </div>

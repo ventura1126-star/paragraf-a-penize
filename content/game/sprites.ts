@@ -126,7 +126,7 @@ export const SPRITES: Record<string, Sprite> = {
     }),
     palette: { k: OUTLINE, h: "#5a3418", s: "#f1c7a1", e: EYE, m: MOUTH, w: "#f4f4f4", t: "#2bb3c0", T: "#1f8a94", a: "#f2c94c", p: "#e8dcc0", b: "#2a2a2a" },
   },
-  // učitelé Vysoké školy finanční
+  // učitelé škol (Střední škola finanční a další)
   gros: {
     rows: build({
       1: "....kkkkkkkk....",

@@ -91,7 +91,7 @@ export const BUILDINGS: Building[] = [
   { id: "byt", name: "Byt s hypotékou", district: "bydleni", kind: "normal", ...slot("X4A", "Y3"), cases: ["hypoteka-po-rozvodu"], prep: "rozvod", greeting: "Společný byt. Po rozvodu se bude prodávat." },
   { id: "dilna", name: "Dílna živnostníka", district: "bydleni", kind: "normal", ...slot("X4B", "Y3"), cases: ["neplatici-odberatel", "oddluzeni-zivnostnika"], prep: "dane", greeting: "Dílna, faktury a telefon, který zvoní jen kvůli upomínkám." },
   // Náměstí
-  { id: "skola", name: "Vysoká škola finanční", district: "namesti", kind: "normal", x: 45, y: 17, w: 9, h: 5, door: { x: 49, y: 16 }, cases: [], greeting: "Posluchárna. Na tabuli ještě visí vzorec z minulé přednášky." },
+  { id: "skola", name: "Střední škola finanční", district: "namesti", kind: "normal", x: 45, y: 17, w: 9, h: 5, door: { x: 49, y: 16 }, cases: [], greeting: "Posluchárna. Na tabuli ještě visí vzorec z minulé přednášky." },
   { id: "poradna", name: "Dluhová poradna", district: "namesti", kind: "safe", x: 19, y: 17, w: 9, h: 5, door: { x: 23, y: 16 }, cases: ["oddluzeni", "dedictvi-v-oddluzeni"], greeting: "„Posaďte se. Projdeme spolu, co dlužíte, a najdeme cestu ven. Zdarma.“" },
 ];
 
@@ -114,7 +114,7 @@ const ISLAND_DEF: Record<string, Omit<Building, "x" | "y" | "w" | "h" | "door">>
   byt: { id: "o-kancelar", name: "Kancelář Paddle Paradise s.r.o.", district: "vily", kind: "normal", cases: ["zisk-firmy"], prep: "firma", greeting: "Vaše firma. Účetní závěrka leží na stole." },
   dilna: { id: "o-dilna", name: "Dílna na prkna", district: "vily", kind: "normal", cases: [], greeting: "Tady se lepí prasklá prkna. Řemeslná živnost – paušál 80 %." },
   poradna: { id: "o-poradna", name: "Daňová poradna u laguny", district: "laguna", kind: "safe", cases: [], greeting: "„Bojíte se kontroly? Projdeme spolu vaše přiznání. Zdarma.“" },
-  skola: { id: "o-skola", name: "Daňová akademie", district: "laguna", kind: "normal", cases: [], greeting: "Akademie pod palmou. Přednášky jsou stejné jako ve městě – peníze fungují všude stejně." },
+  skola: { id: "o-skola", name: "Vysoká škola daní", district: "laguna", kind: "normal", cases: [], greeting: "Posluchárna pod palmou. Peníze fungují všude stejně – i v ráji." },
 };
 export const ISLAND_BUILDINGS: Building[] = BUILDINGS.map((b) => ({ ...ISLAND_DEF[b.id], x: b.x, y: b.y, w: b.w, h: b.h, door: b.door }));
 
@@ -137,7 +137,7 @@ const PLANET_DEF: Record<string, Omit<Building, "x" | "y" | "w" | "h" | "door">>
   byt: { id: "p-coworking", name: "Coworking Orbit", district: "orbit", kind: "normal", cases: [], greeting: "Lidé s notebooky a cold brew. Polovina z nich hledá investora." },
   dilna: { id: "p-dron", name: "Dronoport", district: "orbit", kind: "normal", cases: [], greeting: "Odtud létají drony s nákupy. Zásilky, ne zázraky." },
   poradna: { id: "p-poradna", name: "Nezávislá investiční poradna", district: "atrium", kind: "safe", cases: [], greeting: "„Nic vám neprodám. Jen pomůžu se zorientovat.“" },
-  skola: { id: "p-skola", name: "Akademie investic", district: "atrium", kind: "normal", cases: [], greeting: "Přednáškový sál s výhledem na hvězdy." },
+  skola: { id: "p-skola", name: "Univerzita investic", district: "atrium", kind: "normal", cases: [], greeting: "Přednáškový sál s výhledem na hvězdy." },
 };
 export const PLANET_BUILDINGS: Building[] = BUILDINGS.map((b) => ({ ...PLANET_DEF[b.id], x: b.x, y: b.y, w: b.w, h: b.h, door: b.door }));
 

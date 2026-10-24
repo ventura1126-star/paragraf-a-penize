@@ -244,7 +244,7 @@ export function drawBuilding(ctx: CanvasRenderingContext2D, b: Building, ox = 0,
     ctx.font = "bold 10px ui-monospace, Menlo, monospace";
     ctx.textBaseline = "middle";
     ctx.textAlign = "center";
-    ctx.fillText(b.id === "o-skola" ? "DAŇOVÁ AKADEMIE" : b.id === "p-skola" ? "AKADEMIE INVESTIC" : "VYSOKÁ ŠKOLA FINANČNÍ", x + w / 2 - 2, y + 23, w - 34);
+    ctx.fillText(b.id === "o-skola" ? "VYSOKÁ ŠKOLA DANÍ" : b.id === "p-skola" ? "UNIVERZITA INVESTIC" : "STŘEDNÍ ŠKOLA FINANČNÍ", x + w / 2 - 2, y + 23, w - 34);
     ctx.textAlign = "start";
     for (let i = 0; i < 6; i++) {
       ctx.fillStyle = "#efe6cf";

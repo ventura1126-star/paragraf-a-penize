@@ -98,7 +98,7 @@ export function panelView(href: string): View | null {
     }
     case "prednaska": {
       const l = LECTURE_BY_ID.get(id);
-      return l ? { eyebrow: "Vysoká škola finanční · přednáška", title: l.title, body: <LectureScreen lecture={l} /> } : null;
+      return l ? { eyebrow: "Přednáška", title: l.title, body: <LectureScreen lecture={l} /> } : null;
     }
     case "priprava": {
       const p = PREP_BY_ID.get(id);
