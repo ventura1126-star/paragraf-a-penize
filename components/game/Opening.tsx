@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { PixelSprite } from "./PixelSprite";
 
 const LOGO_MS = 3800;
-const CRAWL_MS = 42000;
+const CRAWL_MS = 44000;
 
 /**
  * Úvod hry: logo studia Ventura Games a titulky ve stylu vesmírné ságy.

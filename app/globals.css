@@ -770,13 +770,13 @@ a.trail-card:hover { border-color: var(--accent); }
 @keyframes op-bounce { from { transform: translateY(0); } to { transform: translateY(-10px); } }
 
 .op-crawl-wrap { position: absolute; inset: 0; cursor: pointer; }
-.op-before { position: absolute; top: 40%; left: 50%; transform: translateX(-50%); width: min(560px, 90%); margin: 0; text-align: center; color: #4bd5ee; font-size: clamp(1rem, 2.6vw, 1.4rem); opacity: 0; animation: op-before 5s ease forwards; }
+.op-before { position: absolute; top: 40%; left: 50%; transform: translateX(-50%); width: min(560px, 90%); margin: 0; text-align: center; color: #4bd5ee; font-size: clamp(1rem, 2.6vw, 1.4rem); opacity: 0; animation: op-before 4.5s ease forwards; }
 @keyframes op-before { 0% { opacity: 0; } 15% { opacity: 1; } 75% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
-.op-title { position: absolute; top: 50%; left: 50%; display: grid; justify-items: center; line-height: 0.95; font-family: ui-monospace, Menlo, monospace; font-weight: 900; font-size: clamp(3rem, 13vw, 8rem); letter-spacing: 0.05em; color: #000; -webkit-text-stroke: 3px #ffd447; opacity: 0; transform: translate(-50%, -50%) scale(2.6); animation: op-title 9s ease-in 5s forwards; }
+.op-title { position: absolute; top: 50%; left: 50%; display: grid; justify-items: center; line-height: 1.15; font-family: ui-monospace, Menlo, monospace; font-weight: 900; font-size: clamp(2.2rem, 9vw, 5.5rem); letter-spacing: 0.05em; color: #000; -webkit-text-stroke: 2px #ffd447; white-space: nowrap; opacity: 0; transform: translate(-50%, -50%) scale(1.25); animation: op-title 7s ease-in 4.5s forwards; }
 .op-title small { font-size: 0.4em; -webkit-text-stroke: 2px #ffd447; }
-@keyframes op-title { 0% { opacity: 1; transform: translate(-50%, -50%) scale(2.6); } 85% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.05); } }
+@keyframes op-title { 0% { opacity: 1; transform: translate(-50%, -50%) scale(1.25); } 80% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.05); } }
 .op-perspective { position: absolute; inset: 0; perspective: 360px; perspective-origin: 50% 0%; display: flex; justify-content: center; overflow: hidden; }
-.op-crawl { position: absolute; top: 100%; width: min(640px, 88vw); transform-origin: 50% 100%; transform: rotateX(24deg); text-align: justify; font-family: ui-sans-serif, system-ui, sans-serif; font-weight: 700; font-size: clamp(1.15rem, 3.4vw, 2rem); line-height: 1.35; color: #ffd447; animation: op-crawl 34s linear 8s forwards; }
+.op-crawl { position: absolute; top: 100%; width: min(640px, 88vw); transform-origin: 50% 100%; transform: rotateX(24deg); text-align: justify; font-family: ui-sans-serif, system-ui, sans-serif; font-weight: 700; font-size: clamp(1.15rem, 3.4vw, 2rem); line-height: 1.35; color: #ffd447; animation: op-crawl 34s linear 10.5s forwards; }
 .op-crawl p { margin: 0 0 1.4em; }
 .op-episode, .op-episode-name { text-align: center; margin: 0 !important; }
 .op-episode-name { font-size: 1.5em; margin-bottom: 1.2em !important; letter-spacing: 0.03em; }
