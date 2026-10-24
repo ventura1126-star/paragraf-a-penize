@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { BUILDING_BY_ID, DISTRICT_NAMES } from "@/content/game/city";
 import { CASE_BY_ID } from "@/content/game/cases";
 import { PREP_BY_ID } from "@/content/game/preps";
@@ -63,7 +64,7 @@ function PauseMenu() {
             {note && <span className="pm-note">{note}</span>}
           </GameLink>
         ))}
-        <a href="/" className="pm-item pm-exit">Opustit hru</a>
+        <Link href="/" className="pm-item pm-exit">Opustit hru</Link>
       </nav>
       <p className="muted small">Hra se ukládá průběžně, jen v tomto prohlížeči.</p>
     </>

@@ -14,6 +14,15 @@ npm run dev
 
 Aplikace poběží na http://localhost:3000. Produkční build: `npm run build && npm start`.
 
+## Nasazení (GitHub Pages)
+
+Celý web je statický – hra běží v prohlížeči a ukládá postup do `localStorage`, server není potřeba.
+Workflow `.github/workflows/pages.yml` při každém pushi do `main` postaví statický export
+(`STATIC_EXPORT=1`, `BASE_PATH=/<název-repozitáře>`) a zveřejní ho na `https://<uživatel>.github.io/<repozitář>/`.
+V nastavení repozitáře je potřeba jednou zapnout **Settings → Pages → Source: GitHub Actions**.
+
+Statický export lokálně: `STATIC_EXPORT=1 npm run build` (výstup ve složce `out/`).
+
 ## Struktura
 
 - `content/laws.ts` – registr předpisů (zkratka, číslo, odkazy na zakonyprolidi.cz a e-Sbírku)
