@@ -15,6 +15,20 @@ export function BoatScreen() {
   const nav = useGameNav();
   const ch = characterOf(g);
   if (!ch) return <NeedCharacter />;
+  if (g.world === "planeta") {
+    return (
+      <div className="dialogue card">
+        <div className="dialogue-log">
+          <div className="dl-line dl-npc">
+            <div className="dl-bubble">Vesmírná vyhlídka. Lodě tady neplují – z planety se létá raketou z rampy na jihozápadě.</div>
+          </div>
+        </div>
+        <div className="dialogue-choices">
+          <button type="button" className="btn-primary" onClick={() => nav?.go("/hra")}>Zpět</button>
+        </div>
+      </div>
+    );
+  }
   const onIsland = g.world === "ostrov";
   const camp = CAMPAIGN_BY_CHARACTER.get(ch.id);
   const ids = camp ? campaignCaseIds(camp) : [];

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { CHARACTERS, type Character } from "@/content/game/characters";
-import { CAMPAIGN_BY_CHARACTER, ISLAND_CAMPAIGN, campaignCaseIds } from "@/content/game/campaigns";
+import { CAMPAIGN_BY_CHARACTER, ISLAND_CAMPAIGN, PLANET_CAMPAIGN, campaignCaseIds } from "@/content/game/campaigns";
 import { continueGame, levelOf, newGame, savedGames, type GameState } from "@/lib/game/store";
 import { formatCzk } from "@/lib/format";
 import { PixelSprite } from "./PixelSprite";
@@ -15,7 +15,12 @@ function progress(ch: Character, s: GameState) {
   const camp = CAMPAIGN_BY_CHARACTER.get(ch.id);
   const city = camp ? campaignCaseIds(camp) : [];
   const island = campaignCaseIds(ISLAND_CAMPAIGN);
-  return { city: `${done(city)}/${city.length}`, island: done(island) ? `${done(island)}/${island.length}` : null };
+  const planet = campaignCaseIds(PLANET_CAMPAIGN);
+  return {
+    city: `${done(city)}/${city.length}`,
+    island: done(island) ? `${done(island)}/${island.length}` : null,
+    planet: done(planet) ? `${done(planet)}/${planet.length}` : null,
+  };
 }
 
 /** Hlavní menu: nová hra (přepíše uložený postup postavy), nebo pokračování v uložené hře. */
@@ -37,7 +42,7 @@ export function TitleScreen({ onStart, onIntro }: { onStart: () => void; onIntro
           <span>MĚSTO</span>
           <span>DLUHŮ</span>
         </div>
-        <div className="title-sub">Paragrafy, peníze a Daňový ráj</div>
+        <div className="title-sub">Daňový ráj · Planeta investic</div>
 
         {step === "menu" && (
           <div className="title-menu">
@@ -94,7 +99,8 @@ export function TitleScreen({ onStart, onIntro }: { onStart: () => void; onIntro
                             <br />
                             Město {pr.city}
                             {pr.island ? ` · Daňový ráj ${pr.island}` : ""}
-                            {s.world === "ostrov" ? " · teď na ostrově" : ""}
+                            {pr.planet ? ` · Planeta ${pr.planet}` : ""}
+                            {s.world === "ostrov" ? " · teď na ostrově" : s.world === "planeta" ? " · teď na planetě" : ""}
                           </span>
                         )
                       )}

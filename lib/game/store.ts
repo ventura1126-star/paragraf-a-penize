@@ -3,7 +3,7 @@
 import { useSyncExternalStore } from "react";
 import type { Outcome } from "@/content/game/types";
 import { CHARACTER_BY_ID, type Character } from "@/content/game/characters";
-import { LETTER_RULES, PIER_END, SPAWN, START_LOAD, type World } from "@/content/game/city";
+import { LETTER_RULES, PAD_END, PIER_END, SPAWN, START_LOAD, type World } from "@/content/game/city";
 import { EVENTS, EVENT_BY_ID } from "@/content/game/events";
 import { addDays, todayIso } from "./dates";
 
@@ -423,10 +423,10 @@ export function recordAdvice(npcId: string, index: number, ok: boolean): number 
   return 25;
 }
 
-/** Plavba lodí mezi městem a ostrovem: postava vystoupí na konci mola. */
-export function travel(world: World) {
+/** Cesta do jiného světa: lodí (vystoupí se na konci mola), nebo raketou (u rampy). */
+export function travel(world: World, via: "lod" | "raketa" = "lod") {
   load();
-  set({ ...state, world, pos: PIER_END });
+  set({ ...state, world, pos: via === "raketa" ? PAD_END : PIER_END });
 }
 
 export function openAll() {

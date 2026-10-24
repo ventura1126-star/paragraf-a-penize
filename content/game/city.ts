@@ -16,9 +16,9 @@ const ROAD_SPAN = { x0: 3, x1: 56, y0: 3, y1: 37 };
 export const ROW_PAIRS: [number, number][] = [[3, 4], [14, 15], [25, 26], [36, 37]];
 export const COL_PAIRS: [number, number][] = [[3, 4], [16, 17], [29, 30], [42, 43], [55, 56]];
 
-export type District = "obchod" | "finance" | "urady" | "bydleni" | "namesti" | "promenada" | "zatoka" | "radnice" | "vily" | "laguna";
-/** Město dluhů, nebo ostrov Daňový ráj (stejné rozložení ulic, jiné budovy a karibský vzhled). */
-export type World = "mesto" | "ostrov";
+export type District = "obchod" | "finance" | "urady" | "bydleni" | "namesti" | "promenada" | "zatoka" | "radnice" | "vily" | "laguna" | "tech" | "burza" | "kampus" | "orbit" | "atrium";
+/** Město dluhů, ostrov Daňový ráj, nebo Planeta investic (stejné rozložení ulic, jiné budovy a vzhled). */
+export type World = "mesto" | "ostrov" | "planeta";
 export type BuildingKind = "risk" | "normal" | "office" | "safe";
 
 export type Building = {
@@ -52,6 +52,11 @@ export const DISTRICT_NAMES: Record<District, string> = {
   radnice: "Úřady pod palmami",
   vily: "Vilová čtvrť",
   laguna: "Náměstí u laguny",
+  tech: "Tech Boulevard",
+  burza: "Finanční čtvrť Nova",
+  kampus: "Kampus",
+  orbit: "Orbitální čtvrť",
+  atrium: "Atrium",
 };
 
 const COL: Record<string, number> = { X1A: 6, X1B: 11, X2A: 19, X2B: 24, X3A: 32, X3B: 37, X4A: 45, X4B: 50 };
@@ -113,18 +118,42 @@ const ISLAND_DEF: Record<string, Omit<Building, "x" | "y" | "w" | "h" | "door">>
 };
 export const ISLAND_BUILDINGS: Building[] = BUILDINGS.map((b) => ({ ...ISLAND_DEF[b.id], x: b.x, y: b.y, w: b.w, h: b.h, door: b.door }));
 
-export function worldBuildings(w: World): Building[] {
-  return w === "ostrov" ? ISLAND_BUILDINGS : BUILDINGS;
-}
-/** Domov se schránkou, poradna a škola mají v obou světech stejnou roli. */
-export const HOME_IDS = new Set(["domov", "o-domov"]);
-export const PORADNA_IDS = new Set(["poradna", "o-poradna"]);
-export const SCHOOL_IDS = new Set(["skola", "o-skola"]);
+/** Planeta investic: moderní technologické město ve stylu Silicon Valley. */
+const PLANET_DEF: Record<string, Omit<Building, "x" | "y" | "w" | "h" | "door">> = {
+  elektro: { id: "p-burza", name: "Burza Nova", district: "tech", kind: "normal", cases: ["prodej-akcii"], prep: "dane-z-investic", greeting: "Obří obrazovky s kurzy. Zelená, červená, zelená…" },
+  operator: { id: "p-kavarna", name: "Kavárna Byte", district: "tech", kind: "normal", cases: [], greeting: "„Flat white a tip na akcii? Káva je dobrá, tipy od baristy neberte.“" },
+  eshop: { id: "p-broker", name: "Orbit Trade", district: "tech", kind: "normal", cases: ["investicni-dotaznik"], prep: "ochrana-investora", greeting: "„Licencovaný obchodník s cennými papíry. Začneme dotazníkem.“" },
+  spotrebice: { id: "p-gadget", name: "Gadget Store", district: "tech", kind: "normal", cases: [], greeting: "Nejnovější telefon za 40 000 Kč. Nebo 40 000 Kč v ETF?" },
+  banka: { id: "p-banka", name: "Banka Nova", district: "burza", kind: "normal", cases: ["nejdriv-rezerva"], prep: "investovani", greeting: "„Rezerva, spořicí účet, investice. V tomhle pořadí.“" },
+  nebankovka: { id: "p-guru", name: "Crypto Guru Academy", district: "burza", kind: "risk", cases: ["garance-vynosu"], prep: "ochrana-investora", greeting: "„Lambo za rok! Stačí kurz za 49 990 Kč.“" },
+  investice: { id: "p-fond", name: "Fond Galaxy", district: "burza", kind: "normal", cases: ["dip-na-stari"], prep: "dip", greeting: "„Pravidelně, dlouhodobě, s nízkými poplatky. A s DIPem i s daňovou úlevou.“" },
+  arbitr: { id: "p-cnb", name: "Dohled ČNB", district: "burza", kind: "safe", cases: [], greeting: "„Kdo nabízí investice, musí mít naše povolení.“" },
+  soud: { id: "p-hub", name: "Startup Hub", district: "kampus", kind: "normal", cases: ["startup"], prep: "dane-z-investic", greeting: "Beanbagy, whiteboardy a pitch decky. Každý tu staví příští velkou věc." },
+  exekutor: { id: "p-krypto", name: "Krypto směnárna", district: "kampus", kind: "normal", cases: ["krypto"], prep: "dane-z-investic", greeting: "Svítící automat na bitcoiny a graf, který skáče jako na trampolíně." },
+  fu: { id: "p-fu", name: "Finanční úřad", district: "kampus", kind: "office", cases: [], greeting: "„I zisky z investic se daní. Ale znáte osvobození?“" },
+  up: { id: "p-lab", name: "AI Lab", district: "kampus", kind: "normal", cases: [], greeting: "Robot vám předpoví kurz akcií. (Nepředpoví.)" },
+  domov: { id: "p-domov", name: "Smart byt a schránka", district: "orbit", kind: "normal", cases: [], greeting: "Chytrý byt: světla, rolety a schránka na dopisy z reálného světa." },
+  kulturak: { id: "p-tower", name: "Unicorn Tower", district: "orbit", kind: "risk", cases: ["bublina"], prep: "investovani", greeting: "Nejvyšší věž planety. Dnes tu startuje IPO, o kterém mluví všichni." },
+  byt: { id: "p-coworking", name: "Coworking Orbit", district: "orbit", kind: "normal", cases: [], greeting: "Lidé s notebooky a cold brew. Polovina z nich hledá investora." },
+  dilna: { id: "p-dron", name: "Dronoport", district: "orbit", kind: "normal", cases: [], greeting: "Odtud létají drony s nákupy. Zásilky, ne zázraky." },
+  poradna: { id: "p-poradna", name: "Nezávislá investiční poradna", district: "atrium", kind: "safe", cases: [], greeting: "„Nic vám neprodám. Jen pomůžu se zorientovat.“" },
+  skola: { id: "p-skola", name: "Akademie investic", district: "atrium", kind: "normal", cases: [], greeting: "Přednáškový sál s výhledem na hvězdy." },
+};
+export const PLANET_BUILDINGS: Building[] = BUILDINGS.map((b) => ({ ...PLANET_DEF[b.id], x: b.x, y: b.y, w: b.w, h: b.h, door: b.door }));
 
-export const BUILDING_BY_ID = new Map([...BUILDINGS, ...ISLAND_BUILDINGS].map((b) => [b.id, b]));
+export function worldBuildings(w: World): Building[] {
+  return w === "ostrov" ? ISLAND_BUILDINGS : w === "planeta" ? PLANET_BUILDINGS : BUILDINGS;
+}
+/** Domov se schránkou, poradna a škola mají ve všech světech stejnou roli. */
+export const HOME_IDS = new Set(["domov", "o-domov", "p-domov"]);
+export const PORADNA_IDS = new Set(["poradna", "o-poradna", "p-poradna"]);
+export const SCHOOL_IDS = new Set(["skola", "o-skola", "p-skola"]);
+
+const ALL_BUILDINGS = [...BUILDINGS, ...ISLAND_BUILDINGS, ...PLANET_BUILDINGS];
+export const BUILDING_BY_ID = new Map(ALL_BUILDINGS.map((b) => [b.id, b]));
 
 export function buildingForCase(caseId: string): Building | undefined {
-  return [...BUILDINGS, ...ISLAND_BUILDINGS].find((b) => b.cases.includes(caseId));
+  return ALL_BUILDINGS.find((b) => b.cases.includes(caseId));
 }
 
 /** Přístav: molo na východním břehu, na jeho konci kotví loď mezi městem a ostrovem. */
@@ -132,6 +161,13 @@ export const PIER = { x0: 58, x1: 60, y: 20 };
 export const PIER_END = { x: PIER.x1, y: PIER.y };
 export function isPier(x: number, y: number): boolean {
   return y === PIER.y && x >= PIER.x0 && x <= PIER.x1;
+}
+
+/** Raketová rampa na jihozápadním pobřeží (naproti přístavu): plošina, na jejímž konci stojí raketa. */
+export const PAD = { x0: 8, x1: 12, y0: 39, y1: 41 };
+export const PAD_END = { x: 10, y: 41 };
+export function isPad(x: number, y: number): boolean {
+  return y >= PAD.y0 && y <= PAD.y1 && (y === PAD.y0 ? x === PAD_END.x : x >= PAD.x0 && x <= PAD.x1);
 }
 
 /** Postava začíná před domovem (dlaždice). */
@@ -191,7 +227,7 @@ function inRect(x: number, y: number, r: { x: number; y: number; w: number; h: n
 
 /** Průchozí dlaždice: pevnina mimo budovy a kašnu. */
 export function isWalkable(x: number, y: number): boolean {
-  if (isPier(x, y)) return true;
+  if (isPier(x, y) || isPad(x, y)) return true;
   return isLand(x, y) && !buildingAt(x, y) && !inRect(x, y, FOUNTAIN);
 }
 

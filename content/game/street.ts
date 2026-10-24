@@ -409,8 +409,138 @@ export const ISLAND_STREET: StreetNpc[] = [
   },
 ];
 
-export function streetFor(w: "mesto" | "ostrov"): StreetNpc[] {
-  return w === "ostrov" ? ISLAND_STREET : STREET;
+/** Lidé na Planetě investic – ptají se, jak investovat a nenaletět. */
+export const PLANET_STREET: StreetNpc[] = [
+  {
+    id: "p-vyvojar",
+    npc: { name: "Kuba", role: "vývojář", shape: "ondrej", palette: { h: "#1f1d22", t: "#2d3440", T: "#1f252e", w: "#5fe3ff", p: "#22262d" } },
+    at: { x: 9, y: 13 },
+    questions: [
+      {
+        ask: "Mám na účtu 50 tisíc a žádnou rezervu. Kamarád říká, ať to celé hodím do akcií. Mám?",
+        options: ["Jo, akcie vždycky rostou.", "Nejdřív si udělej rezervu na nečekané výdaje, investuj až to, co nebudeš roky potřebovat.", "Dej to do krypta, roste rychleji."],
+        correct: 1,
+        why: "Rezerva chrání investice před prodejem v nejhorší chvíli. Vklady v bance jsou navíc pojištěné do částky odpovídající 100 000 EUR.",
+        cite: { law: "zob", par: "41e", odst: 2 },
+      },
+      {
+        ask: "Akcie mám 2 roky a letos jsem prodal za 70 tisíc. Musím to danit?",
+        options: ["Ano, všechno.", "Ne, prodeje do 100 000 Kč za rok jsou osvobozené.", "Jen polovinu."],
+        correct: 1,
+        why: "Úhrn příjmů z prodeje cenných papírů do 100 000 Kč za rok je od daně osvobozený.",
+        cite: { law: "zdp", par: "4", odst: 1, pism: "t" },
+      },
+    ],
+  },
+  {
+    id: "p-designerka",
+    npc: { name: "Nela", role: "UX designérka", shape: "jana", palette: { h: "#e84393", t: "#f4f4f4", T: "#d8d2c4", a: "#5fe3ff", p: "#2a2a35" } },
+    at: { x: 22, y: 13 },
+    questions: [
+      {
+        ask: "Na Instagramu mi píše „trader“, že mi zhodnotí peníze o 20 % měsíčně. Co s tím?",
+        options: ["Zkusím malou částku.", "Ověřím v seznamu ČNB, jestli má povolení – a nejspíš ho zablokuju.", "Pošlu mu kopii občanky, ať vidí, že to myslím vážně."],
+        correct: 1,
+        why: "Investiční služby smí poskytovat jen obchodník s povolením ČNB. Garantované vysoké výnosy jsou typický podvod.",
+        cite: { law: "zpkt", par: "5", odst: 1 },
+      },
+      {
+        ask: "Banka po mně chce investiční dotazník. Proč se vyptávají?",
+        options: ["Chtějí moje data prodat.", "Musí zjistit moje znalosti, finance a toleranci k riziku, aby mi nenabídli nevhodný produkt.", "Je to jen formalita."],
+        correct: 1,
+        why: "Obchodník je povinen získat informace o znalostech, zkušenostech, finančním zázemí a investičních cílech zákazníka.",
+        cite: { law: "zpkt", par: "15h", odst: 1 },
+      },
+    ],
+  },
+  {
+    id: "p-zakladatel",
+    npc: { name: "Viktor", role: "zakladatel startupu", shape: "radek", palette: { c: "#1f1d22", h: "#5a3418", s: "#f1c7a1", S: "#c9a48a", t: "#1f1d22", T: "#111111", p: "#3b4a6b" } },
+    at: { x: 35, y: 16 },
+    questions: [
+      {
+        ask: "Investor chce koupit můj podíl v s.r.o., mám ho 6 let. Platím daň ze zisku?",
+        options: ["Ano, 15 %.", "Ne, podíl držený déle než 5 let se prodává bez daně.", "Ano, 21 %."],
+        correct: 1,
+        why: "Příjem z prodeje podílu v obchodní korporaci je osvobozený, když držba přesáhne 5 let.",
+        cite: { law: "zdp", par: "4", odst: 1, pism: "q" },
+      },
+      {
+        ask: "Kdyby se firma nepovedla, ručím za její dluhy celým majetkem?",
+        options: ["Ano.", "Ne, společník ručí jen do výše nesplaceného vkladu.", "Jen do 100 000 Kč."],
+        correct: 1,
+        why: "Společníci s.r.o. ručí jen do výše, v jaké nesplnili vkladovou povinnost.",
+        cite: { law: "zok", par: "132", odst: 1 },
+      },
+    ],
+  },
+  {
+    id: "p-babicka",
+    npc: { name: "paní Zdeňka", role: "důchodkyně na výletě", shape: "marie", palette: { h: "#e2e2e2", t: "#5fe3ff", T: "#3bb7cf", w: "#f4f4f4", p: "#4a4a52", a: "#4a4a52" } },
+    at: { x: 40, y: 27 },
+    questions: [
+      {
+        ask: "Vnučka mi založila DIP. Kolik si můžu odečíst od daní?",
+        options: ["Nic.", "Všechny produkty na stáří dohromady nejvýš 48 000 Kč ročně.", "Neomezeně."],
+        correct: 1,
+        why: "Příspěvky na daňově podporované produkty spoření na stáří lze odečíst úhrnem nejvýše 48 000 Kč za rok.",
+        cite: { law: "zdp", par: "15", odst: 6 },
+      },
+      {
+        ask: "A kdybych peníze z DIP vybrala už za pár let?",
+        options: ["Nic se nestane.", "Vrací se daňová podpora, kterou jsem si odečetla.", "Propadnou."],
+        correct: 1,
+        why: "Při předčasném výběru dochází k navrácení daňové podpory produktu spoření na stáří.",
+        cite: { law: "zdp", par: "15b", odst: 4 },
+      },
+    ],
+  },
+  {
+    id: "p-gamer",
+    npc: { name: "Tadeáš", role: "streamer", shape: "ondrej", palette: { h: "#5fe3ff", t: "#8a63d2", T: "#5c3f99", w: "#1f1d22", p: "#22262d" } },
+    at: { x: 27, y: 27 },
+    questions: [
+      {
+        ask: "Bitcoin držím 4 roky a chci prodat za 300 tisíc. Daň?",
+        options: ["15 % z celé částky.", "Bez daně, držba přesáhla 3 roky.", "Jen když to převedu na účet."],
+        correct: 1,
+        why: "Příjem z prodeje kryptoaktiva drženého déle než 3 roky je osvobozený.",
+        cite: { law: "zdp", par: "4", odst: 1, pism: "zk" },
+      },
+      {
+        ask: "Dividenda z české akcie přišla menší, než jsem čekal. Proč?",
+        options: ["Banka si vzala poplatek.", "Sráží se z ní 15 % daň.", "Chyba firmy."],
+        correct: 1,
+        why: "Z dividend z akcií se sráží zvláštní daň 15 %.",
+        cite: { law: "zdp", par: "36", odst: 2, pism: "a" },
+      },
+    ],
+  },
+  {
+    id: "p-investorka",
+    npc: { name: "Ivana", role: "portfolio manažerka", shape: "jana", palette: { h: "#1f1d22", t: "#3a7bd5", T: "#24508f", a: "#f4f4f4", p: "#22262d" } },
+    at: { x: 18, y: 20 },
+    questions: [
+      {
+        ask: "Klient se bojí, že jeho obchodník zkrachuje. Co mu řeknu?",
+        options: ["Stát vrátí všechno.", "U licencovaného obchodníka Garanční fond nahradí 90 %, nejvýš 20 000 EUR.", "Nic se nedá dělat."],
+        correct: 1,
+        why: "Náhrada z Garančního fondu je 90 % majetku, nejvýše částka odpovídající 20 000 EUR na zákazníka u jednoho obchodníka.",
+        cite: { law: "zpkt", par: "130", odst: 9 },
+      },
+      {
+        ask: "Další klient má ETF 2,5 roku a trh spadl. Má prodat?",
+        options: ["Ano, hned.", "Spíš vydržet – za půl roku splní 3letý test a prodej bude bez daně.", "Koupit krypto."],
+        correct: 1,
+        why: "Panický prodej uzamkne ztrátu; po 3 letech držby je příjem z prodeje osvobozený.",
+        cite: { law: "zdp", par: "4", odst: 1, pism: "u" },
+      },
+    ],
+  },
+];
+
+export function streetFor(w: "mesto" | "ostrov" | "planeta"): StreetNpc[] {
+  return w === "ostrov" ? ISLAND_STREET : w === "planeta" ? PLANET_STREET : STREET;
 }
 
-export const STREET_BY_ID = new Map([...STREET, ...ISLAND_STREET].map((s) => [s.id, s]));
+export const STREET_BY_ID = new Map([...STREET, ...ISLAND_STREET, ...PLANET_STREET].map((s) => [s.id, s]));

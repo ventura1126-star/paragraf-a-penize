@@ -1,5 +1,6 @@
 import type { Card } from "./types";
 import { ISLAND_CARDS } from "./island-cards";
+import { PLANET_CARDS } from "./planet-cards";
 
 const BASE_CARDS: Card[] = [
   {
@@ -437,5 +438,5 @@ const BASE_CARDS: Card[] = [
   },
 ];
 
-export const CARDS: Card[] = [...BASE_CARDS, ...ISLAND_CARDS];
+export const CARDS: Card[] = [...BASE_CARDS, ...ISLAND_CARDS, ...PLANET_CARDS];
 export const CARD_BY_ID = new Map(CARDS.map((c) => [c.id, c]));

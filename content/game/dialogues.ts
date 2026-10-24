@@ -282,4 +282,94 @@ export const DIALOGUES: Record<string, Dialogue> = {
       { q: "Jak dlouho mám schovávat papíry?", a: "Daň lze stanovit zpravidla do 3 let, s prodloužením až 10 let. Archivujte raději déle.", cite: { law: "dr", par: "148", odst: 1 } },
     ],
   },
+
+  // --- Planeta investic
+  "p-banka": {
+    npc: { name: "Ing. Novotná", role: "bankéřka, Banka Nova", shape: "jana", palette: { h: "#5a3418", t: "#3a7bd5", T: "#24508f", a: "#f4f4f4", p: "#22262d" } },
+    hello: "Vítejte na Planetě investic. Než začnete investovat, máte rezervu?",
+    hook: "Pojďme rozdělit vaše úspory.",
+    ask: [
+      { q: "Jsou peníze v bance v bezpečí?", a: "Vklady jsou pojištěné do částky odpovídající 100 000 EUR na osobu u jedné banky.", cite: { law: "zob", par: "41e", odst: 2 } },
+      { q: "A investice u vás?", a: "Investice nesou riziko poklesu. Při krachu obchodníka pomůže Garanční fond, ale ne při poklesu cen.", cite: { law: "zpkt", par: "130", odst: 9 } },
+    ],
+  },
+  "p-broker": {
+    npc: { name: "Max", role: "makléř, Orbit Trade", shape: "ondrej", palette: { h: "#1f1d22", t: "#f4f4f4", T: "#d8d2c4", w: "#3a7bd5", p: "#22262d" } },
+    hello: "Orbit Trade, licencovaný obchodník. Nejdřív dotazník, pak investice.",
+    hook: "Dotazník čeká na vyplnění.",
+    ask: [
+      { q: "Máte licenci?", a: "Máme povolení ČNB – ověřit si to můžete ve veřejném seznamu.", cite: { law: "zpkt", par: "5", odst: 1 } },
+      { q: "Proč ten dotazník?", a: "Musím znát vaše znalosti, zkušenosti, finance a toleranci k riziku.", cite: { law: "zpkt", par: "15h", odst: 1 } },
+    ],
+  },
+  "p-burza": {
+    npc: { name: "Ruby", role: "analytička burzy", shape: "jana", palette: { h: "#b33939", t: "#1f1d22", T: "#111111", a: "#5fe3ff", p: "#22262d" } },
+    hello: "Burza Nova: kurzy nahoru, kurzy dolů. Kdo vydrží, většinou vyhraje.",
+    hook: "Chystáte se prodávat? Nejdřív daně.",
+    ask: [
+      { q: "Kdy prodám bez daně?", a: "Po více než 3 letech držby, nebo když za rok prodáte nejvýš za 100 000 Kč.", cite: { law: "zdp", par: "4", odst: 1, pism: "u" } },
+      { q: "Co dividendy?", a: "Z českých se sráží 15 %.", cite: { law: "zdp", par: "36", odst: 2, pism: "a" } },
+    ],
+  },
+  "p-fond": {
+    npc: { name: "Leo", role: "poradce, Fond Galaxy", shape: "radek", palette: { c: "#3a7bd5", h: "#5a3418", s: "#f1c7a1", S: "#c9a48a", t: "#2fb59d", T: "#1d7a69", p: "#22262d" } },
+    hello: "ETF, DIP, pravidelné investice. Nudné? Možná. Ale funguje to.",
+    hook: "DIP by se vám mohl hodit.",
+    ask: [
+      { q: "Kolik ušetřím na dani?", a: "Odečíst jde až 48 000 Kč ročně za všechny produkty na stáří.", cite: { law: "zdp", par: "15", odst: 6 } },
+      { q: "Kdy můžu vybrat?", a: "Po 10 letech a nejdřív v roce, kdy vám bude 60.", cite: { law: "zdp", par: "15b", odst: 1 } },
+    ],
+  },
+  "p-krypto": {
+    npc: { name: "Satoshi", role: "směnárník", shape: "petr", palette: { h: "#1f1d22", t: "#f2a900", T: "#c98a00", w: "#1f1d22", a: "#1f1d22", p: "#22262d" } },
+    hello: "Bitcoin, ether, tokeny. Volatilita je u nás v ceně.",
+    hook: "Prodáváte? Pojďme spočítat daně.",
+    ask: [
+      { q: "Kolik můžu prodat bez daně?", a: "Do 100 000 Kč za rok, nebo cokoli po 3 letech držby.", cite: { law: "zdp", par: "4", odst: 1, pism: "zj" } },
+      { q: "Je krypto bezpečné?", a: "Cena může spadnout o polovinu za týden. Investujte jen to, o co můžete přijít." },
+    ],
+  },
+  "p-hub": {
+    npc: { name: "Ola", role: "manažerka Startup Hubu", shape: "jana", palette: { h: "#f2c94c", t: "#2fb59d", T: "#1d7a69", a: "#f4f4f4", p: "#22262d" } },
+    hello: "Tady se rodí jednorožci. A ještě víc firem, které nepřežijí první rok.",
+    hook: "Kamarád z kurzu hledá investora.",
+    ask: [
+      { q: "Ručím za dluhy startupu?", a: "Jako společník s.r.o. jen do výše nesplaceného vkladu.", cite: { law: "zok", par: "132", odst: 1 } },
+      { q: "Kdy prodám podíl bez daně?", a: "Po více než 5 letech držby.", cite: { law: "zdp", par: "4", odst: 1, pism: "q" } },
+    ],
+  },
+  "p-guru": {
+    npc: { name: "Guru Ray", role: "Crypto Guru Academy", shape: "radek", palette: { c: "#e84393", h: "#f2c94c", s: "#f1c7a1", S: "#e0b48c", t: "#e84393", T: "#b8336f", p: "#22262d" } },
+    hello: "Bro, 30 % měsíčně. Garantovaně. Lambo za rok.",
+    hook: "Stačí vklad a přivést dva kamarády.",
+    ask: [
+      { q: "Máte licenci ČNB?", a: "Licence je pro ovce. (Bez povolení ČNB nesmí investiční služby nabízet nikdo.)", cite: { law: "zpkt", par: "5", odst: 1 } },
+      { q: "Co když to padne?", a: "Nepadne. (Padne. A Garanční fond kryje jen licencované obchodníky.)", cite: { law: "zpkt", par: "130", odst: 9 } },
+    ],
+  },
+  "p-tower": {
+    npc: { name: "Chad", role: "prodejce IPO", shape: "ondrej", palette: { h: "#f2c94c", t: "#1f1d22", T: "#111111", w: "#f4f4f4", p: "#1f1d22" } },
+    hello: "IPO dneška! Kdo nekoupí, bude litovat.",
+    hook: "Nemáme čas na dotazníky.",
+    ask: [
+      { q: "Proč ten spěch?", a: "FOMO, kámo! (Spěch a vynechaný dotazník jsou varovné signály.)", cite: { law: "zpkt", par: "15h", odst: 1 } },
+      { q: "Je to jistota?", a: "Sto procent! (Žádná investice jistá není.)" },
+    ],
+  },
+  "p-cnb": {
+    npc: { name: "Mgr. Dvořák", role: "dohled ČNB", shape: "petr", palette: { h: "#5a5650", t: "#2a4a7a", T: "#1d3559", w: "#f4f4f4", a: "#b33939", p: "#2a4a7a" } },
+    hello: "Dohlížíme, aby investice nabízel jen ten, kdo smí.",
+    ask: [
+      { q: "Jak ověřím firmu?", a: "V seznamu regulovaných subjektů. Obchodník s cennými papíry musí mít naše povolení.", cite: { law: "zpkt", par: "5", odst: 1 } },
+      { q: "Co když narazím na podvod?", a: "Nic neposílejte a ozvěte se nám nebo policii. Seznam varování najdete u nás na webu." },
+    ],
+  },
+  "p-poradna": {
+    npc: { name: "Hana", role: "nezávislá poradkyně", shape: "marie", palette: { h: "#6b4a2b", t: "#2fb59d", T: "#1d7a69", w: "#f4f4f4", p: "#2f3540", a: "#2f3540" } },
+    hello: "Neprodávám žádný produkt. Jen vám pomůžu se zorientovat.",
+    ask: [
+      { q: "Kde začít?", a: "Rezerva, pak pravidelně do rozložených fondů. Dlouhodobě a v klidu.", cite: { law: "zob", par: "41e", odst: 2 } },
+      { q: "Jak poznám podvod?", a: "Garantovaný vysoký výnos, nátlak a chybějící licence ČNB.", cite: { law: "zpkt", par: "5", odst: 1 } },
+    ],
+  },
 };

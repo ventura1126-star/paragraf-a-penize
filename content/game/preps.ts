@@ -1,5 +1,6 @@
 import type { Citation } from "@/lib/types";
 import { ISLAND_PREPS, ISLAND_PREP_FOR_CASE } from "./island-preps";
+import { PLANET_PREPS, PLANET_PREP_FOR_CASE } from "./planet-preps";
 
 /** Příprava před nástrahou: pojmy, proces, podobné situace, laické vysvětlení a čísla z Česka. */
 export type Stat = {
@@ -488,7 +489,7 @@ const BASE_PREPS: Prep[] = [
   },
 ];
 
-export const PREPS: Prep[] = [...BASE_PREPS, ...ISLAND_PREPS];
+export const PREPS: Prep[] = [...BASE_PREPS, ...ISLAND_PREPS, ...PLANET_PREPS];
 export const PREP_BY_ID = new Map(PREPS.map((p) => [p.id, p]));
 
 /** Které téma přípravy patří k jaké nástraze. */
@@ -523,4 +524,5 @@ export const PREP_FOR_CASE: Record<string, string> = {
   "zmena-vyzivneho": "vyzivne",
   "pozde-podane-priznani": "dane",
   ...ISLAND_PREP_FOR_CASE,
+  ...PLANET_PREP_FOR_CASE,
 };

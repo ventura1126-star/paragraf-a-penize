@@ -16,7 +16,7 @@ export function useGameNav() {
 
 /** Herní adresy, které umí město otevřít v panelu. */
 export function isPanelHref(href: string): boolean {
-  return /^\/hra(\/(budova|pripad|priprava|prednaska|rada)\/[^/?#]+|\/(schranka|album|trenink|lhuta|postava|pribeh|lod|start))?(\?.*)?$/.test(href);
+  return /^\/hra(\/(budova|pripad|priprava|prednaska|rada)\/[^/?#]+|\/(schranka|album|trenink|lhuta|postava|pribeh|lod|raketa|start))?(\?.*)?$/.test(href);
 }
 
 export function GameLink({ href, className, children }: { href: string; className?: string; children: ReactNode }) {

@@ -779,3 +779,9 @@ a.trail-card:hover { border-color: var(--accent); }
 }
 .title-replay { justify-self: center; font: inherit; font-size: 0.8rem; background: none; border: 0; color: #8fd0ff; text-decoration: underline; cursor: pointer; }
 .title-credit { text-align: center; color: #6f6b63; font-size: 0.7rem; margin: 0.4rem 0 0; letter-spacing: 0.1em; }
+
+/* --- Start rakety --- */
+.rocket-launch { display: grid; justify-items: center; gap: 0.6rem; padding: 2rem 0 1rem; background: radial-gradient(circle at 50% 80%, #1b2a5a, #0b1026); border-radius: 8px; color: #f4f1e8; overflow: hidden; min-height: 260px; }
+.rocket-fly { font-size: 4rem; transition: transform 0.8s ease-in; }
+.rocket-fly.go { transform: translateY(-260px) scale(0.6); }
+.rocket-count { font-family: ui-monospace, Menlo, monospace; font-weight: 900; font-size: 3rem; color: #ffd447; text-shadow: 3px 3px 0 #b33939; }

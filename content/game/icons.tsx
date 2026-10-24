@@ -158,6 +158,19 @@ export const CARD_ICON: Record<string, keyof typeof ICONS> = {
   "zdp-2-2": "scale",
   "dr-148-1": "hourglass",
   "dr-251-1": "down",
+  // Planeta investic
+  "zob-41e-2": "bank",
+  "zpkt-5-1": "stamp",
+  "zpkt-15h-1": "sign",
+  "zdp-4-1t": "coins",
+  "zdp-4-1u": "hourglass",
+  "zdp-4-1q": "family",
+  "zdp-4-1zj": "lock",
+  "zdp-4-1zk": "clock",
+  "zdp-36-2a": "percent",
+  "zdp-15-6": "receipt",
+  "zdp-15b-1": "calendar",
+  "zdp-15b-4": "warning",
 };
 
 /** Barva karty podle zákona (vlastní paleta sběratelských karet). */

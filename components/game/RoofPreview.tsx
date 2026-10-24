@@ -17,7 +17,7 @@ export function RoofPreview({ b }: { b: Building }) {
     c.height = h * dpr;
     const ctx = c.getContext("2d")!;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    setTheme(b.id.startsWith("o-") ? "ostrov" : "mesto");
+    setTheme(b.id.startsWith("o-") ? "ostrov" : b.id.startsWith("p-") ? "planeta" : "mesto");
     const C = palette();
     ctx.fillStyle = C.grass;
     ctx.fillRect(0, 0, w, h);

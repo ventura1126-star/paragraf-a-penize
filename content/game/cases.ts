@@ -1,6 +1,7 @@
 import type { GameCase } from "./types";
 import { STORY_CASES } from "./stories";
 import { ISLAND_CASES } from "./island-cases";
+import { PLANET_CASES } from "./planet-cases";
 
 const DEBT_TOPIC = "pohledavky-exekuce-insolvence";
 
@@ -499,7 +500,7 @@ const BASE_CASES: GameCase[] = [
   },
 ];
 
-export const CASES: GameCase[] = [...BASE_CASES, ...STORY_CASES, ...ISLAND_CASES];
+export const CASES: GameCase[] = [...BASE_CASES, ...STORY_CASES, ...ISLAND_CASES, ...PLANET_CASES];
 
 export const CASE_BY_ID = new Map(CASES.map((c) => [c.id, c]));
 

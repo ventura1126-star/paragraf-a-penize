@@ -1,5 +1,5 @@
 import { HOME_IDS, SCHOOL_IDS, worldBuildings, type Building } from "@/content/game/city";
-import { CAMPAIGN_BY_CHARACTER, ISLAND_CAMPAIGN, campaignCaseIds, type Campaign } from "@/content/game/campaigns";
+import { CAMPAIGN_BY_CHARACTER, ISLAND_CAMPAIGN, PLANET_CAMPAIGN, campaignCaseIds, type Campaign } from "@/content/game/campaigns";
 import { caseProgress, deliveredLetters, lectureDone, type GameState } from "./store";
 import { LECTURES, type Lecture } from "@/content/game/lectures";
 
@@ -8,7 +8,9 @@ export type CaseAccess = "available" | "done" | "later" | "elsewhere";
 /** Příběh světa, ve kterém postava právě je (na ostrově společný Daňový ráj). */
 export function campaignFor(s: GameState): Campaign | undefined {
   if (!s.character) return undefined;
-  return s.world === "ostrov" ? ISLAND_CAMPAIGN : CAMPAIGN_BY_CHARACTER.get(s.character);
+  if (s.world === "ostrov") return ISLAND_CAMPAIGN;
+  if (s.world === "planeta") return PLANET_CAMPAIGN;
+  return CAMPAIGN_BY_CHARACTER.get(s.character);
 }
 
 /** Stav nástrahy pro aktuální postavu: k hraní, vyřešená, později v příběhu, nebo není v jejím příběhu. */
@@ -85,4 +87,9 @@ export function nextLecture(s: GameState): Lecture | undefined {
 /** Daňový ráj dokončen (boss ostrova poražen). */
 export function islandFinished(s: GameState): boolean {
   return Boolean(caseProgress(s, ISLAND_CAMPAIGN.boss)?.done);
+}
+
+/** Planeta investic dokončena. */
+export function planetFinished(s: GameState): boolean {
+  return Boolean(caseProgress(s, PLANET_CAMPAIGN.boss)?.done);
 }

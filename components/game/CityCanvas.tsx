@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   PIER_END,
+  PAD_END,
   worldBuildings,
   DISTRICT_NAMES,
   LAND,
@@ -26,8 +27,8 @@ import {
 } from "@/content/game/city";
 import { SPRITES } from "@/content/game/sprites";
 import { streetFor, type StreetNpc } from "@/content/game/street";
-import { buildingStates, islandFinished, nextLecture, nextStoryCase, storyFinished, type BuildingState } from "@/lib/game/city-logic";
-import { drawBoat, drawCar, drawStatic, waterColor } from "@/lib/game/render";
+import { buildingStates, islandFinished, nextLecture, nextStoryCase, planetFinished, storyFinished, type BuildingState } from "@/lib/game/city-logic";
+import { drawBoat, drawCar, drawRocket, drawStatic, waterColor } from "@/lib/game/render";
 import { carBox, hasLights, makeTraffic, stepTraffic } from "@/lib/game/traffic";
 import { caseProgress, caughtByExecutor, characterOf, deliveredLetters, levelOf, raceResult, readGame, recordRace, setPos, streetQuestionIndex, useGame, useHydrated, type GameState } from "@/lib/game/store";
 import { monthLabel } from "./Mailbox";
@@ -135,6 +136,7 @@ export function CityCanvas() {
   const walkRef = useRef<(tile: V, b: Building | null) => void>(() => {});
   const realm = g.world;
   const [atPier, setAtPier] = useState(false);
+  const [atPad, setAtPad] = useState(false);
 
   // Herní obrazovky (budova, nástraha, schránka…) jako panel nad mapou; historie kvůli tlačítku zpět.
   const [stack, setStack] = useState<string[]>([]);
@@ -222,6 +224,7 @@ export function CityCanvas() {
   const letters = deliveredLetters(g).filter((l) => !l.read);
   const lecture = ch ? nextLecture(g) : undefined;
   const islandStarted = Boolean(caseProgress(g, "zivnostensky-list"));
+  const planetStarted = Boolean(caseProgress(g, "nejdriv-rezerva"));
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -240,6 +243,7 @@ export function CityCanvas() {
     const npcTiles = new Set(STREET.map((n) => n.at.y * WORLD_W + n.at.x));
     const npcTile = (x: number, y: number) => npcTiles.has(y * WORLD_W + x);
     let lastPier = false;
+    let lastPad = false;
 
     // minimapa
     const mini = miniRef.current;
@@ -335,6 +339,12 @@ export function CityCanvas() {
         keys.clear();
         path = [];
         navRef.current.go("/hra/lod");
+        return;
+      }
+      if (pt.x === PAD_END.x && pt.y === PAD_END.y) {
+        keys.clear();
+        path = [];
+        navRef.current.go("/hra/raketa");
         return;
       }
       if (!b) {
@@ -480,6 +490,11 @@ export function CityCanvas() {
         lastPier = pier;
         setAtPier(pier);
       }
+      const pad = pt.x === PAD_END.x && pt.y === PAD_END.y;
+      if (pad !== lastPad) {
+        lastPad = pad;
+        setAtPad(pad);
+      }
       if ((atDoor?.id ?? null) !== lastDoor) {
         lastDoor = atDoor?.id ?? null;
         setDoor(atDoor);
@@ -597,7 +612,7 @@ export function CityCanvas() {
         ...deliveredLetters(gs).filter((l) => !l.read && l.caseId).map((l) => l.caseId),
         nextStoryCase(gs),
       ].filter((id): id is string => Boolean(id));
-      const rc = realm === "ostrov" ? null : candidates.find((id) => RACE_BY_CASE.has(id) && !raceResult(gs, id) && !doneRaces.has(id)) ?? null;
+      const rc = realm !== "mesto" ? null : candidates.find((id) => RACE_BY_CASE.has(id) && !raceResult(gs, id) && !doneRaces.has(id)) ?? null;
       if (!paused && rc !== raceCase) {
         raceCase = rc;
         raceStart = t;
@@ -703,7 +718,8 @@ export function CityCanvas() {
         ctx.textAlign = "start";
       }
       // loď v přístavu
-      drawBoat(ctx, t, realm === "ostrov" || storyFinished(gRef.current));
+      if (realm !== "planeta") drawBoat(ctx, t, realm === "ostrov" || storyFinished(gRef.current));
+      drawRocket(ctx, t, realm === "planeta" || storyFinished(gRef.current));
       // auta
       for (const c of cars) {
         if (c.mode === "inside") continue;
@@ -855,8 +871,9 @@ export function CityCanvas() {
 
   useEffect(() => {
     if (target) setHint(`Cíl: ${target.building.name}${target.next ? " – tudy vede váš příběh" : ""}`);
-    else if (realm === "mesto" && storyFinished(g)) setHint("Cíl: Přístav – loď do Daňového ráje čeká na konci mola");
-    else if (realm === "ostrov" && islandFinished(g)) setHint("Daňový ráj dokončen – loď vás odveze zpět do města.");
+    else if (realm === "mesto" && storyFinished(g)) setHint("Cíl: loď do Daňového ráje (přístav na východě), nebo raketa na Planetu investic (rampa na jihozápadě)");
+    else if (realm === "ostrov" && islandFinished(g)) setHint("Daňový ráj dokončen – loď vás odveze do města, raketa na Planetu investic.");
+    else if (realm === "planeta" && planetFinished(g)) setHint("Planeta investic dokončena – raketa vás vrátí na Zemi.");
     else setHint("Všechno hotovo – projděte se městem, nebo zkuste jinou postavu.");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [target?.building.id, target?.next, realm, g.cases]);
@@ -927,6 +944,11 @@ export function CityCanvas() {
               PŘÍSTAV · loď do Daňového ráje je připravena – klepněte a postava dojde na molo
             </button>
           )}
+          {realm !== "planeta" && ch && storyFinished(g) && !planetStarted && (
+            <button type="button" onClick={() => walkRef.current(PAD_END, null)} className="gta-pager gta-school">
+              RAMPA · raketa na Planetu investic je připravena – klepněte a postava dojde k rampě
+            </button>
+          )}
           {letters.length > 0 && (
             <button type="button" onClick={() => nav.go("/hra/schranka")} className="gta-pager">
               PAGER · {letters.length === 1 ? "nová zpráva" : `${letters.length} nové zprávy`}: {ch ? fill(letters[0].subject, ch) : letters[0].subject}
@@ -976,13 +998,27 @@ export function CityCanvas() {
             )}
           </div>
         )}
+        {atPad && !intro && !panel && (
+          <div className="gta-door">
+            <div>
+              <div className="gta-door-district">Raketová rampa</div>
+              <strong>{realm === "planeta" ? "Raketa na Zemi" : "Raketa na Planetu investic"}</strong>
+              <div className="gta-door-status">
+                {realm === "planeta" || storyFinished(g) ? "Pilotka čeká, motory se zahřívají." : "Raketa startuje, až dokončíte svůj příběh."}
+              </div>
+            </div>
+            <button type="button" className="gta-enter" onClick={() => enterRef.current()}>
+              K raketě <kbd>E</kbd>
+            </button>
+          </div>
+        )}
         {atPier && !intro && !panel && (
           <div className="gta-door">
             <div>
               <div className="gta-door-district">Přístav</div>
-              <strong>{realm === "ostrov" ? "Loď do Města dluhů" : "Loď do Daňového ráje"}</strong>
+              <strong>{realm === "planeta" ? "Vesmírná vyhlídka" : realm === "ostrov" ? "Loď do Města dluhů" : "Loď do Daňového ráje"}</strong>
               <div className="gta-door-status">
-                {realm === "ostrov" ? "Kapitán čeká na palubě." : storyFinished(g) ? "Kapitán čeká. Na ostrově vás čekají daně." : "Loď vyplouvá, až dokončíte svůj příběh."}
+                {realm === "planeta" ? "Lodě tu neplují – letí se raketou." : realm === "ostrov" ? "Kapitán čeká na palubě." : storyFinished(g) ? "Kapitán čeká. Na ostrově vás čekají daně." : "Loď vyplouvá, až dokončíte svůj příběh."}
               </div>
             </div>
             <button type="button" className="gta-enter" onClick={() => enterRef.current()}>

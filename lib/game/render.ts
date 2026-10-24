@@ -10,6 +10,8 @@ import {
   PARKING,
   GARAGES,
   PIER,
+  PAD,
+  PAD_END,
   PORADNA_IDS,
   SCHOOL_IDS,
   worldBuildings,
@@ -53,19 +55,37 @@ const ISLAND_C: typeof CITY_C = {
   shadow: "rgba(0,0,0,0.3)",
   sand: "#f0dca8",
 };
+/** Planeta investic: vesmír místo moře, světlé plazy, neonové pruhy na silnicích. */
+const PLANET_C: typeof CITY_C = {
+  water: "#0b1026",
+  waterHi: "#ffffff",
+  grass: "#8fcf8a",
+  grassDark: "#7dbd79",
+  road: "#262a35",
+  roadEdge: "#1e212a",
+  lane: "#5fe3ff",
+  zebra: "#e8f7ff",
+  sidewalk: "#e6ebf2",
+  sidewalkSeam: "#cfd7e2",
+  curb: "#9aa6b8",
+  shadow: "rgba(0,0,0,0.3)",
+  sand: "#dfe6ef",
+};
 let C = CITY_C;
 let island = false;
-/** Přepne vzhled kreslení (město, nebo ostrov). */
+let planet = false;
+/** Přepne vzhled kreslení (město, ostrov, nebo planeta). */
 export function setTheme(w: World) {
   island = w === "ostrov";
-  C = island ? ISLAND_C : CITY_C;
+  planet = w === "planeta";
+  C = island ? ISLAND_C : planet ? PLANET_C : CITY_C;
 }
 /** Aktuální paleta (pro náhledy mimo mapu). */
 export function palette() {
   return C;
 }
 export function waterColor(w: World) {
-  return w === "ostrov" ? ISLAND_C.water : CITY_C.water;
+  return w === "ostrov" ? ISLAND_C.water : w === "planeta" ? PLANET_C.water : CITY_C.water;
 }
 
 const ROOF: Record<District, { base: string; hi: string; lo: string }> = {
@@ -79,6 +99,11 @@ const ROOF: Record<District, { base: string; hi: string; lo: string }> = {
   radnice: { base: "#e8c15a", hi: "#f5da8a", lo: "#b8902e" },
   vily: { base: "#ee8a5e", hi: "#f6ae8a", lo: "#bb5f38" },
   laguna: { base: "#a98fd6", hi: "#c7b3ea", lo: "#7a62a8" },
+  tech: { base: "#3a7bd5", hi: "#6aa3ef", lo: "#24508f" },
+  burza: { base: "#5b6b82", hi: "#8a9ab0", lo: "#3a4658" },
+  kampus: { base: "#2fb59d", hi: "#62d8c3", lo: "#1d7a69" },
+  orbit: { base: "#8a63d2", hi: "#b294ec", lo: "#5c3f99" },
+  atrium: { base: "#c9d3e0", hi: "#eef2f7", lo: "#94a1b4" },
 };
 const KIND_COLOR: Record<Building["kind"], string> = { risk: "#ff5c5c", normal: "#ffd447", office: "#c9c9c9", safe: "#5fe08a" };
 
@@ -105,6 +130,10 @@ const SIGNS: Record<string, [string, string]> = {
   "o-offshore": ["#d4a017", "0 % DANÍ!*"],
   "o-bar": ["#f08a5d", "HAPPY HOUR"],
   "o-hotel": ["#1fa3b8", "HOTEL KOKOS"],
+  "p-guru": ["#e84393", "+30 % MĚSÍČNĚ!"],
+  "p-tower": ["#8a63d2", "IPO DNES!"],
+  "p-kavarna": ["#3a7bd5", "BYTE CAFÉ"],
+  "p-krypto": ["#f2a900", "₿ BUY / SELL"],
 };
 
 /** Střecha budovy vč. stínu, detailů a cedule. `ox, oy` = posun (pro náhled mimo mapu). */
@@ -157,10 +186,24 @@ export function drawBuilding(ctx: CanvasRenderingContext2D, b: Building, ox = 0,
     ctx.arc(ax + 8, ay + 8, 5, 0, Math.PI * 2);
     ctx.fill();
   }
+  // planeta: skleněné střechy se solárními panely
+  if (planet && !SIGNS[b.id] && !SCHOOL_IDS.has(b.id) && !PORADNA_IDS.has(b.id)) {
+    const rows = Math.floor((h - 40) / 18);
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < Math.floor((w - 24) / 22); c++) {
+        const sx = x + 12 + c * 22;
+        const sy = y + (b.door.y >= b.y + b.h ? 12 : 34) + r * 18;
+        ctx.fillStyle = "#1c2f5a";
+        ctx.fillRect(sx, sy, 18, 12);
+        ctx.fillStyle = "rgba(127,180,255,0.45)";
+        ctx.fillRect(sx + 1, sy + 1, 7, 4);
+      }
+    }
+  }
   // zvláštní střechy
   const cxr = x + w / 2;
   const cyr = y + h / 2 + (b.door.y >= b.y + b.h ? -10 : 10);
-  if (b.id === "banka" || b.id === "o-banka") {
+  if (b.id === "banka" || b.id === "o-banka" || b.id === "p-banka") {
     ctx.fillStyle = "#2f3a48";
     ctx.beginPath();
     ctx.arc(cxr, cyr, 22, 0, Math.PI * 2);
@@ -201,7 +244,7 @@ export function drawBuilding(ctx: CanvasRenderingContext2D, b: Building, ox = 0,
     ctx.font = "bold 10px ui-monospace, Menlo, monospace";
     ctx.textBaseline = "middle";
     ctx.textAlign = "center";
-    ctx.fillText(b.id === "o-skola" ? "DAŇOVÁ AKADEMIE" : "VYSOKÁ ŠKOLA FINANČNÍ", x + w / 2 - 2, y + 23, w - 34);
+    ctx.fillText(b.id === "o-skola" ? "DAŇOVÁ AKADEMIE" : b.id === "p-skola" ? "AKADEMIE INVESTIC" : "VYSOKÁ ŠKOLA FINANČNÍ", x + w / 2 - 2, y + 23, w - 34);
     ctx.textAlign = "start";
     for (let i = 0; i < 6; i++) {
       ctx.fillStyle = "#efe6cf";
@@ -344,9 +387,24 @@ export function drawStatic(ctx: CanvasRenderingContext2D, world: World = "mesto"
   // voda
   ctx.fillStyle = C.water;
   ctx.fillRect(0, 0, W, H);
-  for (let i = 0; i < 260; i++) {
+  for (let i = 0; i < (planet ? 0 : 260); i++) {
     ctx.fillStyle = C.waterHi;
     ctx.fillRect(rand() * W, rand() * H, 10 + rand() * 14, 2);
+  }
+  if (planet) {
+    // hvězdy kolem planety
+    for (let i = 0; i < 420; i++) {
+      ctx.fillStyle = i % 11 === 0 ? "#8fd0ff" : "#ffffff";
+      ctx.globalAlpha = 0.3 + rand() * 0.7;
+      const s = rand() < 0.1 ? 2 : 1;
+      ctx.fillRect(rand() * W, rand() * H, s, s);
+    }
+    ctx.globalAlpha = 1;
+    // atmosféra kolem pevniny
+    ctx.fillStyle = "#1b2a5a";
+    ctx.fillRect(px(LAND.x0) - 14, px(LAND.y0) - 14, px(LAND.x1 - LAND.x0 + 1) + 28, px(LAND.y1 - LAND.y0 + 1) + 28);
+    ctx.fillStyle = "#2e4a8a";
+    ctx.fillRect(px(LAND.x0) - 6, px(LAND.y0) - 6, px(LAND.x1 - LAND.x0 + 1) + 12, px(LAND.y1 - LAND.y0 + 1) + 12);
   }
   if (island) {
     // mělčina u pláže
@@ -555,6 +613,30 @@ export function drawStatic(ctx: CanvasRenderingContext2D, world: World = "mesto"
       ctx.fillRect(x, y + TILE - 1, 5, 5);
     }
   }
+  // raketová rampa
+  {
+    ctx.fillStyle = C.shadow;
+    ctx.fillRect(px(PAD.x0) + 6, px(PAD.y0 + 1) + 6, px(PAD.x1 - PAD.x0 + 1), px(PAD.y1 - PAD.y0) + px(2));
+    // lávka z chodníku
+    ctx.fillStyle = "#8a929e";
+    ctx.fillRect(px(PAD_END.x) + 6, px(PAD.y0), TILE - 12, TILE);
+    // plošina
+    ctx.fillStyle = "#b9c0ca";
+    ctx.fillRect(px(PAD.x0), px(PAD.y0 + 1), px(PAD.x1 - PAD.x0 + 1), px(PAD.y1 - PAD.y0) + px(2));
+    ctx.fillStyle = "#9aa2ad";
+    ctx.fillRect(px(PAD.x0) + 6, px(PAD.y0 + 1) + 6, px(PAD.x1 - PAD.x0 + 1) - 12, px(PAD.y1 - PAD.y0) + px(2) - 12);
+    // výstražné pruhy
+    for (let i = 0; i < 10; i++) {
+      ctx.fillStyle = i % 2 ? "#1a1a1d" : "#ffd447";
+      ctx.fillRect(px(PAD.x0) + i * 16, px(PAD.y0 + 1), 16, 5);
+    }
+    // startovní kruh
+    ctx.strokeStyle = "#ffd447";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(px(PAD_END.x) + 16, px(PAD.y1 + 1) + 40, 30, 0, Math.PI * 2);
+    ctx.stroke();
+  }
   // rohože u dveří
   for (const b of worldBuildings(world)) {
     ctx.fillStyle = "#5a4a3a";
@@ -591,5 +673,67 @@ export function drawBoat(ctx: CanvasRenderingContext2D, t: number, ready: boolea
   ctx.beginPath();
   ctx.arc(-40, 0, 5, 0, Math.PI * 2);
   ctx.fill();
+  ctx.restore();
+}
+
+/** Raketa na rampě; `lift` 0–1 = jak vysoko už vzlétla (pro start). */
+export function drawRocket(ctx: CanvasRenderingContext2D, t: number, ready: boolean, lift = 0) {
+  const x = px(PAD_END.x) + 16;
+  const y = px(PAD.y1 + 1) + 40 - lift * 900;
+  ctx.save();
+  ctx.translate(x, y);
+  // plamen
+  if (ready || lift > 0) {
+    const f = 10 + Math.sin(t * 30) * 4 + lift * 30;
+    ctx.fillStyle = "rgba(255,140,40,0.85)";
+    ctx.beginPath();
+    ctx.moveTo(-9, 26);
+    ctx.lineTo(0, 26 + f + 10);
+    ctx.lineTo(9, 26);
+    ctx.fill();
+    ctx.fillStyle = "rgba(255,230,120,0.9)";
+    ctx.beginPath();
+    ctx.moveTo(-5, 26);
+    ctx.lineTo(0, 26 + f);
+    ctx.lineTo(5, 26);
+    ctx.fill();
+  }
+  ctx.fillStyle = "rgba(0,0,0,0.3)";
+  ctx.beginPath();
+  ctx.ellipse(6, 30, 18, 8, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // křidélka
+  ctx.fillStyle = "#c0392b";
+  ctx.beginPath();
+  ctx.moveTo(-12, 10);
+  ctx.lineTo(-22, 28);
+  ctx.lineTo(-10, 24);
+  ctx.closePath();
+  ctx.moveTo(12, 10);
+  ctx.lineTo(22, 28);
+  ctx.lineTo(10, 24);
+  ctx.closePath();
+  ctx.fill();
+  // trup
+  ctx.fillStyle = "#f4f1e8";
+  ctx.beginPath();
+  ctx.moveTo(0, -34);
+  ctx.quadraticCurveTo(14, -16, 12, 26);
+  ctx.lineTo(-12, 26);
+  ctx.quadraticCurveTo(-14, -16, 0, -34);
+  ctx.fill();
+  ctx.fillStyle = "#c0392b";
+  ctx.beginPath();
+  ctx.moveTo(0, -34);
+  ctx.quadraticCurveTo(8, -26, 9, -18);
+  ctx.lineTo(-9, -18);
+  ctx.quadraticCurveTo(-8, -26, 0, -34);
+  ctx.fill();
+  ctx.fillStyle = "#2a6fb3";
+  ctx.beginPath();
+  ctx.arc(0, -4, 5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = ready ? "#ffd447" : "#888";
+  ctx.fillRect(-2, 14, 4, 4);
   ctx.restore();
 }

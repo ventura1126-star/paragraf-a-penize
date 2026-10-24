@@ -56,6 +56,15 @@ export const ISLAND_CAMPAIGN: Campaign = {
   boss: "danova-kontrola",
 };
 
+/** Planeta investic: společný příběh všech postav – rezerva, akcie, DIP, krypto, startupy a bubliny. */
+export const PLANET_CAMPAIGN: Campaign = {
+  character: "*",
+  title: "Planeta investic",
+  intro: "Skleněné věže, drony a burza, která nikdy nespí. Naučte se investovat – a nenaletět.",
+  chapters: ["nejdriv-rezerva", "investicni-dotaznik", "prodej-akcii", "dip-na-stari", "krypto", "startup", "garance-vynosu"],
+  boss: "bublina",
+};
+
 export function campaignCaseIds(c: Campaign): string[] {
   return [...c.chapters, c.boss];
 }
