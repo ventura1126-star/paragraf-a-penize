@@ -785,3 +785,21 @@ a.trail-card:hover { border-color: var(--accent); }
 .rocket-fly { font-size: 4rem; transition: transform 0.8s ease-in; }
 .rocket-fly.go { transform: translateY(-260px) scale(0.6); }
 .rocket-count { font-family: ui-monospace, Menlo, monospace; font-weight: 900; font-size: 3rem; color: #ffd447; text-shadow: 3px 3px 0 #b33939; }
+
+/* --- Přehled tří světů --- */
+.title-links { display: flex; justify-content: center; gap: 1.2rem; flex-wrap: wrap; }
+.wo-box { width: min(980px, 100%); }
+.wo-head { display: grid; gap: 0.3rem; text-align: center; margin-bottom: 1rem; }
+.wo-head strong { color: #ffd447; font-size: clamp(1.2rem, 3.4vw, 1.7rem); letter-spacing: 0.04em; }
+.wo-head span { color: #bdb8ad; font-size: 0.85rem; }
+.wo-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; counter-reset: none; }
+.wo-world { position: relative; display: grid; gap: 0.4rem; align-content: start; padding: 0.7rem; border: 2px solid; border-radius: 8px; background: #1a1d23; }
+.wo-world strong { font-size: 1.05rem; }
+.wo-world p { margin: 0; font-size: 0.82rem; color: #d8d3c7; line-height: 1.4; }
+.wo-world .wo-how { color: #8fd0ff; }
+.wo-step { position: absolute; top: -12px; left: -12px; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; color: #111; font-weight: 900; border: 2px solid #111; }
+.wo-thumb { width: 100%; aspect-ratio: 64 / 45; border-radius: 4px; display: block; background: #000; }
+.wo-routes { display: flex; justify-content: center; flex-wrap: wrap; gap: 0.5rem 1.2rem; margin: 1rem 0 0.9rem; font-size: 0.85rem; color: #f4f1e8; }
+.wo-routes span { background: #262a31; padding: 0.3rem 0.6rem; border-radius: 4px; }
+.wo-go { display: block; margin: 0 auto; min-width: 220px; }
+@media (max-width: 720px) { .wo-list { grid-template-columns: 1fr; gap: 1rem; } .wo-thumb { max-height: 160px; } }

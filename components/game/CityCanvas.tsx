@@ -37,6 +37,7 @@ import { GameNavContext, type GameNav } from "./GameNav";
 import { panelView } from "./GamePanel";
 import { TitleScreen } from "./TitleScreen";
 import { Opening } from "./Opening";
+import { WorldsOverview } from "./WorldsOverview";
 
 type V = { x: number; y: number };
 
@@ -156,8 +157,11 @@ export function CityCanvas() {
       setOpening(false);
     }
   }, []);
+  // po úvodu se ukáže přehled tří světů, pak hlavní menu
+  const [worldsOpen, setWorldsOpen] = useState(false);
   const endOpening = useCallback(() => {
     setOpening(false);
+    setWorldsOpen(true);
     try {
       window.localStorage.setItem("pp-intro-seen", "1");
     } catch {
@@ -1041,9 +1045,11 @@ export function CityCanvas() {
           </div>
         )}
         {hydrated && !started && opening && <Opening onDone={endOpening} />}
-        {hydrated && !started && opening === false && (
+        {hydrated && !started && opening === false && worldsOpen && <WorldsOverview onDone={() => setWorldsOpen(false)} />}
+        {hydrated && !started && opening === false && !worldsOpen && (
           <TitleScreen
             onIntro={() => setOpening(true)}
+            onWorlds={() => setWorldsOpen(true)}
             onStart={() => {
               shownXp.current = null;
               setStack([]);
