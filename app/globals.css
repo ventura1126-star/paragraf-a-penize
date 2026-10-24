@@ -769,26 +769,13 @@ a.trail-card:hover { border-color: var(--accent); }
 @keyframes op-fade { 0% { opacity: 0; transform: scale(0.94); } 15% { opacity: 1; transform: none; } 82% { opacity: 1; } 100% { opacity: 0; } }
 @keyframes op-bounce { from { transform: translateY(0); } to { transform: translateY(-10px); } }
 
-.op-crawl-wrap { position: absolute; inset: 0; cursor: pointer; }
-.op-before { position: absolute; top: 40%; left: 50%; transform: translateX(-50%); width: min(560px, 90%); margin: 0; text-align: center; color: #4bd5ee; font-size: clamp(1rem, 2.6vw, 1.4rem); opacity: 0; animation: op-before 4.5s ease forwards; }
-@keyframes op-before { 0% { opacity: 0; } 15% { opacity: 1; } 75% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
-.op-title { position: absolute; top: 50%; left: 50%; display: grid; justify-items: center; line-height: 1.15; font-family: ui-monospace, Menlo, monospace; font-weight: 900; font-size: clamp(2.2rem, 9vw, 5.5rem); letter-spacing: 0.05em; color: #000; -webkit-text-stroke: 2px #ffd447; white-space: nowrap; opacity: 0; transform: translate(-50%, -50%) scale(1.25); animation: op-title 7s ease-in 4.5s forwards; }
-.op-title small { font-size: 0.4em; -webkit-text-stroke: 2px #ffd447; }
-@keyframes op-title { 0% { opacity: 1; transform: translate(-50%, -50%) scale(1.25); } 80% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.05); } }
-.op-perspective { position: absolute; inset: 0; perspective: 360px; perspective-origin: 50% 0%; display: flex; justify-content: center; overflow: hidden; }
-.op-crawl { position: absolute; top: 300%; width: min(640px, 88vw); transform-origin: 50% 100%; transform: rotateX(24deg); text-align: justify; font-family: ui-sans-serif, system-ui, sans-serif; font-weight: 700; font-size: clamp(1.15rem, 3.4vw, 2rem); line-height: 1.35; color: #ffd447; animation: op-crawl 40s linear 10.5s both; }
-.op-crawl p { margin: 0 0 1.4em; }
-.op-episode, .op-episode-name { text-align: center; margin: 0 !important; }
-.op-episode-name { font-size: 1.5em; margin-bottom: 1.2em !important; letter-spacing: 0.03em; }
-/* start hluboko pod okrajem: nakloněný text by jinak kvůli perspektivě vykukoval už před startem */
-@keyframes op-crawl { from { top: 300%; } to { top: -260%; } }
+.op-game-title { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; line-height: 1.1; cursor: pointer; font-family: ui-monospace, Menlo, monospace; font-weight: 900; font-size: clamp(3rem, 14vw, 9rem); letter-spacing: 0.06em; color: #ffd447; text-shadow: 5px 5px 0 #b33939, 0 0 30px rgb(255 212 71 / 0.35); animation: op-game-title 3.6s ease forwards; }
+@keyframes op-game-title { 0% { opacity: 0; transform: scale(1.6); letter-spacing: 0.4em; } 25% { opacity: 1; transform: none; letter-spacing: 0.06em; } 80% { opacity: 1; } 100% { opacity: 0; transform: scale(0.96); } }
 .op-skip { position: absolute; right: 16px; bottom: 16px; z-index: 2; font-family: ui-monospace, Menlo, monospace; font-weight: 800; background: rgb(255 255 255 / 0.08); color: #ffd447; border: 1px solid #ffd447; border-radius: 4px; padding: 0.45rem 0.8rem; cursor: pointer; }
 .op-skip:hover { background: rgb(255 212 71 / 0.15); }
 @media (prefers-reduced-motion: reduce) {
   .op-mascot { animation: none; }
-  .op-title { display: none; }
-  .op-before { display: none; }
-  .op-crawl { animation: none; top: 6%; transform: none; font-size: 1rem; }
+  .op-game-title { animation: none; }
 }
 .title-replay { justify-self: center; font: inherit; font-size: 0.8rem; background: none; border: 0; color: #8fd0ff; text-decoration: underline; cursor: pointer; }
 .title-credit { text-align: center; color: #6f6b63; font-size: 0.7rem; margin: 0.4rem 0 0; letter-spacing: 0.1em; }

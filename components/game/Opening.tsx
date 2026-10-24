@@ -4,17 +4,17 @@ import { useEffect, useMemo, useState } from "react";
 import { PixelSprite } from "./PixelSprite";
 
 const LOGO_MS = 3800;
-const CRAWL_MS = 52000;
+const TITLE_MS = 3600;
 
 /**
- * Úvod hry: logo studia Ventura Games a titulky ve stylu vesmírné ságy.
+ * Úvod hry: logo studia Ventura Games, pak název hry a rovnou do hry.
  * Dá se kdykoli přeskočit (klepnutím, Enter, Esc nebo mezerníkem).
  */
 export function Opening({ onDone }: { onDone: () => void }) {
-  const [phase, setPhase] = useState<"logo" | "crawl">("logo");
+  const [phase, setPhase] = useState<"logo" | "title">("logo");
 
   useEffect(() => {
-    const t = setTimeout(() => (phase === "logo" ? setPhase("crawl") : onDone()), phase === "logo" ? LOGO_MS : CRAWL_MS);
+    const t = setTimeout(() => (phase === "logo" ? setPhase("title") : onDone()), phase === "logo" ? LOGO_MS : TITLE_MS);
     return () => clearTimeout(t);
   }, [phase, onDone]);
 
@@ -22,7 +22,7 @@ export function Opening({ onDone }: { onDone: () => void }) {
     const onKey = (e: KeyboardEvent) => {
       if (["Enter", "Escape", " "].includes(e.key)) {
         e.preventDefault();
-        if (phase === "logo") setPhase("crawl");
+        if (phase === "logo") setPhase("title");
         else onDone();
       }
     };
@@ -51,7 +51,7 @@ export function Opening({ onDone }: { onDone: () => void }) {
       </div>
 
       {phase === "logo" ? (
-        <div className="op-logo" onClick={() => setPhase("crawl")}>
+        <div className="op-logo" onClick={() => setPhase("title")}>
           <div className="op-mascot">
             <PixelSprite id="ventura" scale={9} title="Maskot Ventura Games" />
           </div>
@@ -61,42 +61,13 @@ export function Opening({ onDone }: { onDone: () => void }) {
           <div className="op-presents">uvádí</div>
         </div>
       ) : (
-        <div className="op-crawl-wrap" onClick={onDone}>
-          <p className="op-before">Nedávno, v jednom nedalekém městě…</p>
-          <div className="op-title" aria-hidden>
-            PARAGRAF
-            <small>a</small>
-            PENÍZE
-          </div>
-          <div className="op-perspective">
-            <div className="op-crawl">
-              <p className="op-episode">EPIZODA I</p>
-              <p className="op-episode-name">NEZNALOST NEOMLOUVÁ</p>
-              <p>
-                Je doba půjček na jedno kliknutí. Splátky s „nulou procent“ číhají na každém rohu a drobné písmo ve
-                smlouvách je menší než kdy dřív.
-              </p>
-              <p>
-                Ulice Města dluhů ovládli vymahači, podomní prodejci a nebankovní lichváři. Kdo nezná své lhůty, přichází o
-                mzdu, o úspory i o klid.
-              </p>
-              <p>
-                Zákon přitom chrání každého, kdo ho zná. Jenže neznalost zákona neomlouvá – a promlčení za vás nikdo
-                nenamítne.
-              </p>
-              <p>
-                Daleko za mořem prý leží Daňový ráj. Říká se, že tam se daně neplatí. Ti, kdo se odtud vrátili, vědí své…
-              </p>
-              <p>
-                Teď je řada na vás. Vyberte si hrdinu, vyzbrojte se paragrafy a projděte městem, kde se každé rozhodnutí
-                počítá v korunách…
-              </p>
-            </div>
-          </div>
+        <div className="op-game-title" onClick={onDone}>
+          <span>MĚSTO</span>
+          <span>DLUHŮ</span>
         </div>
       )}
 
-      <button type="button" className="op-skip" onClick={phase === "logo" ? () => setPhase("crawl") : onDone}>
+      <button type="button" className="op-skip" onClick={phase === "logo" ? () => setPhase("title") : onDone}>
         Přeskočit ▶
       </button>
     </div>

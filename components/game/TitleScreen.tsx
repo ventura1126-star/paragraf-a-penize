@@ -34,11 +34,10 @@ export function TitleScreen({ onStart, onIntro }: { onStart: () => void; onIntro
     <div className="title-screen" role="dialog" aria-label="Hlavní menu">
       <div className="title-box">
         <div className="title-logo">
-          <span>PARAGRAF</span>
-          <span className="title-amp">a</span>
-          <span>PENÍZE</span>
+          <span>MĚSTO</span>
+          <span>DLUHŮ</span>
         </div>
-        <div className="title-sub">Město dluhů · Daňový ráj</div>
+        <div className="title-sub">Paragrafy, peníze a Daňový ráj</div>
 
         {step === "menu" && (
           <div className="title-menu">
