@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   PIER_END,
   worldBuildings,
@@ -35,6 +35,7 @@ import { fill } from "@/content/game/characters";
 import { GameNavContext, type GameNav } from "./GameNav";
 import { panelView } from "./GamePanel";
 import { TitleScreen } from "./TitleScreen";
+import { Opening } from "./Opening";
 
 type V = { x: number; y: number };
 
@@ -144,6 +145,23 @@ export function CityCanvas() {
   startedRef.current = started;
   // nové spuštění (i za stejnou postavu) znovu postaví mapu a postavu na uloženou pozici
   const [run, setRun] = useState(0);
+  // úvod (logo + titulky) se přehraje při první návštěvě; z hlavního menu jde pustit znovu
+  const [opening, setOpening] = useState<boolean | null>(null);
+  useEffect(() => {
+    try {
+      setOpening(!window.localStorage.getItem("pp-intro-seen"));
+    } catch {
+      setOpening(false);
+    }
+  }, []);
+  const endOpening = useCallback(() => {
+    setOpening(false);
+    try {
+      window.localStorage.setItem("pp-intro-seen", "1");
+    } catch {
+      // ignorovat
+    }
+  }, []);
   const panel = !hydrated || !started ? null : ch ? stack[stack.length - 1] ?? null : null;
   const pausedRef = useRef(false);
   pausedRef.current = !hydrated || !started || Boolean(panel) || intro;
@@ -986,8 +1004,10 @@ export function CityCanvas() {
             </button>
           </div>
         )}
-        {hydrated && !started && (
+        {hydrated && !started && opening && <Opening onDone={endOpening} />}
+        {hydrated && !started && opening === false && (
           <TitleScreen
+            onIntro={() => setOpening(true)}
             onStart={() => {
               shownXp.current = null;
               setStack([]);

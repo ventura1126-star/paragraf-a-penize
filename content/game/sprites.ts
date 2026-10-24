@@ -111,6 +111,21 @@ export const SPRITES: Record<string, Sprite> = {
     }),
     palette: { k: OUTLINE, h: "#5a5650", s: "#c98d66", S: "#6b5a4a", e: EYE, m: MOUTH, t: "#4a4f5a", T: "#363a43", w: "#e8eef5", a: "#2c6e9b", p: "#2b2f36", b: "#1e1e1e" },
   },
+  // maskot studia Ventura Games: vysoký účes a havajská košile
+  ventura: {
+    rows: build({
+      0: "....kkkkkkk.....",
+      1: "...khhhhhhhk....",
+      2: "..khhhhhhhhhk...",
+      7: "...ksmwwwwmsk...",
+      10: "..ktatttatttak..",
+      11: ".kttattwwttattk.",
+      12: ".katttwwwwtttak.",
+      13: ".ktTattwwttaTtk.",
+      14: ".ktTttawwattTtk.",
+    }),
+    palette: { k: OUTLINE, h: "#5a3418", s: "#f1c7a1", e: EYE, m: MOUTH, w: "#f4f4f4", t: "#2bb3c0", T: "#1f8a94", a: "#f2c94c", p: "#e8dcc0", b: "#2a2a2a" },
+  },
   // učitelé Vysoké školy finanční
   gros: {
     rows: build({

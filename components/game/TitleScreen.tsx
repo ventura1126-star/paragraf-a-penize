@@ -19,7 +19,7 @@ function progress(ch: Character, s: GameState) {
 }
 
 /** Hlavní menu: nová hra (přepíše uložený postup postavy), nebo pokračování v uložené hře. */
-export function TitleScreen({ onStart }: { onStart: () => void }) {
+export function TitleScreen({ onStart, onIntro }: { onStart: () => void; onIntro?: () => void }) {
   const [step, setStep] = useState<Step>("menu");
   const [confirm, setConfirm] = useState<Character | null>(null);
   const saves = savedGames();
@@ -48,6 +48,12 @@ export function TitleScreen({ onStart }: { onStart: () => void }) {
             </button>
             {!withSave.length && <p className="title-note">Zatím tu není žádná uložená hra.</p>}
             <p className="title-note">Hra se ukládá jen v tomto prohlížeči. Každá postava má svůj vlastní postup.</p>
+            {onIntro && (
+              <button type="button" className="title-replay" onClick={onIntro}>
+                ▶ Přehrát intro
+              </button>
+            )}
+            <p className="title-credit">© Ventura Games</p>
           </div>
         )}
 
