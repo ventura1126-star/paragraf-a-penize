@@ -1,7 +1,7 @@
 import { HOME_IDS, SCHOOL_IDS, worldBuildings, type Building } from "@/content/game/city";
 import { CAMPAIGN_BY_CHARACTER, ISLAND_CAMPAIGN, PLANET_CAMPAIGN, campaignCaseIds, type Campaign } from "@/content/game/campaigns";
 import { caseProgress, deliveredLetters, lectureDone, type GameState } from "./store";
-import { LECTURES, type Lecture } from "@/content/game/lectures";
+import { lecturesFor, type Lecture } from "@/content/game/lectures";
 
 export type CaseAccess = "available" | "done" | "later" | "elsewhere";
 
@@ -65,23 +65,24 @@ export function storyFinished(s: GameState): boolean {
   return Boolean(camp && caseProgress(s, camp.boss)?.done);
 }
 
-/** Počet vyřešených nástrah aktuální postavy. */
+/** Počet vyřešených nástrah z příběhu světa, ve kterém postava je. */
 export function casesSolved(s: GameState): number {
-  const prefix = `${s.character ?? "-"}:`;
-  return Object.entries(s.cases).filter(([k, v]) => k.startsWith(prefix) && v.done).length;
+  const camp = campaignFor(s);
+  return camp ? campaignCaseIds(camp).filter((id) => caseProgress(s, id)?.done).length : 0;
 }
 
 export type LectureAccess = "done" | "open" | "locked";
 
-/** Přednášky ve škole: každá vyřešená nástraha otevře další. */
+/** Přednášky ve škole daného světa: každá vyřešená nástraha z jeho příběhu otevře další. */
 export function lectureAccess(s: GameState, i: number): LectureAccess {
-  if (lectureDone(s, LECTURES[i].id)) return "done";
+  const list = lecturesFor(s.world);
+  if (lectureDone(s, list[i].id)) return "done";
   return i < casesSolved(s) ? "open" : "locked";
 }
 
-/** První otevřená přednáška, na které postava ještě nebyla. */
+/** První otevřená přednáška ve škole světa, na které postava ještě nebyla. */
 export function nextLecture(s: GameState): Lecture | undefined {
-  return LECTURES.find((_, i) => lectureAccess(s, i) === "open");
+  return lecturesFor(s.world).find((_, i) => lectureAccess(s, i) === "open");
 }
 
 /** Daňový ráj dokončen (boss ostrova poražen). */

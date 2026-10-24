@@ -141,6 +141,16 @@ export const SPRITES: Record<string, Sprite> = {
     }),
     palette: { k: OUTLINE, h: "#d9d9d9", s: "#f0c8a8", S: "#cfcfcf", e: EYE, m: MOUTH, g: "#333333", t: "#6b4a2b", T: "#4d3520", w: "#f4f4f4", a: "#b33939", p: "#3b3b42", b: "#2a2a2a" },
   },
+  odvodova: {
+    rows: build({
+      0: "......kkkk......",
+      1: "....kkhhhhkk....",
+      5: "...kgegssgegk...",
+      10: "..ktttwwwwtttk..",
+      11: ".kttttwwwwttttk.",
+    }),
+    palette: { k: OUTLINE, h: "#a0522d", s: "#f1c7a1", e: EYE, m: MOUTH, g: "#333333", t: "#ee8a5e", T: "#bb5f38", w: "#f4f4f4", p: "#2a2a35", b: "#1e1e1e" },
+  },
   vynosova: {
     rows: build({
       0: "......kkkk......",

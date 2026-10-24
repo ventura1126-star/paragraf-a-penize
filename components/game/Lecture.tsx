@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { LECTURES, TEACHERS, type Lecture } from "@/content/game/lectures";
+import { TEACHERS, lecturesFor, type Lecture } from "@/content/game/lectures";
 import { SCHOOL_IDS, worldBuildings } from "@/content/game/city";
 import { fill } from "@/content/game/characters";
 import { lectureAccess, nextLecture, casesSolved } from "@/lib/game/city-logic";
@@ -23,7 +23,7 @@ export function SchoolScreen() {
   return (
     <>
       <div className="lec-hello">
-        <PixelSprite id="gros" variant="bust" scale={4} />
+        <PixelSprite id={lecturesFor(g.world)[0].teacher} variant="bust" scale={4} />
         <div className="dl-bubble">
           {next
             ? `${school} vás vítá. Dnes máte na rozvrhu: ${next.title}.`
@@ -33,7 +33,7 @@ export function SchoolScreen() {
         </div>
       </div>
       <ol className="lec-list">
-        {LECTURES.map((l, i) => {
+        {lecturesFor(g.world).map((l, i) => {
           const acc = lectureAccess(g, i);
           const score = g.lectures[`${ch.id}:${l.id}`];
           return (
