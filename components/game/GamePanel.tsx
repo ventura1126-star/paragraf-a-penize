@@ -16,7 +16,6 @@ import { CharacterPicker } from "./CharacterPicker";
 import { PrepPage } from "./PrepPage";
 import { CampaignMap } from "./CampaignMap";
 import { YearReport } from "./YearReport";
-import { ResetButton } from "./ResetButton";
 import { HelpBanner } from "./HelpBanner";
 import { GameLink } from "./GameNav";
 import { PixelSprite } from "./PixelSprite";
@@ -41,7 +40,7 @@ function PauseMenu() {
     ["/hra/album", "Album karet"],
     ["/hra/trenink", "Trénink", due ? `${due} k opakování` : undefined],
     ["/hra/lhuta", "Lhůta běží", "kalendářní hádanky"],
-    ["/hra/postava", "Změnit postavu"],
+    ["/hra/start", "Hlavní menu", "nová hra / jiná postava"],
   ];
   return (
     <>
@@ -66,7 +65,7 @@ function PauseMenu() {
         ))}
         <a href="/" className="pm-item pm-exit">Opustit hru</a>
       </nav>
-      <ResetButton />
+      <p className="muted small">Hra se ukládá průběžně, jen v tomto prohlížeči.</p>
     </>
   );
 }

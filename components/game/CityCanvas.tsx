@@ -34,6 +34,7 @@ import { monthLabel } from "./Mailbox";
 import { fill } from "@/content/game/characters";
 import { GameNavContext, type GameNav } from "./GameNav";
 import { panelView } from "./GamePanel";
+import { TitleScreen } from "./TitleScreen";
 
 type V = { x: number; y: number };
 
@@ -137,14 +138,23 @@ export function CityCanvas() {
   // Herní obrazovky (budova, nástraha, schránka…) jako panel nad mapou; historie kvůli tlačítku zpět.
   const [stack, setStack] = useState<string[]>([]);
   const hydrated = useHydrated();
-  const panel = !hydrated ? null : ch ? stack[stack.length - 1] ?? null : "/hra/postava";
+  // hlavní menu (nová hra / pokračovat) se ukáže při každém otevření hry
+  const [started, setStarted] = useState(false);
+  const startedRef = useRef(false);
+  startedRef.current = started;
+  // nové spuštění (i za stejnou postavu) znovu postaví mapu a postavu na uloženou pozici
+  const [run, setRun] = useState(0);
+  const panel = !hydrated || !started ? null : ch ? stack[stack.length - 1] ?? null : null;
   const pausedRef = useRef(false);
-  pausedRef.current = !hydrated || Boolean(panel) || intro;
+  pausedRef.current = !hydrated || !started || Boolean(panel) || intro;
   const nav = useMemo<GameNav>(
     () => ({
       go: (href) => {
         if (href === "/hra") setStack([]);
-        else setStack((s) => (s[s.length - 1] === href ? s : [...s, href]));
+        else if (href === "/hra/start") {
+          setStack([]);
+          setStarted(false);
+        } else setStack((s) => (s[s.length - 1] === href ? s : [...s, href]));
       },
     }),
     [],
@@ -182,7 +192,7 @@ export function CityCanvas() {
   }, []);
   useEffect(() => {
     const onEsc = (e: KeyboardEvent) => {
-      if (e.key !== "Escape" || !characterOf(gRef.current)) return;
+      if (e.key !== "Escape" || !startedRef.current || !characterOf(gRef.current)) return;
       setStack((s) => (s.length ? s.slice(0, -1) : ["/hra/menu"]));
     };
     window.addEventListener("keydown", onEsc);
@@ -823,7 +833,7 @@ export function CityCanvas() {
     };
     // Smyčka se staví jen jednou pro postavu; aktuální stav budov čte přes ref.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ch?.id, realm]);
+  }, [ch?.id, realm, run]);
 
   useEffect(() => {
     if (target) setHint(`Cíl: ${target.building.name}${target.next ? " – tudy vede váš příběh" : ""}`);
@@ -905,7 +915,7 @@ export function CityCanvas() {
             </button>
           )}
         </div>
-        {intro && ch && !panel && (
+        {intro && ch && started && !panel && (
           <div className="gta-intro" role="dialog" aria-label="Jak se hraje">
             <strong>Vítejte v Městě dluhů</strong>
             <ul>
@@ -975,6 +985,16 @@ export function CityCanvas() {
               Promluvit <kbd>E</kbd>
             </button>
           </div>
+        )}
+        {hydrated && !started && (
+          <TitleScreen
+            onStart={() => {
+              shownXp.current = null;
+              setStack([]);
+              setRun((n) => n + 1);
+              setStarted(true);
+            }}
+          />
         )}
         {view && (
           <div className="gta-panel-back" onClick={(e) => e.target === e.currentTarget && ch && closePanel()}>

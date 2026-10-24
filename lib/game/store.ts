@@ -106,28 +106,52 @@ export function levelOf(xp: number) {
 }
 
 let state: GameState = INITIAL;
+/** Uložené hry po postavách (každá postava má vlastní postup) a naposledy hraná postava. */
+let saves: Record<string, GameState> = {};
+let last: string | null = null;
 let loaded = false;
 const listeners = new Set<() => void>();
+const SAVES_KEY = "pp-saves-v1";
+
+/** Doplní chybějící pole ze starších verzí uložené hry. */
+function normalize(parsed: GameState): GameState {
+  let st: GameState = { ...INITIAL, ...parsed, opened: parsed.opened ?? {}, preps: parsed.preps ?? {}, letters: parsed.letters ?? [], pos: parsed.pos ?? SPAWN, races: parsed.races ?? {}, lectures: parsed.lectures ?? {}, advice: parsed.advice ?? {} };
+  // starší uložená pozice je z menší mapy bez okružní silnice
+  if (parsed.mapV !== 2) st = { ...st, pos: parsed.pos ? { x: parsed.pos.x + 3, y: parsed.pos.y + 3 } : SPAWN, mapV: 2 };
+  return st;
+}
 
 function load() {
   if (loaded || typeof window === "undefined") return;
   loaded = true;
   try {
-    const raw = window.localStorage.getItem(KEY);
+    const raw = window.localStorage.getItem(SAVES_KEY);
     if (raw) {
-      const parsed = JSON.parse(raw) as GameState;
-      if (parsed?.v === 1) state = { ...INITIAL, ...parsed, opened: parsed.opened ?? {}, preps: parsed.preps ?? {}, letters: parsed.letters ?? [], pos: parsed.pos ?? SPAWN, races: parsed.races ?? {}, lectures: parsed.lectures ?? {}, advice: parsed.advice ?? {} };
-      // starší uložená pozice je z menší mapy bez okružní silnice
-      if (parsed?.v === 1 && parsed.mapV !== 2) state = { ...state, pos: parsed.pos ? { x: parsed.pos.x + 3, y: parsed.pos.y + 3 } : SPAWN, mapV: 2 };
+      const parsed = JSON.parse(raw) as { saves: Record<string, GameState>; last: string | null };
+      for (const [id, st] of Object.entries(parsed.saves ?? {})) if (st?.v === 1) saves[id] = normalize(st);
+      last = parsed.last ?? null;
+    } else {
+      // dřívější verze: jedna společná uložená hra → patří postavě, která se naposledy hrála
+      const old = window.localStorage.getItem(KEY);
+      const parsed = old ? (JSON.parse(old) as GameState) : null;
+      if (parsed?.v === 1 && parsed.character) {
+        saves[parsed.character] = normalize(parsed);
+        last = parsed.character;
+      }
     }
+    if (last && saves[last]) state = saves[last];
   } catch {
     // Úložiště nedostupné (anonymní okno apod.) – hraje se bez uložení.
   }
 }
 
 function save() {
+  if (state.character) {
+    saves = { ...saves, [state.character]: state };
+    last = state.character;
+  }
   try {
-    window.localStorage.setItem(KEY, JSON.stringify(state));
+    window.localStorage.setItem(SAVES_KEY, JSON.stringify({ saves, last }));
   } catch {
     // ignorovat
   }
@@ -331,10 +355,28 @@ export function recordReview(cardIds: string[], ok: boolean, source: "training" 
 }
 
 /** Výběr postavy. Při změně začne znovu peněženka, kalendář, zátěž a schránka; karty a XP zůstávají. */
-export function chooseCharacter(id: string, startWallet: number) {
+/** Nová hra za postavu: její dosavadní uložený postup se přepíše. */
+export function newGame(id: string, startWallet: number) {
   load();
-  if (state.character === id) return;
-  set({ ...state, character: id, wallet: startWallet, month: 1, load: START_LOAD[id] ?? 20, letters: [], pos: SPAWN, consultMonth: 0, world: "mesto" });
+  set({ ...INITIAL, character: id, wallet: startWallet, load: START_LOAD[id] ?? 20 });
+}
+
+/** Pokračovat v uložené hře postavy (bez uložené hry začne nová). */
+export function continueGame(id: string, startWallet: number) {
+  load();
+  if (saves[id]) set(saves[id]);
+  else newGame(id, startWallet);
+}
+
+/** Přehled uložených her pro hlavní menu. */
+export function savedGames(): Record<string, GameState> {
+  load();
+  return saves;
+}
+
+/** Postava se vybírá v obchodě s postavami (stránka /hra/postava): pokračuje, nebo začne nově. */
+export function chooseCharacter(id: string, startWallet: number) {
+  continueGame(id, startWallet);
 }
 
 export function prepDone(s: GameState, prepId: string): boolean {
@@ -393,7 +435,11 @@ export function openAll() {
   set({ ...state, opened: { ...state.opened, [state.character]: true } });
 }
 
+/** Smaže všechny uložené hry v tomto prohlížeči. */
 export function resetGame() {
+  load();
+  saves = {};
+  last = null;
   set(INITIAL);
 }
 
