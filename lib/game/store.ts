@@ -63,6 +63,8 @@ export type Letter = {
   /** Náhodná událost (events.ts) a zvolená odpověď. */
   eventId?: string;
   choice?: number;
+  /** XP získané za vyřízení dopisu (dobré rozhodnutí víc). */
+  xp?: number;
   sender: string;
   subject: string;
   reason: string;
@@ -280,12 +282,14 @@ export function resolveEvent(letterId: string, choice: number | null) {
   if (!letter || !e || letter.read) return;
   const c = choice === null ? undefined : e.choices[choice];
   const notice = e.choices.length === 0 ? e.notice ?? 0 : 0;
+  // dobré rozhodnutí (nezvýší dluhovou zátěž) = 25 XP, jinak 5 XP za poučení; oznámení 5 XP
+  const xp = c ? (c.load <= 0 ? 25 : 5) : 5;
   set({
     ...state,
     wallet: state.wallet + (c?.wallet ?? notice),
     load: clampLoad(state.load + (c?.load ?? 0)),
-    xp: state.xp + 5,
-    letters: state.letters.map((l) => (l.id === letterId ? { ...l, read: true, choice: choice ?? undefined } : l)),
+    xp: state.xp + xp,
+    letters: state.letters.map((l) => (l.id === letterId ? { ...l, read: true, choice: choice ?? undefined, xp } : l)),
   });
 }
 

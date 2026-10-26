@@ -827,3 +827,5 @@ a.trail-card:hover { border-color: var(--accent); }
 .music-toggle { min-width: 2.2rem; text-align: center; }
 .music-toggle.off { background: #5a5650; color: #f4f1e8; }
 .title-music { position: absolute; top: 12px; right: 12px; z-index: 9; }
+.mail-xp { color: #2f8f4e; }
+.letter-reward { flex-basis: 100%; }

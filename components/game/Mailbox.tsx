@@ -42,6 +42,7 @@ export function Mailbox({ compact = false }: { compact?: boolean }) {
               <p className="letter-text">{f(ev.text)}</p>
               {!l.read ? (
                 <div className="letter-choices">
+                  {ev.choices.length > 0 && <span className="muted small letter-reward">Za dobré rozhodnutí +25 XP</span>}
                   {ev.choices.length === 0 ? (
                     <button type="button" className="btn-primary" onClick={() => resolveEvent(l.id, null)}>Vzít na vědomí</button>
                   ) : (
@@ -58,11 +59,13 @@ export function Mailbox({ compact = false }: { compact?: boolean }) {
                   <div className="muted small">
                     {picked.wallet !== 0 && `Peněženka ${picked.wallet > 0 ? "+" : ""}${new Intl.NumberFormat("cs-CZ").format(picked.wallet)} Kč · `}
                     Zátěž {picked.load > 0 ? "+" : ""}{picked.load}
+                    {l.xp ? <> · <strong className="mail-xp">+{l.xp} XP</strong></> : null}
                   </div>
                 </div>
               ) : (
                 <span className="tag tag-done">
                   {ev.notice ? `připsáno ${new Intl.NumberFormat("cs-CZ").format(ev.notice)} Kč` : "přečteno"}
+                  {l.xp ? ` · +${l.xp} XP` : ""}
                 </span>
               )}
             </li>
