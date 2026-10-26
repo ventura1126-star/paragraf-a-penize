@@ -31,7 +31,7 @@ import { streetFor, type StreetNpc } from "@/content/game/street";
 import { isInterlude, storyWaits, buildingStates, islandFinished, nextLecture, nextStoryCase, planetFinished, storyFinished, type BuildingState } from "@/lib/game/city-logic";
 import { drawBoat, drawCar, drawRocket, drawStatic, waterColor } from "@/lib/game/render";
 import { carBox, hasLights, makeTraffic, stepTraffic } from "@/lib/game/traffic";
-import { ENERGY_COST, caseProgress, caughtByExecutor, characterOf, deliveredLetters, levelOf, raceResult, readGame, recordRace, setPos, streetQuestionIndex, useGame, useHydrated, type GameState } from "@/lib/game/store";
+import { ENERGY_COST, worldSeen, caseProgress, caughtByExecutor, characterOf, deliveredLetters, levelOf, raceResult, readGame, recordRace, setPos, streetQuestionIndex, useGame, useHydrated, type GameState } from "@/lib/game/store";
 import { monthLabel } from "./Mailbox";
 import { fill } from "@/content/game/characters";
 import { GameNavContext, type GameNav } from "./GameNav";
@@ -163,6 +163,12 @@ export function CityCanvas() {
   }, []);
   // po úvodu se ukáže přehled tří světů, pak hlavní menu
   const [worldsOpen, setWorldsOpen] = useState(false);
+  // při prvním vstupu postavy do světa se ukáže její příběh v tomto světě
+  useEffect(() => {
+    if (!hydrated || !started || !ch || opening || worldSeen(g, realm)) return;
+    setStack((st) => (st.includes("/hra/svet") ? st : [...st, "/hra/svet"]));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated, started, ch?.id, realm, opening]);
   // hudba podle toho, kde hráč je: menu, nebo motiv světa
   useEffect(() => {
     if (!hydrated) return;

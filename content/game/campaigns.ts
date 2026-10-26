@@ -68,3 +68,31 @@ export const PLANET_CAMPAIGN: Campaign = {
 export function campaignCaseIds(c: Campaign): string[] {
   return [...c.chapters, c.boss];
 }
+
+/** Co postavu čeká po příjezdu do nového světa (okno při prvním vstupu). */
+export const WORLD_STORY: Record<"ostrov" | "planeta", Record<string, string>> = {
+  ostrov: {
+    ondrej:
+      "Ondřej na ostrově zkouší první vlastní byznys: půjčovnu paddleboardů. Nápady má, ale o živnosti, odvodech a DPH neví vůbec nic.",
+    jana:
+      "Jana si chce k práci přivydělat půjčovnou prken pro turisty – s dětmi je stejně pořád u moře. Jenže kolik si z výdělku vezme stát?",
+    marie:
+      "Marie v důchodu objevila podnikatelského ducha. Půjčovna paddleboardů? Proč ne. Jen ať jí do toho nikdo nemluví – kromě finančního úřadu.",
+    radek:
+      "Radek podniká léta, ale na ostrově chce začít pořádně: s přehledem v odvodech, DPH a možná i s vlastní s.r.o.",
+    petr:
+      "Petr po rozvodu hledá nový začátek. Půjčovna prken na ostrově je jeho plán B – a daně jeho noční můra.",
+  },
+  planeta: {
+    ondrej:
+      "Ondřej má první úspory a chce, aby pracovaly. Kamarádi radí krypto, influenceři akcie a guru „30 % měsíčně“. Kdo má pravdu?",
+    jana:
+      "Jana by ráda dětem jednou pomohla se startem do života. Na Planetě investic zjistí, jak spořit a investovat bez hazardu.",
+    marie:
+      "Marie má úspory na stáří a chce je ochránit před inflací – i před „poradci“, kteří slibují zázraky a garantované výnosy.",
+    radek:
+      "Radek chce, aby zisk z podnikání nezahníval na účtu. Akcie, DIP, startup kamaráda… a hlavně nenaletět.",
+    petr:
+      "Petr skládá finance znovu dohromady. Rezerva, dlouhodobé investice a žádné zbrklé sázky na poslední hype.",
+  },
+};

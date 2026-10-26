@@ -57,6 +57,8 @@ export type GameState = {
   energy: number;
   /** Měsíc, ve kterém postava naposledy vyřešila kapitolu hlavního příběhu (další kapitola až další měsíc). */
   lastStoryMonth?: number;
+  /** Světy, jejichž úvodní příběh už postava viděla, klíč `${postava}:${svět}`. */
+  seenWorlds?: Record<string, boolean>;
 };
 
 /** Čas ve hře: energie na měsíc a ceny činností. */
@@ -470,6 +472,16 @@ export function sleep(): SleepSummary | null {
 export function travel(world: World, via: "lod" | "raketa" = "lod") {
   load();
   set({ ...state, world, pos: via === "raketa" ? PAD_END : PIER_END });
+}
+
+export function worldSeen(s: GameState, w: World): boolean {
+  return Boolean(s.seenWorlds?.[`${s.character ?? "-"}:${w}`]);
+}
+
+export function markWorldSeen(w: World) {
+  load();
+  if (!state.character) return;
+  set({ ...state, seenWorlds: { ...state.seenWorlds, [`${state.character}:${w}`]: true } });
 }
 
 export function openAll() {

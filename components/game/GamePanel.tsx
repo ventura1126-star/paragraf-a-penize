@@ -23,6 +23,7 @@ import { PixelSprite } from "./PixelSprite";
 import { LectureScreen } from "./Lecture";
 import { StreetAdvice } from "./StreetAdvice";
 import { BoatScreen } from "./Boat";
+import { WorldIntro } from "./WorldIntro";
 import { RocketScreen } from "./Rocket";
 import { STREET_BY_ID } from "@/content/game/street";
 import { LECTURE_BY_ID } from "@/content/game/lectures";
@@ -88,6 +89,8 @@ export function panelView(href: string): View | null {
         ? { eyebrow: c.boss ? "Boss příběhu" : "Nástraha", title: c.title, body: <><CasePlayer gameCase={c} /><HelpBanner /></> }
         : null;
     }
+    case "svet":
+      return { eyebrow: "Nový svět", title: "Váš příběh", body: <WorldIntro /> };
     case "raketa":
       return { eyebrow: "Raketová rampa", title: "Raketa Paragraf I", body: <RocketScreen /> };
     case "lod":

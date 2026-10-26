@@ -839,3 +839,21 @@ a.trail-card:hover { border-color: var(--accent); }
 .sleep-plus { color: #2f8f4e; }
 .sleep-done { border-left: 4px solid #ffd447; }
 .gta-energy { font-size: 0.85rem; }
+
+/* --- Úvod nového světa --- */
+.world-intro { display: grid; gap: 0.8rem; }
+.wi-head { display: flex; gap: 1rem; align-items: center; padding: 0.9rem; border-radius: 8px; color: #f4f1e8; }
+.wi-mesto .wi-head { background: linear-gradient(135deg, #24527d, #2c2d31); }
+.wi-ostrov .wi-head { background: linear-gradient(135deg, #1aa0b5, #e6cf94); color: #10303a; }
+.wi-planeta .wi-head { background: linear-gradient(135deg, #0b1026, #5c3f99); }
+.wi-head h2 { margin: 0.1rem 0 0.3rem; font-size: 1.35rem; }
+.wi-tag { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.85; }
+.wi-story { margin: 0; line-height: 1.45; }
+.world-intro h3 { margin: 0.3rem 0 0; }
+.wi-chapters { margin: 0; padding-left: 1.4rem; display: grid; gap: 0.25rem; }
+.wi-chapters li { display: flex; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; }
+.wi-chapters li.first strong { color: #2f8f4e; }
+.wi-chapters li.boss strong { color: #b33939; }
+.wi-tips { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.2rem; font-size: 0.9rem; }
+.wi-go { justify-self: start; }
+@media (max-width: 560px) { .wi-head { flex-direction: column; align-items: flex-start; } }
