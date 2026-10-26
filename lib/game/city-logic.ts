@@ -3,7 +3,8 @@ import { CAMPAIGN_BY_CHARACTER, ISLAND_CAMPAIGN, PLANET_CAMPAIGN, campaignCaseId
 import { caseProgress, deliveredLetters, lectureDone, type GameState } from "./store";
 import { lecturesFor, type Lecture } from "@/content/game/lectures";
 
-export type CaseAccess = "available" | "done" | "later" | "elsewhere";
+/** nextMonth = kapitola je na řadě, ale tento měsíc už postava jednu vyřešila (pokračuje se po spánku). */
+export type CaseAccess = "available" | "done" | "later" | "elsewhere" | "nextMonth";
 
 /** Příběh světa, ve kterém postava právě je (na ostrově společný Daňový ráj). */
 export function campaignFor(s: GameState): Campaign | undefined {
@@ -24,7 +25,8 @@ export function caseAccess(s: GameState, caseId: string): CaseAccess {
   const i = ids.indexOf(caseId);
   if (i < 0) return "elsewhere";
   const open = s.opened[camp.character] || i === 0 || Boolean(caseProgress(s, ids[i - 1])?.done);
-  return open ? "available" : "later";
+  if (!open) return "later";
+  return s.month < storyResumes(s, camp) ? "nextMonth" : "available";
 }
 
 export type BuildingState = {
@@ -39,6 +41,8 @@ export type BuildingState = {
   later: boolean;
   /** Všechny nástrahy postavy tady jsou vyřešené. */
   done: boolean;
+  /** Kapitola příběhu tu pokračuje příští měsíc. */
+  nextMonth: boolean;
 };
 
 export function nextStoryCase(s: GameState): string | undefined {
@@ -56,7 +60,8 @@ export function buildingStates(s: GameState): BuildingState[] {
     const calling = acc.some((a) => a === "available") || (SCHOOL_IDS.has(b.id) && Boolean(nextLecture(s)));
     const later = acc.some((a) => a === "later");
     const done = acc.some((a) => a === "done") && !calling && !later;
-    return { building: b, open, calling, next: Boolean(next && b.cases.includes(next)), later, done };
+    const nextMonth = acc.some((a) => a === "nextMonth");
+    return { building: b, open, calling, next: Boolean(next && b.cases.includes(next)), later, done, nextMonth };
   });
 }
 
@@ -93,4 +98,28 @@ export function islandFinished(s: GameState): boolean {
 /** Planeta investic dokončena. */
 export function planetFinished(s: GameState): boolean {
   return Boolean(caseProgress(s, PLANET_CAMPAIGN.boss)?.done);
+}
+
+/**
+ * Kdy příběh pokračuje: kapitola nejvýš jednou za měsíc a po každé druhé kapitole měsíc volna (mezihra –
+ * škola, lidé na ulici, schránka).
+ */
+export function storyResumes(s: GameState, camp: Campaign): number {
+  if (s.lastStoryMonth === undefined) return 0;
+  const done = campaignCaseIds(camp).filter((id) => caseProgress(s, id)?.done).length;
+  return s.lastStoryMonth + (done > 0 && done % 2 === 0 ? 2 : 1);
+}
+
+/** Je tento měsíc mezihra (volno mezi kapitolami)? */
+export function isInterlude(s: GameState): boolean {
+  const camp = campaignFor(s);
+  if (!camp || s.lastStoryMonth === undefined || s.lastStoryMonth === s.month) return false;
+  return s.month < storyResumes(s, camp) && Boolean(storyWaits(s));
+}
+
+/** Další kapitola příběhu čeká na příští měsíc (dnes už postava jednu vyřešila). */
+export function storyWaits(s: GameState): string | undefined {
+  const camp = campaignFor(s);
+  if (!camp) return undefined;
+  return campaignCaseIds(camp).find((id) => caseAccess(s, id) === "nextMonth");
 }

@@ -53,7 +53,18 @@ export type GameState = {
   mapV?: number;
   /** Kde postava je: Město dluhů, nebo ostrov Daňový ráj. */
   world: World;
+  /** Energie na tento měsíc (⚡). Nástraha stojí 2, přednáška a rozhovor 1; doplní se spánkem doma. */
+  energy: number;
+  /** Měsíc, ve kterém postava naposledy vyřešila kapitolu hlavního příběhu (další kapitola až další měsíc). */
+  lastStoryMonth?: number;
 };
+
+/** Čas ve hře: energie na měsíc a ceny činností. */
+export const ENERGY_MAX = 3;
+export const ENERGY_COST = { case: 2, lecture: 1, talk: 1 } as const;
+
+/** Kolik postavě měsíčně zbude po nájmu, jídle a účtech (ilustrativní). */
+const MONTHLY_SURPLUS: Record<string, number> = { ondrej: 2500, jana: 800, marie: 1500, radek: 2000, petr: 1200 };
 
 export type Letter = {
   id: string;
@@ -91,6 +102,7 @@ const INITIAL: GameState = {
   advice: {},
   mapV: 2,
   world: "mesto",
+  energy: ENERGY_MAX,
 };
 
 export const LEVELS = [
@@ -220,10 +232,11 @@ export function caseProgress(s: GameState, caseId: string) {
   return s.cases[caseKey(s.character, caseId)];
 }
 
-export function recordCase(caseId: string, correct: number, total: number): Letter[] {
+export function recordCase(caseId: string, correct: number, total: number, opts: { story?: boolean } = {}): Letter[] {
   load();
   const key = caseKey(state.character, caseId);
   const prev = state.cases[key];
+  // dopisy přijdou po daném počtu měsíců (měsíc se posouvá spánkem doma)
   const month = state.month + 1;
   // Důsledky: nevyřešená nástraha naplánuje dopis (jen poprvé a jen pokud podobný dopis už nečeká).
   const letters = state.letters.map((l) => (l.caseId === caseId ? { ...l, read: true } : l));
@@ -247,20 +260,14 @@ export function recordCase(caseId: string, correct: number, total: number): Lett
     !letters.some((l) => l.caseId === exekuce && !l.read) &&
     !state.cases[caseKey(state.character, exekuce)]?.done
   ) {
-    const letter = { id: `zatez>${exekuce}>${month}`, month: month + 1, caseId: exekuce, sender: "Exekutorský úřad", subject: "Vyrozumění o zahájení exekuce", reason: "dluhová zátěž přerostla přes hlavu", read: false };
+    const letter = { id: `zatez>${exekuce}>${month}`, month, caseId: exekuce, sender: "Exekutorský úřad", subject: "Vyrozumění o zahájení exekuce", reason: "dluhová zátěž přerostla přes hlavu", read: false };
     letters.push(letter);
     scheduled.push(letter);
   }
-  // Náhodná událost do schránky (zhruba v každém druhém měsíci, každá jen jednou za příběh).
-  const used = new Set(letters.map((l) => l.eventId).filter(Boolean));
-  const pool = EVENTS.filter((e) => !used.has(e.id));
-  if (pool.length && Math.random() < 0.5) {
-    const e = pool[Math.floor(Math.random() * pool.length)];
-    letters.push({ id: `udalost>${e.id}`, month, caseId: "", eventId: e.id, sender: e.sender, subject: e.subject, reason: "", read: false });
-  }
   set({
     ...state,
-    month,
+    energy: Math.max(0, state.energy - ENERGY_COST.case),
+    lastStoryMonth: opts.story ? state.month : state.lastStoryMonth,
     letters,
     cases: {
       ...state.cases,
@@ -407,7 +414,8 @@ export function recordLecture(lectureId: string, correct: number): number {
   const key = caseKey(state.character, lectureId);
   const first = !(key in state.lectures);
   const xp = first ? 30 + correct * 20 : 0;
-  set({ ...state, xp: state.xp + xp, lectures: { ...state.lectures, [key]: Math.max(correct, state.lectures[key] ?? 0) } });
+  const energy = first ? Math.max(0, state.energy - ENERGY_COST.lecture) : state.energy;
+  set({ ...state, xp: state.xp + xp, energy, lectures: { ...state.lectures, [key]: Math.max(correct, state.lectures[key] ?? 0) } });
   return xp;
 }
 
@@ -420,11 +428,42 @@ export function streetQuestionIndex(s: GameState, npcId: string, count: number):
 /** Rada člověku na ulici: XP za správnou radu, špatnou si může zopakovat při další návštěvě. */
 export function recordAdvice(npcId: string, index: number, ok: boolean): number {
   load();
-  if (!ok) return 0;
+  const energy = Math.max(0, state.energy - ENERGY_COST.talk);
   const key = `${state.character ?? "-"}:${npcId}:${index}`;
-  if (state.advice[key]) return 0;
-  set({ ...state, xp: state.xp + 25, advice: { ...state.advice, [key]: true } });
+  if (!ok || state.advice[key]) {
+    set({ ...state, energy });
+    return 0;
+  }
+  set({ ...state, energy, xp: state.xp + 25, advice: { ...state.advice, [key]: true } });
   return 25;
+}
+
+export type SleepSummary = { month: number; income: number; spent: number; surplus: number; incomeKind: "mzda" | "duchod"; newLetters: Letter[] };
+
+/** Spánek doma: začne další měsíc – doplní se energie, přijde výplata, zaplatí se účty a dorazí pošta. */
+export function sleep(): SleepSummary | null {
+  load();
+  const ch = state.character ? CHARACTER_BY_ID.get(state.character) : undefined;
+  if (!ch) return null;
+  const month = state.month + 1;
+  const surplus = MONTHLY_SURPLUS[ch.id] ?? 1000;
+  const letters = [...state.letters];
+  // Náhodná událost do schránky (zhruba v každém druhém měsíci, každá jen jednou za příběh).
+  const used = new Set(letters.map((l) => l.eventId).filter(Boolean));
+  const pool = EVENTS.filter((e) => !used.has(e.id));
+  if (pool.length && Math.random() < 0.5) {
+    const e = pool[Math.floor(Math.random() * pool.length)];
+    letters.push({ id: `udalost>${e.id}`, month, caseId: "", eventId: e.id, sender: e.sender, subject: e.subject, reason: "", read: false });
+  }
+  set({ ...state, month, energy: ENERGY_MAX, wallet: state.wallet + surplus, letters });
+  return {
+    month,
+    income: ch.income.net,
+    spent: ch.income.net - surplus,
+    surplus,
+    incomeKind: ch.income.kind,
+    newLetters: letters.filter((l) => l.month === month && !l.read),
+  };
 }
 
 /** Cesta do jiného světa: lodí (vystoupí se na konci mola), nebo raketou (u rampy). */

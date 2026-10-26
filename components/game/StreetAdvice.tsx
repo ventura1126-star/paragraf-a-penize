@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { StreetNpc } from "@/content/game/street";
-import { characterOf, recordAdvice, streetQuestionIndex, useGame, useHydrated } from "@/lib/game/store";
+import { ENERGY_COST, characterOf, recordAdvice, streetQuestionIndex, useGame, useHydrated } from "@/lib/game/store";
 import { CitationChip } from "@/components/CitationChip";
 import { PixelSprite } from "./PixelSprite";
 import { NeedCharacter } from "./NeedCharacter";
@@ -16,11 +16,13 @@ export function StreetAdvice({ person }: { person: StreetNpc }) {
   const ch = characterOf(g);
   // otázka se určí při otevření rozhovoru a během něj se nemění
   const [qi] = useState(() => streetQuestionIndex(g, person.id, person.questions.length));
+  // rozhovor stojí energii: unavená postava se domluví až po spánku
+  const [tired] = useState(() => g.energy < ENERGY_COST.talk);
   const [pick, setPick] = useState<number | null>(null);
   const [xp, setXp] = useState(0);
   if (!hydrated) return <p className="muted">Načítám…</p>;
   if (!ch) return <NeedCharacter />;
-  const q = qi >= 0 ? person.questions[qi] : undefined;
+  const q = qi >= 0 && !tired ? person.questions[qi] : undefined;
   const ok = q && pick === q.correct;
 
   return (
@@ -37,7 +39,11 @@ export function StreetAdvice({ person }: { person: StreetNpc }) {
       <div className="dialogue-log" aria-live="polite">
         {!q ? (
           <div className="dl-line dl-npc">
-            <div className="dl-bubble">Díky za minule! Už vím, co dělat. Kdyby něco, poradím to dál.</div>
+            <div className="dl-bubble">
+              {qi >= 0 && tired
+                ? "Vypadáte unaveně. Vyspěte se doma a přijďte příští měsíc – mám pro vás otázku."
+                : "Díky za minule! Už vím, co dělat. Kdyby něco, poradím to dál."}
+            </div>
           </div>
         ) : (
           <>

@@ -18,6 +18,7 @@ import {
   isWalkable,
   BUILDING_BY_ID,
   SCHOOL_IDS,
+  HOME_IDS,
   EXECUTOR_FROM,
   RACE_BY_CASE,
   SPAWN,
@@ -27,10 +28,10 @@ import {
 } from "@/content/game/city";
 import { SPRITES } from "@/content/game/sprites";
 import { streetFor, type StreetNpc } from "@/content/game/street";
-import { buildingStates, islandFinished, nextLecture, nextStoryCase, planetFinished, storyFinished, type BuildingState } from "@/lib/game/city-logic";
+import { isInterlude, storyWaits, buildingStates, islandFinished, nextLecture, nextStoryCase, planetFinished, storyFinished, type BuildingState } from "@/lib/game/city-logic";
 import { drawBoat, drawCar, drawRocket, drawStatic, waterColor } from "@/lib/game/render";
 import { carBox, hasLights, makeTraffic, stepTraffic } from "@/lib/game/traffic";
-import { caseProgress, caughtByExecutor, characterOf, deliveredLetters, levelOf, raceResult, readGame, recordRace, setPos, streetQuestionIndex, useGame, useHydrated, type GameState } from "@/lib/game/store";
+import { ENERGY_COST, caseProgress, caughtByExecutor, characterOf, deliveredLetters, levelOf, raceResult, readGame, recordRace, setPos, streetQuestionIndex, useGame, useHydrated, type GameState } from "@/lib/game/store";
 import { monthLabel } from "./Mailbox";
 import { fill } from "@/content/game/characters";
 import { GameNavContext, type GameNav } from "./GameNav";
@@ -39,6 +40,7 @@ import { TitleScreen } from "./TitleScreen";
 import { Opening } from "./Opening";
 import { WorldsOverview } from "./WorldsOverview";
 import { MusicToggle } from "./MusicToggle";
+import { Energy } from "./Sleep";
 import { music } from "@/lib/game/music";
 
 type V = { x: number; y: number };
@@ -882,13 +884,19 @@ export function CityCanvas() {
   }, [ch?.id, realm, run]);
 
   useEffect(() => {
-    if (target) setHint(`Cíl: ${target.building.name}${target.next ? " – tudy vede váš příběh" : ""}`);
+    const waits = storyWaits(g);
+    if (target?.next && g.energy >= ENERGY_COST.case) setHint(`Cíl: ${target.building.name} – tudy vede váš příběh`);
+    else if (ch && g.energy === 0) setHint("Došla energie – jděte domů a vyspěte se. Začne další měsíc.");
+    else if (waits && isInterlude(g)) setHint("Mezihra: tento měsíc je volno · škola a lidé na ulici dávají XP, pak spát doma");
+    else if (waits) setHint("Příběh pokračuje příští měsíc · teď škola a lidé na ulici (⚡), pak spát doma");
+    else if (target && !target.next) setHint(`Cíl: ${target.building.name}`);
+    else if (target) setHint(`Cíl: ${target.building.name} – na příběh je potřeba ⚡⚡, vyspěte se doma`);
     else if (realm === "mesto" && storyFinished(g)) setHint("Cíl: loď do Daňového ráje (přístav na východě), nebo raketa na Planetu investic (rampa na jihozápadě)");
     else if (realm === "ostrov" && islandFinished(g)) setHint("Daňový ráj dokončen – loď vás odveze do města, raketa na Planetu investic.");
     else if (realm === "planeta" && planetFinished(g)) setHint("Planeta investic dokončena – raketa vás vrátí na Zemi.");
     else setHint("Všechno hotovo – projděte se městem, nebo zkuste jinou postavu.");
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [target?.building.id, target?.next, realm, g.cases]);
+  }, [target?.building.id, target?.next, realm, g.cases, g.energy, g.month, g.lastStoryMonth]);
 
   const view = panel ? panelView(panel) : null;
   const lvl = levelOf(g.xp);
@@ -914,6 +922,11 @@ export function CityCanvas() {
             <span className="off">{"★".repeat(5 - wantedLevel(g.load))}</span>
           </span>
           <small>{monthLabel(g.month)}</small>
+          {ch && (
+            <small className="gta-energy" title="Energie na tento měsíc: nástraha ⚡⚡, přednáška a rozhovor ⚡. Doplní se spánkem doma.">
+              <Energy value={g.energy} />
+            </small>
+          )}
           <div className="gta-xp" title={lvl.to ? `${lvl.to - g.xp} XP do úrovně ${lvl.index + 2}` : "Nejvyšší úroveň"}>
             <b>{g.xp} XP</b> <small>{lvl.name}</small>
             <div className="gta-xpbar">
@@ -962,6 +975,18 @@ export function CityCanvas() {
               RAMPA · raketa na Planetu investic je připravena – klepněte a postava dojde k rampě
             </button>
           )}
+          {ch && g.energy === 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                const home = worldBuildings(realm).find((b) => HOME_IDS.has(b.id))!;
+                walkRef.current(home.door, home);
+              }}
+              className="gta-pager gta-school"
+            >
+              DOMŮ · energie došla – klepněte a postava půjde domů spát
+            </button>
+          )}
           {letters.length > 0 && (
             <button type="button" onClick={() => nav.go("/hra/schranka")} className="gta-pager">
               PAGER · {letters.length === 1 ? "nová zpráva" : `${letters.length} nové zprávy`}: {ch ? fill(letters[0].subject, ch) : letters[0].subject}
@@ -976,6 +1001,7 @@ export function CityCanvas() {
               <li><b>Žlutá šipka</b> ukazuje, kam vede váš příběh. Klepnutím do minimapy se dá cestovat.</li>
               <li><b>Dveře:</b> tlačítko Vstoupit dole (na počítači i E / Enter).</li>
               <li><b>Lidé s otazníkem</b> chtějí poradit. Dojděte k nim a promluvte si – za dobrou radu jsou XP.</li>
+              <li><b>Čas:</b> každý měsíc máte ⚡⚡⚡. Kapitola příběhu stojí ⚡⚡ (jedna za měsíc, občas přijde měsíc volna), přednáška a rozhovor ⚡. Doma se vyspíte do dalšího měsíce.</li>
               <li><b>LHŮTA</b> vpravo: doběhněte do budovy, než vyprší – jinak to bude dražší.</li>
               <li><b>Hvězdičky ★</b> = hledanost podle dluhů. Od 3 vás honí exekutor; úkryt je Dluhová poradna.</li>
               <li><b>Pager</b> hlásí dopisy – následky vašich rozhodnutí.</li>
@@ -997,8 +1023,10 @@ export function CityCanvas() {
                       : "Čeká tu na vás nástraha."
                     : door.kind === "safe"
                       ? "Bezpečné místo – tady vám poradí."
-                      : door.id === "domov"
-                        ? "Doma. Ve schránce najdete dopisy."
+                      : HOME_IDS.has(door.id)
+                        ? "Doma: schránka a postel – vyspáním začne další měsíc."
+                        : doorState.nextMonth
+                        ? "Příběh tu pokračuje příští měsíc."
                         : doorState.later
                         ? "Sem se vrátíte později v příběhu."
                         : "Pro vás tu teď nic nečeká."}

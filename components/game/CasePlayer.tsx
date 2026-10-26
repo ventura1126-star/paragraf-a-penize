@@ -4,7 +4,10 @@ import { GameLink as Link, scrollGameTop } from "./GameNav";
 import { useState } from "react";
 import type { GameCase, Outcome } from "@/content/game/types";
 import { CARD_BY_ID } from "@/content/game/cards";
-import { characterOf, recordCase, recordRound, useGame, useHydrated } from "@/lib/game/store";
+import { caseProgress, characterOf, recordCase, recordRound, useGame, useHydrated } from "@/lib/game/store";
+import { campaignFor, storyWaits } from "@/lib/game/city-logic";
+import { campaignCaseIds } from "@/content/game/campaigns";
+import { Energy } from "./Sleep";
 import { buildingForCase } from "@/content/game/city";
 import type { Letter } from "@/lib/game/store";
 import { monthLabel } from "./Mailbox";
@@ -66,7 +69,14 @@ export function CasePlayer({ gameCase: raw }: { gameCase: GameCase }) {
           <div><strong>+{xp}</strong><span>XP</span></div>
           <div><strong className={wallet < 0 ? "neg" : undefined}>{wallet === 0 ? "0 Kč" : `${wallet > 0 ? "+" : "−"}${formatCzk(Math.abs(wallet))}`}</strong><span>peněženka</span></div>
         </div>
-        <p className="muted">Uplynul měsíc – je {monthLabel(g.month)}. Dluhová zátěž: {g.load} / 100.</p>
+        <p className="muted">
+          {monthLabel(g.month)} · energie <Energy value={g.energy} /> · dluhová zátěž {g.load} / 100.{" "}
+          {storyWaits(g)
+            ? "Další kapitola přijde příští měsíc (po každé druhé kapitole je navíc měsíc volna). Zbytek měsíce strávíte ve škole nebo s lidmi na ulici, pak se doma vyspěte."
+            : g.energy === 0
+              ? "Došla energie – jděte domů a vyspěte se."
+              : ""}
+        </p>
         {scheduled.map((l) => (
           <div key={l.id} className="note note-warn" role="note">
             <span className="note-label">Následky</span>
@@ -127,7 +137,11 @@ export function CasePlayer({ gameCase: raw }: { gameCase: GameCase }) {
           const xp = recordRound({ cardId: round.card, outcome: opt.outcome, wallet: opt.wallet, boss: gameCase.boss });
           const next = [...results, { outcome: opt.outcome, xp, wallet: opt.wallet, card: round.card }];
           setResults(next);
-          if (next.length === total) setScheduled(recordCase(gameCase.id, next.filter((r) => r.outcome === "correct").length, total));
+          if (next.length === total) {
+            const camp = campaignFor(g);
+            const story = Boolean(camp && campaignCaseIds(camp).includes(gameCase.id) && !caseProgress(g, gameCase.id)?.done);
+            setScheduled(recordCase(gameCase.id, next.filter((r) => r.outcome === "correct").length, total, { story }));
+          }
           else setIdx(idx + 1);
           scrollGameTop();
         }}

@@ -7,7 +7,8 @@ import { CASE_BY_ID } from "@/content/game/cases";
 import { fill } from "@/content/game/characters";
 import { PREP_BY_ID, PREPS } from "@/content/game/preps";
 import { caseAccess } from "@/lib/game/city-logic";
-import { caseProgress, characterOf, consult, prepDone, useGame, useHydrated } from "@/lib/game/store";
+import { ENERGY_COST, caseProgress, characterOf, consult, prepDone, useGame, useHydrated } from "@/lib/game/store";
+import { SleepBox } from "./Sleep";
 import { RoofPreview } from "./RoofPreview";
 import { Dialogue } from "./Dialogue";
 import { DIALOGUES } from "@/content/game/dialogues";
@@ -33,7 +34,8 @@ export function BuildingScreen({ b }: { b: Building }) {
 
   const dlg = DIALOGUES[b.id];
   const hook = mine.some((x) => x.acc === "available");
-  if (dlg && !talked) {
+  // doma se chodí hlavně spát a pro poštu: soused zdrží jen, když tu čeká kapitola příběhu
+  if (dlg && !talked && (!HOME_IDS.has(b.id) || hook)) {
     return (
       <>
         <Dialogue d={dlg} ch={ch} hook={hook} onDone={() => setTalked(true)} />
@@ -65,12 +67,19 @@ export function BuildingScreen({ b }: { b: Building }) {
                   <span className="case-body">
                     <strong>{c.boss ? `Boss: ${c.title}` : c.title}</strong>
                     <span className="muted">
-                      {acc === "later" ? "Na tohle přijde řada později v příběhu." : fill(c.teaser, ch)}
+                      {acc === "later"
+                        ? "Na tohle přijde řada později v příběhu."
+                        : acc === "nextMonth"
+                          ? "Příběh tu pokračuje později. Mezitím škola a lidé na ulici – pak se doma vyspěte."
+                          : fill(c.teaser, ch)}
                     </span>
                   </span>
-                  {acc === "available" && (
-                    <Link href={`/hra/pripad/${id}`} className="btn-primary">Vstoupit</Link>
-                  )}
+                  {acc === "available" &&
+                    (g.energy >= ENERGY_COST.case ? (
+                      <Link href={`/hra/pripad/${id}`} className="btn-primary">Vstoupit ⚡⚡</Link>
+                    ) : (
+                      <span className="tag">Málo energie – vyspěte se doma</span>
+                    ))}
                   {acc === "done" && (
                     <Link href={`/hra/pripad/${id}`} className="tag tag-done">{st?.correct}/{st?.total} · hrát znovu</Link>
                   )}
@@ -84,6 +93,7 @@ export function BuildingScreen({ b }: { b: Building }) {
         <p className="muted">Tahle budova do příběhu vaší postavy nepatří. Ostatní nástrahy tu čekají na jiné postavy.</p>
       )}
 
+      {HOME_IDS.has(b.id) && <SleepBox />}
       {HOME_IDS.has(b.id) && (
         <section>
           <h2>Schránka</h2>

@@ -5,7 +5,7 @@ import { TEACHERS, lecturesFor, type Lecture } from "@/content/game/lectures";
 import { SCHOOL_IDS, worldBuildings } from "@/content/game/city";
 import { fill } from "@/content/game/characters";
 import { lectureAccess, nextLecture, casesSolved } from "@/lib/game/city-logic";
-import { characterOf, recordLecture, useGame, useHydrated } from "@/lib/game/store";
+import { ENERGY_COST, characterOf, recordLecture, useGame, useHydrated } from "@/lib/game/store";
 import { CitationChip } from "@/components/CitationChip";
 import { PixelSprite } from "./PixelSprite";
 import { NeedCharacter } from "./NeedCharacter";
@@ -47,7 +47,12 @@ export function SchoolScreen() {
                     : `${TEACHERS[l.teacher].name}${acc === "done" ? ` · zápočet ${score}/${l.quiz.length}` : ""}`}
                 </span>
               </span>
-              {acc === "open" && <GameLink href={`/hra/prednaska/${l.id}`} className="btn-primary">Na přednášku</GameLink>}
+              {acc === "open" &&
+                (g.energy >= ENERGY_COST.lecture ? (
+                  <GameLink href={`/hra/prednaska/${l.id}`} className="btn-primary">Na přednášku ⚡</GameLink>
+                ) : (
+                  <span className="tag">Málo energie</span>
+                ))}
               {acc === "done" && <GameLink href={`/hra/prednaska/${l.id}`} className="tag tag-done">znovu</GameLink>}
             </li>
           );
@@ -165,7 +170,7 @@ export function LectureScreen({ lecture }: { lecture: Lecture }) {
           {xp ? <div className="lec-xp">+{xp} XP</div> : <p className="muted small">Přednášku jste už absolvoval{ch.feminine ? "a" : ""} – XP se připisují jen poprvé.</p>}
           <div className="summary-actions">
             <GameLink href="/hra" className="btn-primary">Zpět do města →</GameLink>
-            {after && <GameLink href={`/hra/prednaska/${after.id}`} className="btn-secondary">Další přednáška: {after.title}</GameLink>}
+            {after && g.energy >= ENERGY_COST.lecture && <GameLink href={`/hra/prednaska/${after.id}`} className="btn-secondary">Další přednáška: {after.title}</GameLink>}
             <GameLink href="/hra/budova/skola" className="btn-secondary">Rozvrh</GameLink>
           </div>
         </div>
