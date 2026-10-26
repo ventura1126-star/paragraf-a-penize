@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { PixelSprite } from "./PixelSprite";
+import { music } from "@/lib/game/music";
 
 const LOGO_MS = 3800;
 const TITLE_MS = 3600;
@@ -12,6 +13,10 @@ const TITLE_MS = 3600;
  */
 export function Opening({ onDone }: { onDone: () => void }) {
   const [phase, setPhase] = useState<"logo" | "title">("logo");
+  // znělka loga (zazní, pokud prohlížeč už zvuk povolil – např. při opakovaném přehrání intra)
+  useEffect(() => {
+    music()?.jingle();
+  }, []);
 
   useEffect(() => {
     const t = setTimeout(() => (phase === "logo" ? setPhase("title") : onDone()), phase === "logo" ? LOGO_MS : TITLE_MS);

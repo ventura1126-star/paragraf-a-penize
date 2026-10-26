@@ -38,6 +38,8 @@ import { panelView } from "./GamePanel";
 import { TitleScreen } from "./TitleScreen";
 import { Opening } from "./Opening";
 import { WorldsOverview } from "./WorldsOverview";
+import { MusicToggle } from "./MusicToggle";
+import { music } from "@/lib/game/music";
 
 type V = { x: number; y: number };
 
@@ -159,6 +161,12 @@ export function CityCanvas() {
   }, []);
   // po úvodu se ukáže přehled tří světů, pak hlavní menu
   const [worldsOpen, setWorldsOpen] = useState(false);
+  // hudba podle toho, kde hráč je: menu, nebo motiv světa
+  useEffect(() => {
+    if (!hydrated) return;
+    music()?.setTheme(opening ? null : !started ? "menu" : realm);
+  }, [hydrated, opening, started, realm]);
+  useEffect(() => () => music()?.setTheme(null), []);
   const endOpening = useCallback(() => {
     setOpening(false);
     setWorldsOpen(true);
@@ -928,6 +936,7 @@ export function CityCanvas() {
             <button type="button" className="gta-menu" onClick={() => nav.go("/hra/menu")} aria-label="Menu (Esc)">
               ☰ MENU
             </button>
+            <MusicToggle />
             <div className="gta-goal">{race ? `Cíl: ${BUILDING_BY_ID.get(race.r.building)?.name} – běží lhůta!` : hint}</div>
           </div>
           {g.load >= 70 && (
@@ -1045,6 +1054,7 @@ export function CityCanvas() {
           </div>
         )}
         {hydrated && !started && opening && <Opening onDone={endOpening} />}
+        {hydrated && !started && opening === false && <MusicToggle className="gta-menu title-music" />}
         {hydrated && !started && opening === false && worldsOpen && <WorldsOverview onDone={() => setWorldsOpen(false)} />}
         {hydrated && !started && opening === false && !worldsOpen && (
           <TitleScreen
